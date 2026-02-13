@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhotoChange</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">PhotoChange</div>
+      <div class="subtitle">上传、裁剪、调整、转换</div>
+    </header>
+    <main class="app-main">
+      <section class="left">
+        <div id="dropzone" class="dropzone">
+          <input id="fileInput" type="file" accept="image/*" />
+          <div class="dz-inner">
+            <div class="dz-title">拖拽图片到此处或点击选择</div>
+            <div class="dz-hint">支持 PNG / JPG / JPEG / WebP / BMP</div>
+            <button id="chooseBtn" class="btn primary">选择图片</button>
+          </div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="canvas"></canvas>
+          <div id="infoBadge" class="badge hidden">未加载</div>
+        </div>
+      </section>
+      <section class="right">
+        <div class="panel">
+          <div class="panel-title">裁剪</div>
+          <div class="row">
+            <label for="aspectSelect">长宽比</label>
+            <select id="aspectSelect">
+              <option value="free">自由</option>
+              <option value="1:1">1:1</option>
+              <option value="4:3">4:3</option>
+              <option value="16:9">16:9</option>
+              <option value="3:2">3:2</option>
+            </select>
+          </div>
+          <div class="row">
+            <button id="cropBtn" class="btn">裁剪选区</button>
+            <button id="resetBtn" class="btn ghost">重置</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">尺寸</div>
+          <div class="row">
+            <label for="widthInput">宽度</label>
+            <input id="widthInput" type="number" min="1" step="1" />
+          </div>
+          <div class="row">
+            <label for="heightInput">高度</label>
+            <input id="heightInput" type="number" min="1" step="1" />
+          </div>
+          <div class="row">
+            <label class="switch">
+              <input id="lockRatio" type="checkbox" checked />
+              <span>锁定比例</span>
+            </label>
+            <button id="applyResize" class="btn">应用尺寸</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">导出</div>
+          <div class="row">
+            <label for="formatSelect">格式</label>
+            <select id="formatSelect">
+              <option value="png">PNG</option>
+              <option value="jpg">JPG</option>
+              <option value="pdf">PDF</option>
+            </select>
+          </div>
+          <div class="row jpg-only hidden">
+            <label for="qualityRange">JPG质量</label>
+            <input id="qualityRange" type="range" min="0.1" max="1" step="0.05" value="0.92" />
+            <span id="qualityValue">0.92</span>
+          </div>
+          <div class="row">
+            <input id="fileName" type="text" placeholder="文件名" />
+          </div>
+          <div class="row">
+            <button id="downloadBtn" class="btn primary wide">下载</button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="./expose.js"></script>
+    <script src="./main.js"></script>
+    <script src="./overlay-fix.js"></script>
+    <script src="./info-badge.js"></script>
+  </body>
+  </html>
