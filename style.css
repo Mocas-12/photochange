@@ -62,3 +62,5 @@ input[type=range]{flex:1}
 .buy-btn{display:inline-block;padding:10px 24px;background-color:#007bff;color:#fff;text-decoration:none;border-radius:6px;transition:all .3s ease;box-shadow:0 4px 6px rgba(0,0,0,.1)}
 .buy-btn:hover{background-color:#0056b3;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.2)}
 .buy-btn:active{transform:translateY(0)}
+.get-code-link{display:block;width:100%;margin-top:20px;padding:10px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#94a3b8;font-size:13px;text-decoration:none;transition:all .3s ease}
+.get-code-link:hover{background:rgba(52,152,219,.1);border-color:#3498db;color:#3498db;box-shadow:0 0 15px rgba(52,152,219,.2)}
