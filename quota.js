@@ -39,7 +39,54 @@ function initQuota(){
     updateQuotaText()
   }catch(e){}
 }
-window.addEventListener("DOMContentLoaded",()=>{try{const btn=document.getElementById("downloadBtn");function hasImage(){try{const c=window.__pc_lastSrcCanvas;return !!(c&&c.width>0&&c.height>0)}catch(e){return false}}if(btn){btn.addEventListener("click",e=>{try{const pro=isPro();const r=remaining();console.log("[quota] download click:",{pro,remaining:r});if(pro){if(!hasImage()){alert("请先上传并转换一张图片");e.stopImmediatePropagation();e.preventDefault();return}return}if(r<=0){e.stopImmediatePropagation();e.preventDefault();showModal();console.log("[quota] block download at quota (no need image)");return}if(!hasImage()){alert("请先上传并转换一张图片");e.stopImmediatePropagation();e.preventDefault();return}const next=getCount()+1;setCount(next);console.log("[quota] decrement remaining to",remaining());updateQuotaText()}catch(err){}},true)}initQuota()}catch(e){}});
+function setupQuotaListener(){
+  try{
+    const btn=document.getElementById("downloadBtn");
+    function hasImage(){
+      try{
+        const c=window.__pc_lastSrcCanvas;
+        return !!(c&&c.width>0&&c.height>0);
+      }catch(e){return false}
+    }
+    if(btn){
+      btn.addEventListener("click",e=>{
+        try{
+          const pro=isPro();
+          const r=remaining();
+          console.log("[quota] download click:",{pro,remaining:r});
+          if(pro){
+            if(!hasImage()){
+              alert("请先上传并转换一张图片");
+              e.stopImmediatePropagation();e.preventDefault();
+              return
+            }
+            return
+          }
+          if(r<=0){
+            e.stopImmediatePropagation();e.preventDefault();
+            showModal();
+            console.log("[quota] block download at quota (no need image)");
+            return
+          }
+          if(!hasImage()){
+            alert("请先上传并转换一张图片");
+            e.stopImmediatePropagation();e.preventDefault();
+            return
+          }
+          const next=getCount()+1;
+          setCount(next);
+          console.log("[quota] decrement remaining to",remaining());
+          updateQuotaText()
+        }catch(err){}
+      },true)
+    }
+  }catch(e){}
+}
+if(document.readyState==="loading"){
+  window.addEventListener("DOMContentLoaded",()=>{setupQuotaListener();initQuota()})
+}else{
+  setupQuotaListener();initQuota()
+}
 window.closeProModal=()=>{try{const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important");console.log("[quota] closeProModal via global")}catch(e){}};
 document.addEventListener("keydown",e=>{try{if(e.key==="Escape"){const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important");console.log("[quota] ESC pressed, modal hidden")}}catch(err){}});
 document.addEventListener("click",e=>{try{const id=e.target&&e.target.id;if(id==="closeX"){hideModal();console.log("[quota] close via X")}}catch(err){}});
