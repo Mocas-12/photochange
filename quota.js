@@ -41,45 +41,51 @@ function initQuota(){
 }
 function setupQuotaListener(){
   try{
-    const btn=document.getElementById("downloadBtn");
     function hasImage(){
       try{
         const c=window.__pc_lastSrcCanvas;
         return !!(c&&c.width>0&&c.height>0);
       }catch(e){return false}
     }
-    if(btn){
-      btn.addEventListener("click",e=>{
-        try{
-          const pro=isPro();
-          const r=remaining();
-          console.log("[quota] download click:",{pro,remaining:r});
-          if(pro){
-            if(!hasImage()){
-              alert("请先上传并转换一张图片");
-              e.stopImmediatePropagation();e.preventDefault();
-              return
-            }
-            return
-          }
-          if(r<=0){
-            e.stopImmediatePropagation();e.preventDefault();
-            showModal();
-            console.log("[quota] block download at quota (no need image)");
-            return
-          }
+    function isDownloadClick(e){
+      try{
+        if(e.target&&e.target.id==="downloadBtn")return true;
+        const path=e.composedPath? e.composedPath() : [];
+        for(let i=0;i<path.length;i++){const el=path[i];if(el&&el.id==="downloadBtn")return true}
+      }catch(_){}
+      return false
+    }
+    window.addEventListener("click",e=>{
+      try{
+        if(!isDownloadClick(e))return;
+        const pro=isPro();
+        const r=remaining();
+        console.log("[quota] download click(win-capture):",{pro,remaining:r});
+        if(pro){
           if(!hasImage()){
             alert("请先上传并转换一张图片");
             e.stopImmediatePropagation();e.preventDefault();
             return
           }
-          const next=getCount()+1;
-          setCount(next);
-          console.log("[quota] decrement remaining to",remaining());
-          updateQuotaText()
-        }catch(err){}
-      },true)
-    }
+          return
+        }
+        if(r<=0){
+          e.stopImmediatePropagation();e.preventDefault();
+          showModal();
+          console.log("[quota] block download at quota");
+          return
+        }
+        if(!hasImage()){
+          alert("请先上传并转换一张图片");
+          e.stopImmediatePropagation();e.preventDefault();
+          return
+        }
+        const next=getCount()+1;
+        setCount(next);
+        console.log("[quota] decrement remaining to",remaining());
+        updateQuotaText()
+      }catch(err){}
+    },true)
   }catch(e){}
 }
 if(document.readyState==="loading"){
