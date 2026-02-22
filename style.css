@@ -114,3 +114,8 @@ input[type=range]{flex:1}
 .contact-info.nowrap{white-space:nowrap;word-break:keep-all}
 .btn-cancel{background:transparent;border:1px solid #334155;color:#94a3b8;padding:8px 30px;border-radius:8px;font-size:13px;cursor:pointer;transition:.3s}
 .btn-cancel:hover{background:rgba(255,255,255,.05);color:#fff;border-color:#475569}
+.alert-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:9999;justify-content:center;align-items:center}
+.alert-content{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:24px;width:300px;text-align:center;box-shadow:0 20px 25px -5px rgba(0,0,0,.5)}
+.alert-content p{color:#e2e8f0;margin-bottom:20px;font-size:14px}
+.alert-btn{background:#3b82f6;color:#fff;border:none;padding:8px 24px;border-radius:6px;cursor:pointer;transition:background .2s}
+.alert-btn:hover{background:#2563eb}

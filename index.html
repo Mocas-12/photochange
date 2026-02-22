@@ -99,6 +99,12 @@
         </div>
       </section>
     </main>
+    <div id="custom-alert" class="alert-overlay">
+      <div class="alert-content">
+        <p id="alert-message">请先上传并转换一张图片</p>
+        <button onclick="closeAlert()" class="alert-btn">确认</button>
+      </div>
+    </div>
     <div class="credits footer-info">
       <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
       <div class="footer-text">
@@ -156,6 +162,23 @@
     <script src="./expose.js"></script>
     <script src="./main.js"></script>
     <script src="./overlay-fix.js"></script>
+    <script>
+      (function(){
+        function showAlert(msg){
+          var m=document.getElementById('alert-message');
+          var ov=document.getElementById('custom-alert');
+          if(m) m.innerText=String(msg);
+          if(ov) ov.style.display='flex';
+        }
+        function closeAlert(){
+          var ov=document.getElementById('custom-alert');
+          if(ov) ov.style.display='none';
+        }
+        window.showAlert=showAlert;
+        window.closeAlert=closeAlert;
+        window.alert=function(msg){showAlert(msg)};
+      })();
+    </script>
     <script src="./quota.js"></script>
     <script src="./info-badge.js"></script>
     <script>
