@@ -22,17 +22,19 @@
             <button id="chooseBtn" class="btn primary">选择图片</button>
           </div>
         </div>
-        <div class="canvas-wrap">
-          <canvas id="canvas"></canvas>
-          <div id="infoBadge" class="badge hidden">未加载</div>
-          <div id="image-tools" class="image-tools-bar">
+        <div class="display-main-container">
+          <div id="image-tools" class="image-tools-fixed">
             <button onclick="changeZoom(-0.1)">-</button>
-            <span class="zoom-percent" id="zoom-text">100%</span>
+            <span class="zoom-text" id="zoom-text">100%</span>
             <button onclick="changeZoom(0.1)">+</button>
-            <div class="divider"></div>
+            <div class="v-line"></div>
             <button onclick="rotateImage(-90)" title="逆时针旋转">↺</button>
             <button onclick="rotateImage(90)" title="顺时针旋转">↻</button>
             <button onclick="toggleGrid()">标尺</button>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="canvas"></canvas>
+            <div id="infoBadge" class="badge hidden">未加载</div>
           </div>
         </div>
       </section>
