@@ -99,17 +99,32 @@
     </div>
     <div id="proModal" class="modal-overlay hidden">
       <div class="modal">
-        <h3>额度已用尽</h3>
-        <p>您已达到免费下载额度。请开通专业版以解锁无限下载次数！</p>
-        <div class="row">
-          <input id="activateInput" type="text" placeholder="输入激活码" />
+        <div id="activation-form">
+          <h3>额度已用尽</h3>
+          <p>您已达到免费下载额度。请开通专业版以解锁无限下载次数！</p>
+          <div class="row">
+            <input id="activateInput" type="text" placeholder="输入激活码" />
+          </div>
+          <div class="actions">
+            <button id="activateBtn" class="btn primary">去激活</button>
+            <button id="closeModal" class="btn ghost" onclick="closeProModal()">稍后再说</button>
+          </div>
+          <div class="row">
+            <a id="purchaseLink" class="get-code-link" href="#">还没有激活码？点击获取</a>
+          </div>
         </div>
-        <div class="actions">
-          <button id="activateBtn" class="btn primary">去激活</button>
-          <button id="closeModal" class="btn ghost" onclick="closeProModal()">稍后再说</button>
-        </div>
-        <div class="row">
-          <a id="purchaseLink" class="get-code-link" href="#" target="_blank">还没有激活码？点击获取</a>
+        <div id="activation-modal" class="custom-modal hidden">
+          <div class="modal-content">
+            <h3>🚀 获取专业版激活码</h3>
+            <p>面包多官方渠道审核中，暂支持微信手动获取</p>
+            <img src="./wechat-qr.jpg" class="qr-code" alt="微信收款码" onerror="this.style.display='none'"/>
+            <div class="steps">
+              <p>1. 扫码支付 <b>¥9.9</b> (早鸟价)</p>
+              <p>2. 备注您的<b>邮箱</b>或添加作者微信</p>
+              <p>3. 系统（人工）将即时发送激活码 <b>VIP888</b></p>
+            </div>
+            <button id="closeGetModal" class="btn ghost">返回输入</button>
+          </div>
         </div>
       </div>
     </div>

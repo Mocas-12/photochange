@@ -64,3 +64,7 @@ input[type=range]{flex:1}
 .buy-btn:active{transform:translateY(0)}
 .get-code-link{display:block;width:100%;margin-top:20px;padding:10px;text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#94a3b8;font-size:13px;text-decoration:none;transition:all .3s ease}
 .get-code-link:hover{background:rgba(52,152,219,.1);border-color:#3498db;color:#3498db;box-shadow:0 0 15px rgba(52,152,219,.2)}
+.custom-modal{background:rgba(13,17,23,.95);border:1px solid rgba(52,152,219,.3);border-radius:12px;padding:20px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.qr-code{width:180px;height:180px;border-radius:8px;margin:15px 0;border:3px solid #fff;object-fit:cover}
+.steps{text-align:left;display:inline-block;font-size:13px;color:#94a3b8;line-height:1.8}
+.steps b{color:#3498db}
