@@ -99,5 +99,6 @@ input[type=range]{flex:1}
 .pay-instructions{text-align:left;display:inline-block;padding:0;margin:0 0 20px;list-style:none;color:#cbd5e1;font-size:13px;line-height:1.8}
 .highlight-price{color:#38bdf8;font-weight:700;font-size:15px}
 .contact-info{color:#38bdf8;background:rgba(56,189,248,.1);padding:2px 6px;border-radius:4px;font-family:Consolas,monospace;font-size:12px;word-break:break-all}
+.contact-info.nowrap{white-space:nowrap;word-break:keep-all}
 .btn-cancel{background:transparent;border:1px solid #334155;color:#94a3b8;padding:8px 30px;border-radius:8px;font-size:13px;cursor:pointer;transition:.3s}
 .btn-cancel:hover{background:rgba(255,255,255,.05);color:#fff;border-color:#475569}
