@@ -31,3 +31,4 @@ window.addEventListener("DOMContentLoaded",()=>{try{const btn=document.getElemen
 window.closeProModal=()=>{try{const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important");console.log("[quota] closeProModal via global")}catch(e){}};
 document.addEventListener("keydown",e=>{try{if(e.key==="Escape"){const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important");console.log("[quota] ESC pressed, modal hidden")}}catch(err){}});
 document.addEventListener("click",e=>{try{const id=e.target&&e.target.id;if(id==="purchaseLink"){e.preventDefault();openGetCodeModal();console.log("[quota] open get code modal")}else if(id==="closeGetModal"){closeGetCodeModal();console.log("[quota] close get code modal")}}catch(err){}});
+window.backToInput=()=>{try{closeGetCodeModal()}catch(e){}};

@@ -114,16 +114,26 @@
           </div>
         </div>
         <div id="activation-modal" class="custom-modal hidden">
-          <div class="modal-content">
-            <h3>🚀 获取专业版激活码</h3>
-            <p>面包多官方渠道审核中，暂支持微信手动获取</p>
-            <img src="./wechat-qr.jpg" class="qr-code" alt="微信收款码" onerror="this.style.display='none'"/>
-            <div class="steps">
-              <p>1. 扫码支付 <b>¥9.9</b> (早鸟价)</p>
-              <p>2. 备注您的<b>邮箱</b>或添加作者微信</p>
-              <p>3. 系统（人工）将即时发送激活码 <b>VIP888</b></p>
+          <div id="buy-modal-content" class="buy-modal">
+            <div class="buy-header">
+              <span class="rocket-icon">🚀</span>
+              <h3>获取专业版激活码</h3>
             </div>
-            <button id="closeGetModal" class="btn ghost">返回输入</button>
+            <p class="announcement">面包多官方渠道审核中，暂支持微信手动获取</p>
+            <div class="qr-wrapper">
+              <img src="wechatpay/wechatpay.jpg" alt="微信收款码" class="pay-qr" onerror="this.style.display='none'">
+              <div class="qr-hint">请使用微信扫码支付</div>
+            </div>
+            <ul class="buy-steps">
+              <li>1. 扫码支付 <span class="price-tag">¥9.9</span> <small>(早鸟价)</small></li>
+              <li>2. 联系作者<span class="highlight-text">邮箱</span>或添加作者微信：MikoDLCGG</li>
+              <li>3. 系统（人工）将即时发送激活码</li>
+            </ul>
+            <div class="code-display">
+              <span class="label">当前可用暗号:</span>
+              <code class="vip-code">VIP888</code>
+            </div>
+            <button onclick="backToInput()" class="btn-secondary">返回输入</button>
           </div>
         </div>
       </div>
