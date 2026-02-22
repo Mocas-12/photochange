@@ -197,7 +197,7 @@
         }
         function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
         window.changeZoom=function(delta){__zoom=clamp(__zoom+delta,0.2,4);applyTransform()};
-        window.rotateImage=function(deg){__angle=(__angle+deg)%360;applyTransform()};
+        window.rotateImage=function(deg){__angle=(__angle+deg)%360;window.currentRotation=__angle;applyTransform()};
         window.toggleGrid=function(){var wrap=canvas.parentElement;wrap.classList.toggle('grid-on')};
         applyTransform();
         function showTools(){tools.style.display='flex'}
@@ -217,6 +217,68 @@
           });
           ro.observe(canvas);
         }
+      })();
+    </script>
+    <script>
+      (function(){
+        function makeRotatedCanvas(src, angle){
+          var a=((angle%360)+360)%360;
+          var isV=Math.abs(a%180)===90;
+          var w=isV?src.height:src.width;
+          var h=isV?src.width:src.height;
+          var cv=document.createElement('canvas');
+          cv.width=w;cv.height=h;
+          var c=cv.getContext('2d');
+          c.translate(w/2,h/2);
+          c.rotate(a*Math.PI/180);
+          c.drawImage(src,-src.width/2,-src.height/2);
+          return cv;
+        }
+        function nameBase(){
+          var v=document.getElementById('fileName');
+          var s=(v&&v.value||'output').replace(/[\\/:*?"<>|]+/g,'').trim()||'output';
+          return s;
+        }
+        function trigger(blob,ext){
+          var url=URL.createObjectURL(blob);
+          var a=document.createElement('a');
+          a.href=url;a.download=nameBase()+'.'+ext;
+          document.body.appendChild(a);a.click();a.remove();
+          URL.revokeObjectURL(url);
+        }
+        document.addEventListener('DOMContentLoaded',function(){
+          var btn=document.getElementById('downloadBtn');
+          if(!btn) return;
+          btn.addEventListener('click',function(e){
+            try{
+              var src=window.__pc_lastSrcCanvas;
+              if(!src||!(src.width>0&&src.height>0)) return;
+              var angle=window.currentRotation||0;
+              var cv=makeRotatedCanvas(src,angle);
+              var sel=document.getElementById('formatSelect');
+              var fmt=(sel&&sel.value)||'png';
+              if(fmt==='png'){
+                cv.toBlob(function(b){if(b)trigger(b,'png')},"image/png");
+              }else if(fmt==='jpg'){
+                var qEl=document.getElementById('qualityRange');
+                var q=Math.max(0.1,Math.min(1,Number(qEl&&qEl.value||0.92)));
+                cv.toBlob(function(b){if(b)trigger(b,'jpg')},"image/jpeg",q);
+              }else{
+                var data=cv.toDataURL('image/jpeg',0.92);
+                var pdf=new window.jspdf.jsPDF({unit:"pt",format:"a4"});
+                var pageW=pdf.internal.pageSize.getWidth();
+                var pageH=pdf.internal.pageSize.getHeight();
+                var r=Math.min(pageW/cv.width,pageH/cv.height);
+                var w=cv.width*r;var h=cv.height*r;
+                var x=(pageW-w)/2;var y=(pageH-h)/2;
+                pdf.addImage(data,"JPEG",x,y,w,h,"","FAST");
+                var blob=pdf.output("blob");
+                trigger(blob,"pdf");
+              }
+              e.stopImmediatePropagation();e.preventDefault();
+            }catch(_){}
+          },true);
+        });
       })();
     </script>
     <script>
