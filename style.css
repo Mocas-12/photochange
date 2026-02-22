@@ -17,6 +17,8 @@ canvas{max-width:100%;max-height:100%;image-rendering:auto}
 .row{display:flex;align-items:center;gap:10px}
 label{min-width:72px;opacity:.9}
 input[type=text],input[type=number],select{flex:1;min-width:0;background:#0b0f14;border:1px solid #1a2230;border-radius:8px;padding:8px 10px;color:#e6ebf0}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type='number']{-moz-appearance:textfield}
 input[type=range]{flex:1}
 .btn{border:1px solid #334155;background:#101725;color:#e6ebf0;border-radius:10px;padding:8px 12px;cursor:pointer;transition:all .2s ease}
 .btn:hover{border-color:#3b82f6;background:#0f1b34}
@@ -55,6 +57,9 @@ input[type=range]{flex:1}
 .modal p{margin:0 0 12px 0;opacity:.9;font-size:14px}
 .modal .row{display:flex;gap:8px;margin-top:8px}
 .modal input{flex:1;min-width:0;background:#0b0f14;border:1px solid #1a2230;border-radius:8px;padding:8px 10px;color:#e6ebf0}
+.dimension-input{background:#0f172a;border:1px solid #1e293b;border-radius:8px;color:#e2e8f0;padding:8px 12px;font-family:Inter,sans-serif;transition:all .2s cubic-bezier(.4,0,.2,1)}
+.dimension-input:hover{border-color:#3b82f6;box-shadow:0 0 10px rgba(59,130,246,.2)}
+.dimension-input:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 12px rgba(96,165,250,.4);background:#1e293b}
 .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 .modal-close-btn{position:absolute;top:16px;right:16px;background:transparent;border:none;color:#94a3b8;font-size:20px;cursor:pointer;line-height:1;padding:5px;transition:color .2s}
 .modal-close-btn:hover{color:#ef4444}
