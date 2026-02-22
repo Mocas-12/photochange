@@ -88,3 +88,14 @@ input[type=range]{flex:1}
 .highlight-text{color:#38bdf8;background:rgba(56,189,248,.1);padding:1px 4px;border-radius:4px;word-break:break-all}
 .btn-secondary{border:1px solid #334155;padding:8px 25px;border-radius:8px;transition:all .2s}
 .btn-secondary:hover{background:rgba(255,255,255,.05);color:#fff}
+.pay-modal-container{text-align:center;padding:20px;background:transparent}
+.pay-header h3{color:#f8fafc;margin:10px 0 5px;font-size:18px}
+.pay-notice{font-size:12px;color:#94a3b8;margin-bottom:20px}
+.qr-display-box{background:#fff;padding:12px;border-radius:12px;width:170px;margin:0 auto 20px;box-shadow:0 0 30px rgba(56,189,248,.15)}
+.qr-image{width:100%;display:block;border-radius:4px}
+.qr-footer{color:#64748b;font-size:11px;margin-top:8px;font-weight:500}
+.pay-instructions{text-align:left;display:inline-block;padding:0;margin:0 0 20px;list-style:none;color:#cbd5e1;font-size:13px;line-height:1.8}
+.highlight-price{color:#38bdf8;font-weight:700;font-size:15px}
+.contact-info{color:#38bdf8;background:rgba(56,189,248,.1);padding:2px 6px;border-radius:4px;font-family:Consolas,monospace;font-size:12px;word-break:break-all}
+.btn-cancel{background:transparent;border:1px solid #334155;color:#94a3b8;padding:8px 30px;border-radius:8px;font-size:13px;cursor:pointer;transition:.3s}
+.btn-cancel:hover{background:rgba(255,255,255,.05);color:#fff;border-color:#475569}
