@@ -30,7 +30,7 @@
             <div class="v-line"></div>
             <button onclick="rotateImage(-90)" title="逆时针旋转">↺</button>
             <button onclick="rotateImage(90)" title="顺时针旋转">↻</button>
-            <button onclick="toggleGrid()">标尺</button>
+            <button id="gridBtn" onclick="toggleGrid()">标尺</button>
           </div>
           <div class="canvas-wrap grid-on">
             <canvas id="canvas"></canvas>
@@ -188,6 +188,7 @@
         var tools=document.getElementById('image-tools');
         var canvas=document.getElementById('canvas');
         var zoomText=document.getElementById('zoom-text');
+        var gridBtn=document.getElementById('gridBtn');
         if(!tools||!canvas||!zoomText) return;
         var __zoom=1, __angle=0;
         function applyTransform(){
@@ -198,8 +199,18 @@
         function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
         window.changeZoom=function(delta){__zoom=clamp(__zoom+delta,0.2,4);applyTransform()};
         window.rotateImage=function(deg){__angle=(__angle+deg)%360;window.currentRotation=__angle;applyTransform()};
-        window.toggleGrid=function(){var wrap=canvas.parentElement;wrap.classList.toggle('grid-on')};
+        window.toggleGrid=function(){
+          var wrap=canvas.parentElement;
+          var on=wrap.classList.toggle('grid-on');
+          if(gridBtn){gridBtn.classList.toggle('active',on)}
+        };
         applyTransform();
+        (function(){
+          try{
+            var on=canvas.parentElement.classList.contains('grid-on');
+            if(gridBtn){gridBtn.classList.toggle('active',on)}
+          }catch(_){}
+        })();
         function showTools(){tools.style.display='flex'}
         function hideTools(){tools.style.display='none'}
         var fileInput=document.getElementById('fileInput');

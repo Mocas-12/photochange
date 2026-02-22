@@ -38,6 +38,7 @@ input[type=range]{flex:1}
 .image-tools-fixed{display:none;justify-content:center;align-items:center;padding:10px 0;background:#0f172a;gap:12px;border-bottom:1px solid rgba(255,255,255,.05);z-index:10}
 .image-tools-fixed button{background:transparent;border:none;color:#94a3b8;padding:6px 10px;font-size:12px;cursor:pointer;border-radius:6px;transition:all .2s}
 .image-tools-fixed button:hover{color:#3b82f6;background:rgba(59,130,246,.1)}
+.image-tools-fixed button.active{color:#3b82f6;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25)}
 .zoom-text{color:#f8fafc;font-size:12px;font-weight:500;min-width:45px;text-align:center}
 .v-line{width:1px;height:16px;background:rgba(255,255,255,.15)}
 .badge em{font-style:normal;opacity:.85}
