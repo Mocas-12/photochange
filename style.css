@@ -59,3 +59,6 @@ input[type=range]{flex:1}
 .github-avatar{width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:8px;display:inline-block}
 .footer-info{display:flex;align-items:center;gap:8px}
 .footer-text{display:flex;flex-direction:column;line-height:1.2}
+.buy-btn{display:inline-block;padding:10px 24px;background-color:#007bff;color:#fff;text-decoration:none;border-radius:6px;transition:all .3s ease;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+.buy-btn:hover{background-color:#0056b3;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.2)}
+.buy-btn:active{transform:translateY(0)}
