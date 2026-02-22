@@ -10,6 +10,8 @@
 .dz-hint{opacity:.6;font-size:12px}
 #fileInput{display:none}
 .canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;border:1px solid #1a2230;border-radius:12px;background:#0e131a;min-height:320px;position:relative;overflow:hidden}
+#canvas{transition:transform .3s ease;transform:rotate(var(--rotation-angle,0deg)) scale(var(--zoom-level,1));transform-origin:center center}
+.canvas-wrap.grid-on{background-image:linear-gradient(to right,rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.06) 1px,transparent 1px);background-size:20px 20px;background-color:#0e131a}
 canvas{max-width:100%;max-height:100%;image-rendering:auto}
 .right{display:flex;flex-direction:column;gap:12px}
 .panel{border:1px solid #1a2230;border-radius:12px;padding:12px;background:#0e131a;display:flex;flex-direction:column;gap:10px}
@@ -32,6 +34,11 @@ input[type=range]{flex:1}
 .selection-handle{position:absolute;width:10px;height:10px;background:#93c5fd;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
 @media (max-width: 980px){.app-main{grid-template-columns:1fr;gap:12px;height:auto}.right{order:-1}}
 .badge{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);border:1px solid #1e293b;border-radius:10px;padding:6px 10px;font-size:12px;line-height:1.2;color:#e6ebf0;backdrop-filter:blur(6px)}
+.image-tools-bar{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.8);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:8px 16px;display:flex;gap:12px;z-index:2}
+.tool-btn{border:1px solid #334155;background:#101725;color:#e6ebf0;border-radius:10px;padding:6px 10px;cursor:pointer;transition:all .2s ease;font-size:12px}
+.tool-btn:hover{border-color:#3b82f6;background:#0f1b34}
+.tool-btn.primary{background:#2563eb;border-color:#2563eb}
+.zoom-label{min-width:48px;text-align:center;color:#cbd5e1}
 .badge em{font-style:normal;opacity:.85}
 .badge .num{font-variant-numeric:tabular-nums}
 .gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-height:160px;overflow:auto}

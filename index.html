@@ -25,6 +25,15 @@
         <div class="canvas-wrap">
           <canvas id="canvas"></canvas>
           <div id="infoBadge" class="badge hidden">未加载</div>
+          <div class="image-tools-bar">
+            <button id="toolZoomOut" class="tool-btn">-</button>
+            <span id="zoomLabel" class="zoom-label">100%</span>
+            <button id="toolZoomIn" class="tool-btn">+</button>
+            <button id="toolRotateCCW" class="tool-btn">⟲</button>
+            <button id="toolRotateCW" class="tool-btn">⟳</button>
+            <button id="toolCompare" class="tool-btn">对比</button>
+            <button id="toolGrid" class="tool-btn">标尺</button>
+          </div>
         </div>
       </section>
       <section class="right">
@@ -149,6 +158,69 @@
     <script src="./overlay-fix.js"></script>
     <script src="./quota.js"></script>
     <script src="./info-badge.js"></script>
+    <script>
+      (function(){
+        var canvas=document.getElementById("canvas");
+        if(!canvas) return;
+        var ctx=canvas.getContext("2d");
+        var zoomLabel=document.getElementById("zoomLabel");
+        var toolZoomIn=document.getElementById("toolZoomIn");
+        var toolZoomOut=document.getElementById("toolZoomOut");
+        var toolRotateCW=document.getElementById("toolRotateCW");
+        var toolRotateCCW=document.getElementById("toolRotateCCW");
+        var toolCompare=document.getElementById("toolCompare");
+        var toolGrid=document.getElementById("toolGrid");
+        var __zoom=1, __angle=0;
+        function applyTransform(){
+          canvas.style.setProperty("--zoom-level", String(__zoom));
+          canvas.style.setProperty("--rotation-angle", __angle + "deg");
+          if(zoomLabel) zoomLabel.textContent = Math.round(__zoom*100) + "%";
+        }
+        function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+        applyTransform();
+        if(toolZoomIn){toolZoomIn.addEventListener("click",function(){__zoom=clamp(__zoom+0.1,0.2,4);applyTransform()})}
+        if(toolZoomOut){toolZoomOut.addEventListener("click",function(){__zoom=clamp(__zoom-0.1,0.2,4);applyTransform()})}
+        if(toolRotateCW){toolRotateCW.addEventListener("click",function(){__angle=(__angle+90)%360;applyTransform()})}
+        if(toolRotateCCW){toolRotateCCW.addEventListener("click",function(){__angle=(__angle+270)%360;applyTransform()})}
+        function previewOriginal(on){
+          if(!window.originalImage) return;
+          if(on){
+            var img=window.originalImage;
+            var sw=img.naturalWidth, sh=img.naturalHeight;
+            var maxW=canvas.parentElement.clientWidth-20;
+            var maxH=canvas.parentElement.clientHeight-20;
+            var r=Math.min(maxW/sw,maxH/sh,1);
+            var w=Math.round(sw*r), h=Math.round(sh*r);
+            canvas.width=w; canvas.height=h;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0,sw,sh,0,0,canvas.width,canvas.height);
+          }else{
+            if(window.workingImage){
+              var src=window.workingImage;
+              var sw=src.width, sh=src.height;
+              var maxW=canvas.parentElement.clientWidth-20;
+              var maxH=canvas.parentElement.clientHeight-20;
+              var r=Math.min(maxW/sw,maxH/sh,1);
+              canvas.width=Math.round(sw*r);
+              canvas.height=Math.round(sh*r);
+              ctx.clearRect(0,0,canvas.width,canvas.height);
+              ctx.drawImage(src,0,0,sw,sh,0,0,canvas.width,canvas.height);
+            }
+          }
+        }
+        if(toolCompare){
+          toolCompare.addEventListener("mousedown",function(){previewOriginal(true)});
+          toolCompare.addEventListener("mouseup",function(){previewOriginal(false)});
+          toolCompare.addEventListener("mouseleave",function(){previewOriginal(false)});
+        }
+        if(toolGrid){
+          toolGrid.addEventListener("click",function(){
+            var wrap=canvas.parentElement;
+            wrap.classList.toggle("grid-on");
+          });
+        }
+      })();
+    </script>
     <script>
       (function(){
         function visible(el){if(!el)return false;const s=getComputedStyle(el);return s.display!=='none'&&s.visibility!=='hidden'}
