@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PhotoChange</title>
     <link rel="stylesheet" href="./style.css" />
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
     <header class="app-header">
@@ -84,21 +84,84 @@
           <div class="row">
             <button id="downloadBtn" class="btn primary wide">下载</button>
           </div>
+          <div id="quotaBar" class="quota-bar"><div class="quota-bar-inner" id="quotaBarInner"></div></div>
+          <div id="quotaText" class="quota-text"></div>
+          <div id="quotaHint" class="quota-hint hidden">提示：这是最后一次免费额度，建议立即激活专业版以防中断</div>
         </div>
       </section>
     </main>
-    <div class="credits">
-      作者：Unlimited Box<br/>邮箱：a18577y@gmail.com
+    <div class="credits footer-info">
+      <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
+      <div class="footer-text">
+        <span>作者：Unlimited Box</span>
+        <span>邮箱：a18577y@gmail.com</span>
+      </div>
+    </div>
+    <div id="proModal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3>额度已用尽</h3>
+        <p>您已达到免费下载额度（5/5）。请开通专业版以解锁无限下载次数！</p>
+        <div class="row">
+          <input id="activateInput" type="text" placeholder="输入激活码" />
+        </div>
+        <div class="actions">
+          <button id="activateBtn" class="btn primary">去激活</button>
+          <button id="closeModal" class="btn ghost" onclick="closeProModal()">稍后再说</button>
+        </div>
+        <div class="row">
+          <a id="purchaseLink" href="#" target="_blank">还没有激活码？点击此处获取</a>
+        </div>
+      </div>
     </div>
     <footer class="bz-footer">
-      <span id="busuanzi_container_site_pv">总访问量 <span id="busuanzi_value_site_pv"></span></span>
-      <span class="sep">|</span>
-      <span id="busuanzi_container_site_uv">访客数 <span id="busuanzi_value_site_uv"></span></span>
+      <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">总访问量 <span id="busuanzi_value_site_pv"></span></span>
+        <span class="sep" id="busuanzi_sep" style="display:none">|</span>
+        <span id="busuanzi_container_site_uv">访客数 <span id="busuanzi_value_site_uv"></span></span>
+      </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
     <script src="./main.js"></script>
     <script src="./overlay-fix.js"></script>
+    <script src="./quota.js"></script>
     <script src="./info-badge.js"></script>
+    <script>
+      (function(){
+        function visible(el){if(!el)return false;const s=getComputedStyle(el);return s.display!=='none'&&s.visibility!=='hidden'}
+        function ensureVisible(){
+          const pvC=document.getElementById('busuanzi_container_site_pv');
+          const uvC=document.getElementById('busuanzi_container_site_uv');
+          const pvV=document.getElementById('busuanzi_value_site_pv');
+          const uvV=document.getElementById('busuanzi_value_site_uv');
+          if(pvC){pvC.style.display='inline'}
+          if(uvC){uvC.style.display='inline'}
+          if(pvV&&(!pvV.textContent||pvV.textContent.trim()==='')){pvV.textContent='加载中...'}
+          if(uvV&&(!uvV.textContent||uvV.textContent.trim()==='')){uvV.textContent='加载中...'}
+        }
+        function finalizeFallback(){
+          const pvV=document.getElementById('busuanzi_value_site_pv');
+          const uvV=document.getElementById('busuanzi_value_site_uv');
+          if(pvV&&pvV.textContent==='加载中...'){pvV.textContent='暂不可用'}
+          if(uvV&&uvV.textContent==='加载中...'){uvV.textContent='暂不可用'}
+        }
+        function updateSep(){
+          const pv=document.getElementById('busuanzi_container_site_pv');
+          const uv=document.getElementById('busuanzi_container_site_uv');
+          const sep=document.getElementById('busuanzi_sep');
+          if(!sep)return;
+          sep.style.display = (visible(pv)&&visible(uv)) ? 'inline' : 'none';
+        }
+        const pv=document.getElementById('busuanzi_container_site_pv');
+        const uv=document.getElementById('busuanzi_container_site_uv');
+        const obsCfg={attributes:true,attributeFilter:['style','class']};
+        if(pv){new MutationObserver(function(){ensureVisible();updateSep()}).observe(pv,obsCfg)}
+        if(uv){new MutationObserver(function(){ensureVisible();updateSep()}).observe(uv,obsCfg)}
+        document.addEventListener('DOMContentLoaded',function(){ensureVisible();updateSep()});
+        window.addEventListener('load',function(){ensureVisible();updateSep()});
+        setTimeout(function(){ensureVisible();updateSep()},1200);
+        setTimeout(finalizeFallback,5000);
+      })();
+    </script>
   </body>
   </html>

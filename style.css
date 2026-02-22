@@ -37,7 +37,25 @@ input[type=range]{flex:1}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .tick{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:4px;background:rgba(0,0,0,.5);border:1px solid #334155;display:flex;align-items:center;justify-content:center;color:#e6ebf0;font-size:12px}
 .tick.on{background:#10b981;border-color:#10b981}
-.credits{position:fixed;right:12px;bottom:12px;font-size:11px;line-height:1.2;color:#94a3b8;opacity:.75;pointer-events:none;z-index:3;text-align:right}
+.credits{position:fixed;left:12px;bottom:12px;font-size:11px;line-height:1.2;color:#94a3b8;opacity:.75;pointer-events:none;z-index:3;text-align:left}
 .bz-footer{display:flex;align-items:center;justify-content:center;color:#888;font-size:14px;margin:12px 0}
 .bz-footer .sep{margin:0 8px;opacity:.8}
-#busuanzi_container_site_pv,#busuanzi_container_site_uv{display:none}
+.quota-text{text-align:center;color:#888;font-size:14px;margin-top:6px}
+.quota-text.exhausted{color:#ef4444}
+.quota-hint{text-align:center;color:#f59e0b;font-size:12px;margin-top:4px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:10}
+#proModal{display:none !important}
+.quota-bar{height:6px;border-radius:4px;background:#1a2230;margin-top:8px;overflow:hidden}
+.quota-bar-inner{height:100%;width:100%;transition:width .2s ease;background:#10b981}
+.quota-bar-inner.warn{background:#f59e0b}
+.quota-bar-inner.danger{background:#ef4444}
+.quota-bar-inner.zero{background:#6b7280}
+.modal{width:320px;max-width:90%;background:#0e131a;border:1px solid #1a2230;border-radius:12px;padding:16px;color:#e6ebf0;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.modal h3{margin:0 0 8px 0;font-size:16px}
+.modal p{margin:0 0 12px 0;opacity:.9;font-size:14px}
+.modal .row{display:flex;gap:8px;margin-top:8px}
+.modal input{flex:1;min-width:0;background:#0b0f14;border:1px solid #1a2230;border-radius:8px;padding:8px 10px;color:#e6ebf0}
+.modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.github-avatar{width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:8px;display:inline-block}
+.footer-info{display:flex;align-items:center;gap:8px}
+.footer-text{display:flex;flex-direction:column;line-height:1.2}
