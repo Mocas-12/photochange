@@ -28,7 +28,7 @@
   }
 
   function apply() {
-    track.style.transform = 'translateY(-' + (current * 100 / pages.length) + '%)';
+    track.style.transform = 'translateY(-' + (current * 100) + '%)';
     for (var k = 0; k < pages.length; k++) {
       if (pages[k].classList) pages[k].classList.toggle('is-active', k === current);
     }

@@ -350,7 +350,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   transition:transform .9s cubic-bezier(.22,.9,.28,1);
   will-change:transform;
 }
-.page-track>*{flex:0 0 100vh;flex:0 0 100svh;min-height:0}
+.page-track>*{flex:0 0 100%;min-height:0}
 .page-track>.is-active{position:relative;z-index:2}
 .page-track>*:not(.is-active){filter:brightness(.55) saturate(.7);pointer-events:none}
 .page-track>.is-active{transition:filter .9s ease}
