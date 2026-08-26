@@ -28,11 +28,12 @@
   }
 
   function apply() {
-    track.style.transform = 'translateY(-' + (current * 100) + '%)';
+    track.style.transform = 'translateY(-' + (current * window.innerHeight) + 'px)';
     for (var k = 0; k < pages.length; k++) {
       if (pages[k].classList) pages[k].classList.toggle('is-active', k === current);
     }
   }
+  window.addEventListener('resize', function () { apply(); });
 
   function goTo(i) {
     i = Math.max(0, Math.min(pages.length - 1, i));
@@ -86,7 +87,6 @@
     if (overlayOpen()) return;
     if (current === 1) {
       if (insideScrollable(e.target, dir)) return;      /* 面板等内部滚动 */
-      if (canScroll(document.getElementById('app'), dir)) return; /* 功能区自身滚动 */
       e.preventDefault();
       attempt(dir, Math.abs(mag));
     } else {
@@ -110,7 +110,6 @@
     if (Math.abs(dy) < 60 || Math.abs(dy) < Math.abs(dx)) return;
     if (overlayOpen()) return;
     var dir = dy > 0 ? 1 : -1;
-    if (current === 1 && canScroll(document.getElementById('app'), dir)) return;
     goTo(current + dir);
   }, { passive: true });
 
@@ -127,5 +126,6 @@
   });
 
   /* ---- 初始化 ---- */
+  track.dataset.pageSwitch = 'v3-px';
   apply();
 })();
