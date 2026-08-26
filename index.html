@@ -62,6 +62,49 @@
             <div class="v-line"></div>
             <button id="gridBtn" onclick="toggleGrid()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>标尺</button>
           </div>
+          <!-- 编辑工具条：裁剪/尺寸/水印/撤销/重置 -->
+          <div class="edit-toolbar">
+            <button id="toolCrop" class="etool" title="裁剪"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>裁剪</button>
+            <button id="toolSize" class="etool" title="尺寸与预设"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 9 15"/><path d="M12 3H3v18h18v-9"/><path d="M16 3h5v5"/></svg>尺寸</button>
+            <button id="toolWm" class="etool" title="文字水印"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>水印</button>
+            <div class="v-line"></div>
+            <button id="toolUndo" class="etool" disabled title="撤销 (Ctrl+Z)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>撤销</button>
+            <button id="toolReset" class="etool" title="重置为原图"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 9 9c-2.52 0-4.93-1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>重置</button>
+          </div>
+          <!-- 操作条：裁剪 -->
+          <div id="stripCrop" class="opstrip hidden">
+            <label>长宽比</label>
+            <select id="stripAspect">
+              <option value="free">自由</option>
+              <option value="1:1">1:1</option>
+              <option value="4:3">4:3</option>
+              <option value="16:9">16:9</option>
+              <option value="3:2">3:2</option>
+            </select>
+            <span class="op-tip">在画布上拖出选区</span>
+            <button id="cropApply" class="btn primary">应用裁剪</button>
+          </div>
+          <!-- 操作条：尺寸 -->
+          <div id="stripSize" class="opstrip hidden">
+            <select id="presetSelect"><option value="0">常用预设…</option></select>
+            <input id="widthInput" class="dimension-input" type="number" min="1" step="1" placeholder="宽" />
+            <span class="op-x">×</span>
+            <input id="heightInput" class="dimension-input" type="number" min="1" step="1" placeholder="高" />
+            <label class="switch"><input id="lockRatio" type="checkbox" checked /><span>锁比例</span></label>
+            <button id="applyResize" class="btn primary">应用</button>
+          </div>
+          <!-- 操作条：水印 -->
+          <div id="stripWm" class="opstrip hidden">
+            <label class="switch"><input id="wmEnable" type="checkbox" /><span>启用</span></label>
+            <input id="wmText" type="text" placeholder="水印文字…" style="max-width:180px" />
+            <select id="wmPos">
+              <option value="tl">左上</option><option value="tm">中上</option><option value="tr">右上</option>
+              <option value="ml">居左</option><option value="mm">正中</option><option value="mr">居右</option>
+              <option value="bl">左下</option><option value="bm">中下</option><option value="br">右下</option>
+            </select>
+            <label class="op-label">透明度</label>
+            <input id="wmOpacity" type="range" min="0.1" max="1" step="0.05" value="0.5" style="max-width:90px" />
+          </div>
           <div class="canvas-wrap grid-on">
             <canvas id="canvas"></canvas>
             <div class="canvas-hint">
@@ -73,70 +116,35 @@
           </div>
         </div>
       </section>
-      <section class="right">
-        <div class="panel">
-          <div class="panel-section">
-            <div class="panel-title">裁剪</div>
-            <div class="row">
-              <label for="aspectSelect">长宽比</label>
-              <select id="aspectSelect">
-                <option value="free">自由</option>
-                <option value="1:1">1:1</option>
-                <option value="4:3">4:3</option>
-                <option value="16:9">16:9</option>
-                <option value="3:2">3:2</option>
-              </select>
-            </div>
-            <div class="row">
-              <button id="cropBtn" class="btn">裁剪选区</button>
-              <button id="resetBtn" class="btn ghost">重置</button>
-            </div>
-          </div>
-          <div class="panel-divider"></div>
-          <div class="panel-section">
-            <div class="panel-title">尺寸</div>
-            <div class="row">
-              <label for="widthInput">宽度</label>
-              <input id="widthInput" class="dimension-input" type="number" min="1" step="1" />
-            </div>
-            <div class="row">
-              <label for="heightInput">高度</label>
-              <input id="heightInput" class="dimension-input" type="number" min="1" step="1" />
-            </div>
-            <div class="row">
-              <label class="switch">
-                <input id="lockRatio" type="checkbox" checked />
-                <span>锁定比例</span>
-              </label>
-              <button id="applyResize" class="btn">应用尺寸</button>
-            </div>
-          </div>
-          <div class="panel-divider"></div>
-          <div class="panel-section">
-            <div class="panel-title">导出</div>
-            <div class="row">
-              <label for="formatSelect">格式</label>
-              <select id="formatSelect">
-                <option value="png">PNG</option>
-                <option value="jpg">JPG</option>
-                <option value="pdf">PDF</option>
-              </select>
-            </div>
-            <div class="row jpg-only hidden">
-              <label for="qualityRange">JPG质量</label>
-              <input id="qualityRange" type="range" min="0.1" max="1" step="0.05" value="0.92" />
-              <span id="qualityValue">0.92</span>
-            </div>
-            <div class="row">
-              <input id="fileName" type="text" placeholder="文件名" />
-            </div>
-            <div class="row">
-              <button id="downloadBtn" class="btn primary wide">下载</button>
-            </div>
-            <div id="quotaBar" class="quota-bar"><div class="quota-bar-inner" id="quotaBarInner"></div></div>
-            <div id="quotaText" class="quota-text"></div>
-            <div id="quotaHint" class="quota-hint hidden">提示：这是最后一次免费额度，建议立即激活专业版以防中断</div>
-          </div>
+      <!-- 底部导出条 -->
+      <section class="export-bar">
+        <div class="eb-group">
+          <label for="formatSelect">格式</label>
+          <select id="formatSelect">
+            <option value="png">PNG</option>
+            <option value="jpg">JPG</option>
+            <option value="webp">WebP</option>
+            <option value="pdf">PDF</option>
+          </select>
+        </div>
+        <div class="eb-group jpg-only hidden" id="jpgOnlyRow">
+          <label for="qualityRange">质量</label>
+          <input id="qualityRange" type="range" min="0.1" max="1" step="0.05" value="0.92" />
+          <span id="qualityValue">0.92</span>
+        </div>
+        <div class="eb-group">
+          <label for="targetKB">压到</label>
+          <input id="targetKB" type="number" min="10" step="10" placeholder="不限" style="width:70px" />
+          <span class="eb-unit">KB</span>
+        </div>
+        <div class="eb-group grow">
+          <input id="fileName" type="text" placeholder="文件名" />
+        </div>
+        <div class="eb-download">
+          <button id="downloadBtn" class="btn primary wide">导出下载</button>
+          <div id="quotaBar" class="quota-bar"><div class="quota-bar-inner" id="quotaBarInner"></div></div>
+          <div id="quotaText" class="quota-text"></div>
+          <div id="quotaHint" class="quota-hint hidden">提示：这是最后一次免费额度，建议立即激活专业版以防中断</div>
         </div>
       </section>
     </main>
@@ -229,7 +237,7 @@
         function hideTools(){tools.style.display='none'}
         var fileInput=document.getElementById('fileInput');
         var dropzone=document.getElementById('dropzone');
-        var resetBtn=document.getElementById('resetBtn');
+        var resetBtn=document.getElementById('toolReset');
         if(fileInput){fileInput.addEventListener('change',function(){showTools()})}
         if(dropzone){dropzone.addEventListener('drop',function(){showTools()})}
         if(resetBtn){resetBtn.addEventListener('click',function(){hideTools()})}
@@ -245,66 +253,15 @@
       })();
     </script>
     <script>
-      (function(){
-        function makeRotatedCanvas(src, angle){
-          var a=((angle%360)+360)%360;
-          var isV=Math.abs(a%180)===90;
-          var w=isV?src.height:src.width;
-          var h=isV?src.width:src.height;
-          var cv=document.createElement('canvas');
-          cv.width=w;cv.height=h;
-          var c=cv.getContext('2d');
-          c.translate(w/2,h/2);
-          c.rotate(a*Math.PI/180);
-          c.drawImage(src,-src.width/2,-src.height/2);
-          return cv;
+      /* Ctrl+Z 撤销 */
+      document.addEventListener('keydown',function(e){
+        if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){
+          var tag=e.target&&e.target.tagName;
+          if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+          var btn=document.getElementById('toolUndo');
+          if(btn&&!btn.disabled)btn.click();
         }
-        function nameBase(){
-          var v=document.getElementById('fileName');
-          var s=(v&&v.value||'output').replace(/[\\/:*?"<>|]+/g,'').trim()||'output';
-          return s;
-        }
-        function trigger(blob,ext){
-          var url=URL.createObjectURL(blob);
-          var a=document.createElement('a');
-          a.href=url;a.download=nameBase()+'.'+ext;
-          document.body.appendChild(a);a.click();a.remove();
-          URL.revokeObjectURL(url);
-        }
-        document.addEventListener('DOMContentLoaded',function(){
-          var btn=document.getElementById('downloadBtn');
-          if(!btn) return;
-          btn.addEventListener('click',function(e){
-            try{
-              var src=window.__pc_lastSrcCanvas;
-              if(!src||!(src.width>0&&src.height>0)) return;
-              var angle=window.currentRotation||0;
-              var cv=makeRotatedCanvas(src,angle);
-              var sel=document.getElementById('formatSelect');
-              var fmt=(sel&&sel.value)||'png';
-              if(fmt==='png'){
-                cv.toBlob(function(b){if(b)trigger(b,'png')},"image/png");
-              }else if(fmt==='jpg'){
-                var qEl=document.getElementById('qualityRange');
-                var q=Math.max(0.1,Math.min(1,Number(qEl&&qEl.value||0.92)));
-                cv.toBlob(function(b){if(b)trigger(b,'jpg')},"image/jpeg",q);
-              }else{
-                var data=cv.toDataURL('image/jpeg',0.92);
-                var pdf=new window.jspdf.jsPDF({unit:"pt",format:"a4"});
-                var pageW=pdf.internal.pageSize.getWidth();
-                var pageH=pdf.internal.pageSize.getHeight();
-                var r=Math.min(pageW/cv.width,pageH/cv.height);
-                var w=cv.width*r;var h=cv.height*r;
-                var x=(pageW-w)/2;var y=(pageH-h)/2;
-                pdf.addImage(data,"JPEG",x,y,w,h,"","FAST");
-                var blob=pdf.output("blob");
-                trigger(blob,"pdf");
-              }
-              e.stopImmediatePropagation();e.preventDefault();
-            }catch(_){}
-          },true);
-        });
-      })();
+      });
     </script>
     <script>
       (function(){

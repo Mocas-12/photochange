@@ -4,8 +4,8 @@
   const formatSelect = document.getElementById("formatSelect");
   const qualityRange = document.getElementById("qualityRange");
   const fileInput = document.getElementById("fileInput");
-  const cropBtn = document.getElementById("cropBtn");
-  const resetBtn = document.getElementById("resetBtn");
+  const cropBtn = document.getElementById("cropApply");
+  const resetBtn = document.getElementById("toolReset");
   const applyResize = document.getElementById("applyResize");
 
   if (!canvas || !badge) return;
