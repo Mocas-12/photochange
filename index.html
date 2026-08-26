@@ -12,6 +12,7 @@
   </head>
   <body>
     <canvas id="fx-canvas" aria-hidden="true"></canvas>
+    <div id="pageTrack" class="page-track">
     <section class="hero" id="top">
       <div class="hero-beacon"></div>
       <h1 class="hero-title">PhotoChange</h1>
@@ -28,7 +29,7 @@
           <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
         </span>
       </div>
-      <button class="scroll-hint" aria-label="向下滑动" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">
+      <button class="scroll-hint" aria-label="向下滑动" onclick="goToPage(1)">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
       </button>
     </section>
@@ -166,6 +167,7 @@
       </div>
     </div>
     </section>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
     <script src="./main.js"></script>
@@ -189,6 +191,7 @@
     </script>
     <script src="./quota.js"></script>
     <script src="./pointer-fx.js"></script>
+    <script src="./page-switch.js"></script>
     <script src="./info-badge.js"></script>
     <script>
       (function(){
