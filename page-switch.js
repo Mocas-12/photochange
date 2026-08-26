@@ -45,29 +45,7 @@
   }
   window.goToPage = goTo;
 
-  /* 元素在指定方向上是否还能继续滚动 */
-  function canScroll(el, dir) {
-    if (!el || el.scrollHeight <= el.clientHeight + 1) return false;
-    if (dir > 0) return el.scrollTop + el.clientHeight < el.scrollHeight - 1;
-    return el.scrollTop > 1;
-  }
-
-  /* 事件目标是否处于可滚动区域且该方向仍有空间 → 交给原生滚动 */
-  function insideScrollable(t, dir) {
-    var app = document.getElementById('app');
-    var node = t;
-    while (node && node !== app) {
-      if (node.nodeType === 1) {
-        var s;
-        try { s = getComputedStyle(node); } catch (_) { s = null; }
-        if (s && /(auto|scroll)/.test(s.overflowY) && canScroll(node, dir)) return true;
-      }
-      node = node.parentNode;
-    }
-    return false;
-  }
-
-  /* ---- 滚轮：一档直接切屏 ---- */
+  /* ---- 滚轮：仅首页向下滚一档进入功能页；功能页滚轮不切页 ---- */
   var acc = 0, accReset = 0;
   function attempt(dir, mag) {
     if (animating || overlayOpen()) return;
@@ -83,18 +61,12 @@
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     var mag = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
     if (Math.abs(mag) < 2) return;
-    var dir = mag > 0 ? 1 : -1;
     if (overlayOpen()) return;
-    if (current === 1) {
-      if (insideScrollable(e.target, dir)) return;      /* 面板等内部滚动 */
-      e.preventDefault();
-      attempt(dir, Math.abs(mag));
-    } else {
-      if (dir > 0) { e.preventDefault(); attempt(1, Math.abs(mag)); }
-    }
+    if (current === 0 && mag > 0) { e.preventDefault(); attempt(1, Math.abs(mag)); }
+    /* 功能页：滚轮不返回首页（避免移动端滑到顶部误触） */
   }, { passive: false });
 
-  /* ---- 触摸滑动 ---- */
+  /* ---- 触摸滑动：仅首页上滑进入功能页 ---- */
   var tsX = 0, tsY = 0, tracking = false;
   window.addEventListener('touchstart', function (e) {
     if (!e.touches || !e.touches[0]) return;
@@ -109,23 +81,27 @@
     var dx = tsX - e.changedTouches[0].clientX;
     if (Math.abs(dy) < 60 || Math.abs(dy) < Math.abs(dx)) return;
     if (overlayOpen()) return;
-    var dir = dy > 0 ? 1 : -1;
-    goTo(current + dir);
+    if (current === 0 && dy > 0) goTo(1);
   }, { passive: true });
 
-  /* ---- 键盘 ---- */
+  /* ---- 键盘：向下进入；Home 显式返回 ---- */
   window.addEventListener('keydown', function (e) {
     var tag = e.target && e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var step = 0;
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') step = 1;
-    else if (e.key === 'ArrowUp' || e.key === 'PageUp') step = -1;
-    else if (e.key === 'Home') { e.preventDefault(); goTo(0); return; }
-    else if (e.key === 'End') { e.preventDefault(); goTo(pages.length - 1); return; }
-    if (step) { e.preventDefault(); goTo(current + step); }
+    if (overlayOpen()) return;
+    if (current === 0 && (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ')) { e.preventDefault(); goTo(1); }
+    else if (e.key === 'End') { e.preventDefault(); goTo(pages.length - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
   });
 
   /* ---- 初始化 ---- */
-  track.dataset.pageSwitch = 'v3-px';
+  track.dataset.pageSwitch = 'v4-one-way';
+  var brand = document.getElementById('brandHome');
+  if (brand) {
+    brand.addEventListener('click', function () { goTo(0); });
+    brand.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goTo(0); }
+    });
+  }
   apply();
 })();
