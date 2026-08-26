@@ -13,8 +13,18 @@ function isPro(){
 function remaining(){const used=getCount();const r=Math.max(0,QUOTA-used);return r}
 function updateQuotaBar(){try{const inner=document.getElementById("quotaBarInner");if(!inner)return;const r=remaining();const pct=(r/QUOTA)*100;inner.style.width=pct+"%";inner.classList.remove("warn","danger","zero");if(r===0){inner.classList.add("danger")}else if(r<=1){inner.classList.add("danger")}else if(r<=2){inner.classList.add("warn")}}catch(e){}}
 function updateQuotaText(){try{const el=document.getElementById("quotaText");const hint=document.getElementById("quotaHint");if(!el)return;const r=remaining();console.log("[quota] update quota text:",{remaining:r,used:getCount(),isPro:isPro()});if(isPro()){el.textContent="专业版已激活：无限下载";el.classList.remove("exhausted");hint&&hint.classList.add("hidden");return}el.classList.toggle("exhausted",r===0);el.textContent=r===0? "免费额度已用尽" : `剩余免费额度：${r} / ${QUOTA}`;if(hint){if(r===1){hint.classList.remove("hidden")}else{hint.classList.add("hidden")}}updateQuotaBar()}catch(e){}}
-function showModal(){try{if(isPro())return;const c=getCount();if(c>=QUOTA){const m=document.getElementById("proModal");if(m)m.style.setProperty("display","flex","important")}}catch(e){}}
-function hideModal(){try{const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important")}catch(e){}}
+
+/* ---------- 弹窗显隐：统一走 .open 类（style.css 中 #proModal.open{display:flex}） ---------- */
+function proModalEl(){return document.getElementById("proModal")}
+function modalIsOpen(){const m=proModalEl();return !!(m&&m.classList.contains("open"))}
+function showModal(){try{
+  if(isPro())return;
+  if(getCount()<QUOTA)return;
+  const m=proModalEl();
+  if(m){m.style.removeProperty("display");m.classList.add("open")}
+}catch(e){}}
+function hideModal(){try{const m=proModalEl();if(m)m.classList.remove("open")}catch(e){}}
+
 function verifyCode(input){
   const code=(input||"").trim().toUpperCase();
   const rule=/^CY[A-Z0-9]{3}S1X$/;
@@ -36,6 +46,7 @@ function initQuota(){
     const proNorm=(proRaw==null? "false" : String(proRaw).toLowerCase().trim());
     if(proRaw==null || (proNorm!=="true" && proNorm!=="false")) Store.set("is_pro","false");
     console.log("[quota] init:",{raw_is_pro:proRaw,norm_is_pro:proNorm,count:getCount(),isPro:isPro()});
+    hideModal(); // 初始化时确保弹窗关闭
     updateQuotaText()
   }catch(e){}
 }
@@ -93,8 +104,8 @@ if(document.readyState==="loading"){
 }else{
   setupQuotaListener();initQuota()
 }
-window.closeProModal=()=>{try{const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important");console.log("[quota] closeProModal via global")}catch(e){}};
-document.addEventListener("keydown",e=>{try{if(e.key==="Escape"){const m=document.getElementById("proModal");if(m)m.style.setProperty("display","none","important");console.log("[quota] ESC pressed, modal hidden")}}catch(err){}});
-document.addEventListener("click",e=>{try{const id=e.target&&e.target.id;if(id==="closeX"){hideModal();console.log("[quota] close via X")}}catch(err){}});
+window.closeProModal=()=>{hideModal()};
+document.addEventListener("keydown",e=>{try{if(e.key==="Escape"){if(modalIsOpen()){hideModal();console.log("[quota] ESC pressed, modal hidden")}}}catch(err){}});
+document.addEventListener("click",e=>{try{const id=e.target&&e.target.id;if(id==="closeX"){hideModal()}}catch(err){}});
 // window.backToInput removed
 document.addEventListener("click",e=>{try{if(e.target&&e.target.id==="activateBtn"){e.stopImmediatePropagation();e.preventDefault();const input=document.getElementById("activateInput");const code=(input&&input.value||"").trim();verifyCode(code)}}catch(err){}},true);

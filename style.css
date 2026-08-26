@@ -329,10 +329,12 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 /* ---------------- 弹窗 ---------------- */
 .modal-overlay{
   position:fixed;inset:0;z-index:50;
-  display:flex;align-items:center;justify-content:center;
+  align-items:center;justify-content:center;
   background:rgba(4,5,7,.7);backdrop-filter:blur(10px);
 }
-#proModal{display:none !important}
+/* 弹窗显隐统一由 .open 类控制（配合 quota.js） */
+#proModal{display:none}
+#proModal.open{display:flex}
 .modal{
   position:relative;width:320px;max-width:90%;
   background:linear-gradient(180deg,rgba(24,26,33,.92),rgba(13,14,17,.95));
