@@ -59,7 +59,7 @@ html,body{overflow:hidden;height:100%}
 /* ---------------- Header ---------------- */
 .app-header{
   display:flex;align-items:center;gap:14px;
-  padding:16px 28px;
+  padding:12px 24px;
   border-bottom:1px solid var(--border-subtle);
   background:rgba(7,8,10,.72);backdrop-filter:blur(12px);
   position:sticky;top:0;z-index:20;
@@ -90,8 +90,8 @@ html,body{overflow:hidden;height:100%}
 /* ---------------- 布局骨架 ---------------- */
 .app-main{
   flex:1;min-height:0;width:100%;max-width:1500px;margin:0 auto;
-  display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:16px;
-  padding:18px 22px;
+  display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:14px;
+  padding:14px 20px;
   overflow:auto;
 }
 .left{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0}
@@ -101,7 +101,7 @@ html,body{overflow:hidden;height:100%}
 .dropzone{
   border:1px dashed rgba(255,255,255,.17);border-radius:var(--radius-md);
   display:flex;align-items:center;justify-content:center;
-  min-height:96px;padding:14px;
+  min-height:72px;padding:10px 14px;
   background:linear-gradient(180deg,rgba(21,23,29,.5),rgba(13,14,17,.55));
   transition:border-color .18s ease,background .18s ease,padding .18s ease,min-height .18s ease;
 }
@@ -122,7 +122,7 @@ body.has-image .dz-icon,body.has-image .dz-hint{display:none}
 .display-main-container{display:flex;flex-direction:column;flex:1;min-height:0}
 .image-tools-fixed{
   display:none;justify-content:center;align-items:center;gap:4px;
-  padding:6px;margin-bottom:12px;
+  padding:5px;margin-bottom:8px;
   background:rgba(15,16,20,.78);backdrop-filter:blur(12px);
   border:1px solid var(--border-subtle);border-radius:999px;
   width:max-content;margin-left:auto;margin-right:auto;
@@ -143,7 +143,7 @@ body.has-image .dz-icon,body.has-image .dz-hint{display:none}
 
 /* ---------------- 画布区（舞台） ---------------- */
 .canvas-wrap{
-  flex:1;min-height:300px;
+  flex:1;min-height:150px;
   display:flex;align-items:center;justify-content:center;
   border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
   position:relative;overflow:hidden;
@@ -193,10 +193,10 @@ body.has-image .canvas-hint{display:none}
 .panel{
   position:relative;
   border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);
-  padding:18px 16px;
+  padding:14px;
   background:linear-gradient(180deg,rgba(21,23,29,.66),rgba(12,13,16,.78));
   backdrop-filter:blur(14px);
-  display:flex;flex-direction:column;gap:16px;
+  display:flex;flex-direction:column;gap:12px;
   box-shadow:var(--shadow-card);
   overflow:auto;
 }
@@ -204,7 +204,7 @@ body.has-image .canvas-hint{display:none}
   content:"";position:absolute;top:0;left:12%;right:12%;height:1px;pointer-events:none;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
 }
-.panel-section{display:flex;flex-direction:column;gap:10px}
+.panel-section{display:flex;flex-direction:column;gap:8px}
 .panel-divider{height:1px;background:var(--border-subtle)}
 .panel-title{
   font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
@@ -406,10 +406,10 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 
 /* ---------------- 响应式 ---------------- */
 @media (max-width:980px){
-  .app-main{grid-template-columns:1fr;gap:12px;padding:14px}
+  .app-main{grid-template-columns:1fr;gap:12px;padding:12px}
   .right{order:2}
-  .canvas-wrap{min-height:260px}
-  .app-header{padding:14px 18px}
+  .canvas-wrap{min-height:200px}
+  .app-header{padding:10px 16px}
   .hero{padding:40px 20px 90px}
 }
 @media (prefers-reduced-motion:reduce){
