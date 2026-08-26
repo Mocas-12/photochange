@@ -51,6 +51,10 @@ body::before{
 ::-webkit-scrollbar-thumb{background:#23262b;border-radius:6px;border:2px solid var(--bg-void)}
 ::-webkit-scrollbar-track{background:transparent}
 
+/* ---------------- 特效点阵层 ---------------- */
+#fx-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.app-header,.app-main,.app-footer{position:relative;z-index:1}
+
 /* ---------------- Header ---------------- */
 .app-header{
   display:flex;align-items:center;gap:14px;
