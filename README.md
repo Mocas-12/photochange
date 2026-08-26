@@ -52,4 +52,3 @@ python -m http.server 5173
 ## 备注
 - 依赖：`jsPDF` 通过 CDN 加载，在线访问可直接使用；如需完全离线，可将 `jsPDF` 下载到本地并把 `index.html` 的引用改为本地文件。
 
-- 依赖：`jsPDF` 通过 CDN 加载，在线访问可直接使用；如需完全离线，可将 `jsPDF` 下载到本地并把 `index.html` 的引用改为本地文件。

@@ -4,100 +4,116 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PhotoChange</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./style.css" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
     <header class="app-header">
-      <div class="brand">PhotoChange</div>
-      <div class="subtitle">上传、裁剪、调整、转换</div>
+      <div class="brand"><span class="brand-dot"></span>PhotoChange</div>
+      <div class="subtitle">上传 · 裁剪 · 调整 · 转换</div>
     </header>
     <main class="app-main">
       <section class="left">
         <div id="dropzone" class="dropzone">
           <input id="fileInput" type="file" accept="image/*" />
           <div class="dz-inner">
-            <div class="dz-title">拖拽图片到此处或点击选择</div>
-            <div class="dz-hint">支持 PNG / JPG / JPEG / WebP / BMP</div>
+            <svg class="dz-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L7 20"/></svg>
+            <div class="dz-copy">
+              <div class="dz-title">拖拽图片到此处或点击选择</div>
+              <div class="dz-hint">支持 PNG / JPG / JPEG / WebP / BMP</div>
+            </div>
             <button id="chooseBtn" class="btn primary">选择图片</button>
           </div>
         </div>
         <div class="display-main-container">
           <div id="image-tools" class="image-tools-fixed">
-            <button onclick="changeZoom(-0.1)">-</button>
+            <button onclick="changeZoom(-0.1)" title="缩小"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/></svg></button>
             <span class="zoom-text" id="zoom-text">100%</span>
-            <button onclick="changeZoom(0.1)">+</button>
+            <button onclick="changeZoom(0.1)" title="放大"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6M11 8v6"/></svg></button>
             <div class="v-line"></div>
-            <button onclick="rotateImage(-90)" title="逆时针旋转">↺</button>
-            <button onclick="rotateImage(90)" title="顺时针旋转">↻</button>
-            <button id="gridBtn" onclick="toggleGrid()">标尺</button>
+            <button onclick="rotateImage(-90)" title="逆时针旋转"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+            <button onclick="rotateImage(90)" title="顺时针旋转"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button>
+            <div class="v-line"></div>
+            <button id="gridBtn" onclick="toggleGrid()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>标尺</button>
           </div>
           <div class="canvas-wrap grid-on">
             <canvas id="canvas"></canvas>
+            <div class="canvas-hint">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L7 20"/></svg>
+              <p>画布空空如也</p>
+              <span>上传一张图片开始编辑</span>
+            </div>
             <div id="infoBadge" class="badge hidden">未加载</div>
           </div>
         </div>
       </section>
       <section class="right">
         <div class="panel">
-          <div class="panel-title">裁剪</div>
-          <div class="row">
-            <label for="aspectSelect">长宽比</label>
-            <select id="aspectSelect">
-              <option value="free">自由</option>
-              <option value="1:1">1:1</option>
-              <option value="4:3">4:3</option>
-              <option value="16:9">16:9</option>
-              <option value="3:2">3:2</option>
-            </select>
+          <div class="panel-section">
+            <div class="panel-title">裁剪</div>
+            <div class="row">
+              <label for="aspectSelect">长宽比</label>
+              <select id="aspectSelect">
+                <option value="free">自由</option>
+                <option value="1:1">1:1</option>
+                <option value="4:3">4:3</option>
+                <option value="16:9">16:9</option>
+                <option value="3:2">3:2</option>
+              </select>
+            </div>
+            <div class="row">
+              <button id="cropBtn" class="btn">裁剪选区</button>
+              <button id="resetBtn" class="btn ghost">重置</button>
+            </div>
           </div>
-          <div class="row">
-            <button id="cropBtn" class="btn">裁剪选区</button>
-            <button id="resetBtn" class="btn ghost">重置</button>
+          <div class="panel-divider"></div>
+          <div class="panel-section">
+            <div class="panel-title">尺寸</div>
+            <div class="row">
+              <label for="widthInput">宽度</label>
+              <input id="widthInput" class="dimension-input" type="number" min="1" step="1" />
+            </div>
+            <div class="row">
+              <label for="heightInput">高度</label>
+              <input id="heightInput" class="dimension-input" type="number" min="1" step="1" />
+            </div>
+            <div class="row">
+              <label class="switch">
+                <input id="lockRatio" type="checkbox" checked />
+                <span>锁定比例</span>
+              </label>
+              <button id="applyResize" class="btn">应用尺寸</button>
+            </div>
           </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">尺寸</div>
-          <div class="row">
-            <label for="widthInput">宽度</label>
-            <input id="widthInput" class="dimension-input" type="number" min="1" step="1" />
+          <div class="panel-divider"></div>
+          <div class="panel-section">
+            <div class="panel-title">导出</div>
+            <div class="row">
+              <label for="formatSelect">格式</label>
+              <select id="formatSelect">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+            <div class="row jpg-only hidden">
+              <label for="qualityRange">JPG质量</label>
+              <input id="qualityRange" type="range" min="0.1" max="1" step="0.05" value="0.92" />
+              <span id="qualityValue">0.92</span>
+            </div>
+            <div class="row">
+              <input id="fileName" type="text" placeholder="文件名" />
+            </div>
+            <div class="row">
+              <button id="downloadBtn" class="btn primary wide">下载</button>
+            </div>
+            <div id="quotaBar" class="quota-bar"><div class="quota-bar-inner" id="quotaBarInner"></div></div>
+            <div id="quotaText" class="quota-text"></div>
+            <div id="quotaHint" class="quota-hint hidden">提示：这是最后一次免费额度，建议立即激活专业版以防中断</div>
           </div>
-          <div class="row">
-            <label for="heightInput">高度</label>
-            <input id="heightInput" class="dimension-input" type="number" min="1" step="1" />
-          </div>
-          <div class="row">
-            <label class="switch">
-              <input id="lockRatio" type="checkbox" checked />
-              <span>锁定比例</span>
-            </label>
-            <button id="applyResize" class="btn">应用尺寸</button>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">导出</div>
-          <div class="row">
-            <label for="formatSelect">格式</label>
-            <select id="formatSelect">
-              <option value="png">PNG</option>
-              <option value="jpg">JPG</option>
-              <option value="pdf">PDF</option>
-            </select>
-          </div>
-          <div class="row jpg-only hidden">
-            <label for="qualityRange">JPG质量</label>
-            <input id="qualityRange" type="range" min="0.1" max="1" step="0.05" value="0.92" />
-            <span id="qualityValue">0.92</span>
-          </div>
-          <div class="row">
-            <input id="fileName" type="text" placeholder="文件名" />
-          </div>
-          <div class="row">
-            <button id="downloadBtn" class="btn primary wide">下载</button>
-          </div>
-          <div id="quotaBar" class="quota-bar"><div class="quota-bar-inner" id="quotaBarInner"></div></div>
-          <div id="quotaText" class="quota-text"></div>
-          <div id="quotaHint" class="quota-hint hidden">提示：这是最后一次免费额度，建议立即激活专业版以防中断</div>
         </div>
       </section>
     </main>
@@ -105,13 +121,6 @@
       <div class="alert-content">
         <p id="alert-message">请先上传并转换一张图片</p>
         <button onclick="closeAlert()" class="alert-btn">确认</button>
-      </div>
-    </div>
-    <div class="credits footer-info">
-      <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
-      <div class="footer-text">
-        <span>作者：Unlimited Box</span>
-        <span>邮箱：a18577y@gmail.com</span>
       </div>
     </div>
     <div id="proModal" class="modal-overlay hidden">
@@ -134,12 +143,17 @@
         <!-- activation-modal removed per new purchase flow -->
       </div>
     </div>
-    <footer class="bz-footer">
-      <div class="busuanzi-container">
-        <span id="busuanzi_container_site_pv">总访问量 <span id="busuanzi_value_site_pv"></span></span>
+    <footer class="app-footer">
+      <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
+      <span>Unlimited Box</span>
+      <span class="sep">·</span>
+      <span>a18577y@gmail.com</span>
+      <span class="sep">·</span>
+      <span class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
         <span class="sep" id="busuanzi_sep" style="display:none">|</span>
-        <span id="busuanzi_container_site_uv">访客数 <span id="busuanzi_value_site_uv"></span></span>
-      </div>
+        <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
+      </span>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
@@ -192,7 +206,7 @@
             if(gridBtn){gridBtn.classList.toggle('active',on)}
           }catch(_){}
         })();
-        function showTools(){tools.style.display='flex'}
+        function showTools(){tools.style.display='flex';document.body.classList.add('has-image')}
         function hideTools(){tools.style.display='none'}
         var fileInput=document.getElementById('fileInput');
         var dropzone=document.getElementById('dropzone');
