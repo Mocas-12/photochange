@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="./style.css" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
-  <body>
+  <body class="m-tab-canvas">
     <canvas id="fx-canvas" aria-hidden="true"></canvas>
     <div id="pageTrack" class="page-track">
     <section class="hero" id="top">
@@ -30,12 +30,12 @@
         </span>
       </div>
       <button class="scroll-hint" aria-label="向下滑动" onclick="goToPage(1)">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
       </button>
     </section>
     <section id="app">
     <header class="app-header">
-      <div class="brand" id="brandHome" role="button" tabindex="0" title="返回首页"><span class="brand-dot"></span>PhotoChange</div>
+      <button id="brandHome" class="back-home" title="返回首页"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>返回主页</button>
       <div class="subtitle">上传 · 裁剪 · 调整 · 转换</div>
     </header>
     <main class="app-main">
@@ -140,6 +140,10 @@
         </div>
       </section>
     </main>
+    <nav class="mtabs" aria-label="功能区切换">
+      <button class="mtab active" data-tab="canvas">画布</button>
+      <button class="mtab" data-tab="tools">参数与导出</button>
+    </nav>
     <div id="custom-alert" class="alert-overlay">
       <div class="alert-content">
         <p id="alert-message">请先上传并转换一张图片</p>
@@ -191,7 +195,7 @@
     </script>
     <script src="./quota.js"></script>
     <script src="./pointer-fx.js"></script>
-    <script src="./page-switch.js?v=4"></script>
+    <script src="./page-switch.js?v=5"></script>
     <script src="./info-badge.js"></script>
     <script>
       (function(){

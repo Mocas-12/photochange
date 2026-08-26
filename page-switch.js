@@ -94,8 +94,20 @@
     else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
   });
 
+  /* ---- 移动端功能标签 ---- */
+  var mtabs = document.querySelectorAll('.mtab');
+  if (mtabs.length) {
+    mtabs.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        mtabs.forEach(function (b) { b.classList.toggle('active', b === btn); });
+        document.body.classList.remove('m-tab-canvas', 'm-tab-tools');
+        document.body.classList.add(btn.dataset.tab === 'tools' ? 'm-tab-tools' : 'm-tab-canvas');
+      });
+    });
+  }
+
   /* ---- 初始化 ---- */
-  track.dataset.pageSwitch = 'v4-one-way';
+  track.dataset.pageSwitch = 'v5-tabs';
   var brand = document.getElementById('brandHome');
   if (brand) {
     brand.addEventListener('click', function () { goTo(0); });

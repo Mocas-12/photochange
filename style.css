@@ -74,11 +74,15 @@ html,body{overflow:hidden;height:100%}
   font-weight:700;font-size:19px;letter-spacing:.2px;line-height:1;
   background:linear-gradient(92deg,#ffffff 25%,#a5c9ff 60%,#b7b9ff 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  cursor:pointer;border-radius:8px;padding:2px 6px;margin:-2px -6px;
-  transition:filter .18s ease;
 }
-.brand:hover{filter:brightness(1.25)}
-#brandHome:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 返回主页按钮（功能页 header 左侧） */
+.back-home{
+  display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;
+  background:transparent;border:1px solid var(--border-subtle);border-radius:999px;
+  color:var(--text-muted);font-family:var(--font);font-size:12.5px;letter-spacing:.2px;
+  cursor:pointer;transition:all .18s ease;flex:none;
+}
+.back-home:hover{color:var(--text-primary);border-color:var(--border-strong);background:rgba(255,255,255,.05)}
 .brand-dot{
   width:8px;height:8px;border-radius:50%;flex:none;
   background:var(--accent);
@@ -407,6 +411,21 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 
 /* ---------------- 功能区（第 2 屏） ---------------- */
 #app{position:relative;z-index:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ---------------- 移动端功能标签（桌面隐藏） ---------------- */
+.mtabs{display:none}
+@media (max-width:980px){
+  .mtabs{display:flex;gap:6px;justify-content:center;padding:6px 12px 12px}
+  .mtab{
+    height:34px;padding:0 18px;
+    background:transparent;border:1px solid var(--border-subtle);border-radius:999px;
+    color:var(--text-muted);font-family:var(--font);font-size:13px;letter-spacing:.2px;
+    cursor:pointer;transition:all .18s ease;
+  }
+  .mtab.active{color:#fff;background:var(--accent-soft);border-color:rgba(85,179,255,.4);box-shadow:0 0 14px rgba(85,179,255,.15)}
+  body.m-tab-tools .left{display:none}
+  body.m-tab-canvas .right{display:none}
+}
 
 /* ---------------- 响应式 ---------------- */
 @media (max-width:980px){
