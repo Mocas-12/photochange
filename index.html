@@ -12,6 +12,27 @@
   </head>
   <body>
     <canvas id="fx-canvas" aria-hidden="true"></canvas>
+    <section class="hero" id="top">
+      <div class="hero-beacon"></div>
+      <h1 class="hero-title">PhotoChange</h1>
+      <p class="hero-sub">上传 · 裁剪 · 调整 · 转换</p>
+      <div class="hero-meta">
+        <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
+        <span>Unlimited Box</span>
+        <span class="sep">·</span>
+        <span>a18577y@gmail.com</span>
+        <span class="sep">·</span>
+        <span class="busuanzi-container">
+          <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
+          <span class="sep" id="busuanzi_sep" style="display:none">|</span>
+          <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
+        </span>
+      </div>
+      <button class="scroll-hint" aria-label="向下滑动" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+      </button>
+    </section>
+    <section id="app">
     <header class="app-header">
       <div class="brand"><span class="brand-dot"></span>PhotoChange</div>
       <div class="subtitle">上传 · 裁剪 · 调整 · 转换</div>
@@ -144,18 +165,7 @@
         <!-- activation-modal removed per new purchase flow -->
       </div>
     </div>
-    <footer class="app-footer">
-      <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
-      <span>Unlimited Box</span>
-      <span class="sep">·</span>
-      <span>a18577y@gmail.com</span>
-      <span class="sep">·</span>
-      <span class="busuanzi-container">
-        <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
-        <span class="sep" id="busuanzi_sep" style="display:none">|</span>
-        <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
-      </span>
-    </footer>
+    </section>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
     <script src="./main.js"></script>
