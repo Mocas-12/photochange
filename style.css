@@ -447,22 +447,6 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 /* ---------------- 功能区（第 2 屏） ---------------- */
 #app{position:relative;z-index:1;display:flex;flex-direction:column;overflow:hidden}
 
-/* ---------------- 移动端功能标签（桌面隐藏） ---------------- */
-.mtabs{display:none}
-@media (max-width:980px){
-  .mtabs{display:flex;gap:6px;justify-content:center;padding:6px 12px 12px}
-  .mtab{
-    height:34px;padding:0 18px;
-    background:transparent;border:1px solid var(--border-subtle);border-radius:999px;
-    color:var(--text-muted);font-family:var(--font);font-size:13px;letter-spacing:.2px;
-    cursor:pointer;transition:all .18s ease;
-  }
-  .mtab.active{color:#fff;background:var(--accent-soft);border-color:rgba(85,179,255,.4);box-shadow:0 0 14px rgba(85,179,255,.15)}
-  /* 新布局：画布标签=编辑区，参数标签=导出条 */
-  body.m-tab-tools .display-main-container{display:none}
-  body.m-tab-canvas .export-bar{display:none}
-}
-
 /* ---------------- 响应式 ---------------- */
 @media (max-width:980px){
   .app-main{padding:10px}

@@ -7,10 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./style.css?v=2" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
-  <body class="m-tab-canvas">
+  <body>
     <canvas id="fx-canvas" aria-hidden="true"></canvas>
     <div id="pageTrack" class="page-track">
     <section class="hero" id="top">
@@ -148,10 +148,6 @@
         </div>
       </section>
     </main>
-    <nav class="mtabs" aria-label="功能区切换">
-      <button class="mtab active" data-tab="canvas">画布</button>
-      <button class="mtab" data-tab="tools">参数与导出</button>
-    </nav>
     </section>
     </div>
     <!-- 固定定位的弹层必须放在 .page-track 之外：
@@ -206,7 +202,7 @@
     </script>
     <script src="./quota.js?v=2"></script>
     <script src="./pointer-fx.js"></script>
-    <script src="./page-switch.js?v=5"></script>
+    <script src="./page-switch.js?v=6"></script>
     <script src="./info-badge.js"></script>
     <script>
       (function(){
