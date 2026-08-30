@@ -152,6 +152,11 @@
       <button class="mtab active" data-tab="canvas">画布</button>
       <button class="mtab" data-tab="tools">参数与导出</button>
     </nav>
+    </section>
+    </div>
+    <!-- 固定定位的弹层必须放在 .page-track 之外：
+         .page-track 带有 transform，会成为 position:fixed 后代的包含块，
+         弹窗若放在轨道内会跟随轨道位移，在第二页时被移出视口 -->
     <div id="custom-alert" class="alert-overlay">
       <div class="alert-content">
         <p id="alert-message">请先上传并转换一张图片</p>
@@ -177,8 +182,6 @@
         </div>
         <!-- activation-modal removed per new purchase flow -->
       </div>
-    </div>
-    </section>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
