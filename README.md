@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/Mocas-12.png" width="96" alt="PhotoChange Logo" />
+<img src="./logo.svg" width="96" alt="PhotoChange Logo" />
 
 # PhotoChange
 
