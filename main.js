@@ -8,7 +8,7 @@
   var $ = function (id) { return document.getElementById(id); };
 
   /* ---------- 元素 ---------- */
-  var fileInput = $("fileInput"), dropzone = $("dropzone"), chooseBtn = $("chooseBtn");
+  var fileInput = $("fileInput"), dropzone = $("dropzone");
   var canvas = $("canvas"), ctx = canvas.getContext("2d");
   var toolCrop = $("toolCrop"), toolSize = $("toolSize"), toolWm = $("toolWm");
   var toolUndo = $("toolUndo"), toolReset = $("toolReset");
@@ -44,6 +44,7 @@
     setCanvasSize(fit.w, fit.h);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(workingImage, 0, 0, canvas.width, canvas.height);
+    paintWatermark(ctx, canvas.width, canvas.height);
     drawSelection();
   }
   function syncInputs() {
@@ -112,6 +113,9 @@
         history.length = 0;
         toolUndo.disabled = true;
         selection = null;
+        document.body.classList.add("has-image");
+        var tools = $("image-tools");
+        if (tools) tools.style.display = "flex";
         drawScaled(); syncInputs();
         fileNameInput.value = (file.name || "output").replace(/\.[^.]+$/, "");
       };
@@ -133,6 +137,18 @@
   fileInput.addEventListener("change", function (e) {
     var f = e.target.files && e.target.files[0];
     if (f) loadImage(f);
+  });
+  /* 粘贴上传：截图后直接 Ctrl+V，无需先存文件 */
+  window.addEventListener("paste", function (e) {
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf("image/") === 0) {
+        var f = items[i].getAsFile();
+        if (f) { e.preventDefault(); loadImage(f); }
+        return;
+      }
+    }
   });
 
   /* ---------- 工具条：切换操作条 ---------- */
@@ -266,22 +282,17 @@
   });
 
   /* ---------- 水印 ---------- */
-  function applyWatermark(cv) {
-    if (!wmEnable.checked) return cv;
+  /* 水印绘制核心：预览与导出共用，字号按画布短边比例计算，保证两端观感一致 */
+  function paintWatermark(c, w, h) {
     var text = wmText.value.trim();
-    if (!text) return cv;
-    var out = document.createElement("canvas");
-    out.width = cv.width; out.height = cv.height;
-    var c = out.getContext("2d");
-    c.drawImage(cv, 0, 0);
-    var fs = Math.max(14, Math.round(Math.min(cv.width, cv.height) * 0.055));
+    if (!wmEnable.checked || !text) return;
+    var fs = Math.max(14, Math.round(Math.min(w, h) * 0.055));
     c.font = "600 " + fs + "px Inter,system-ui,'PingFang SC','Microsoft YaHei',sans-serif";
-    var metr = c.measureText(text);
-    var tw = metr.width, th = fs;
+    var tw = c.measureText(text).width, th = fs;
     var pad = Math.round(fs * 0.6);
     var pos = wmPos.value;
-    var x = pos.indexOf("l") > -1 ? pad : pos.indexOf("r") > -1 ? cv.width - tw - pad : (cv.width - tw) / 2;
-    var y = pos.charAt(0) === "t" ? pad + th / 2 : pos.charAt(0) === "b" ? cv.height - pad - th / 2 : cv.height / 2;
+    var x = pos.indexOf("l") > -1 ? pad : pos.indexOf("r") > -1 ? w - tw - pad : (w - tw) / 2;
+    var y = pos.charAt(0) === "t" ? pad + th / 2 : pos.charAt(0) === "b" ? h - pad - th / 2 : h / 2;
     c.save();
     c.globalAlpha = parseFloat(wmOpacity.value);
     c.fillStyle = "#ffffff";
@@ -290,8 +301,21 @@
     c.textBaseline = "middle";
     c.fillText(text, x, y);
     c.restore();
+  }
+  function applyWatermark(cv) {
+    if (!wmEnable.checked || !wmText.value.trim()) return cv;
+    var out = document.createElement("canvas");
+    out.width = cv.width; out.height = cv.height;
+    var c = out.getContext("2d");
+    c.drawImage(cv, 0, 0);
+    paintWatermark(c, cv.width, cv.height);
     return out;
   }
+  /* 水印参数变动时实时重绘画布预览 */
+  wmEnable.addEventListener("change", drawScaled);
+  wmText.addEventListener("input", drawScaled);
+  wmPos.addEventListener("change", drawScaled);
+  wmOpacity.addEventListener("input", drawScaled);
 
   /* ---------- 导出 ---------- */
   function uiFormatChange() {
@@ -340,6 +364,17 @@
     if (!best) best = await toBlob(cv, mime, 0.05);
     return best;
   }
+  /* JPG/PDF 不支持透明通道：导出前合成白底，避免透明区域变黑 */
+  function flattenForExport(cv) {
+    var out = document.createElement("canvas");
+    out.width = cv.width; out.height = cv.height;
+    var c = out.getContext("2d");
+    c.fillStyle = "#ffffff";
+    c.fillRect(0, 0, out.width, out.height);
+    c.drawImage(cv, 0, 0);
+    return out;
+  }
+
   downloadBtn.addEventListener("click", async function () {
     if (!workingImage) { alert("请先上传并转换一张图片"); return; }
     var cv = applyWatermark(rotatedCanvas(workingImage, window.currentRotation || 0));
@@ -347,6 +382,7 @@
     var kb = parseFloat(targetKB.value) || 0;
     try {
       if (fmt === "pdf") {
+        cv = flattenForExport(cv);
         var dataUrl = cv.toDataURL("image/jpeg", 0.92);
         var pdf = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
         var pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
@@ -364,6 +400,7 @@
         alert("PNG 为无损格式，无法按体积压缩；已自动改用 JPG 压缩。");
         fmt = "jpg"; mime = "image/jpeg"; ext = "jpg";
       }
+      if (fmt === "jpg") cv = flattenForExport(cv);
       if (kb > 0) blob = await blobUnderKB(cv, mime, kb);
       else blob = await toBlob(cv, mime, q);
       if (blob) trigger(blob, ext);
