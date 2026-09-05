@@ -25,7 +25,7 @@
 
   function getFormat() {
     const sel = formatSelect ? formatSelect.value : "png";
-    if (sel === "jpg" || sel === "png" || sel === "pdf") return sel;
+    if (["png", "jpg", "webp", "bmp", "ico", "pdf"].indexOf(sel) > -1) return sel;
     return "png";
     }
 
@@ -61,6 +61,10 @@
         srcCanvas.toBlob((b) => resolve(b), "image/jpeg", q);
       } else if (fmt === "pdf") {
         makePdfBlobFromCanvas(srcCanvas).then(resolve);
+      } else if (fmt === "bmp" && window.__pcEncoders) {
+        Promise.resolve(window.__pcEncoders.bmp(srcCanvas)).then(resolve);
+      } else if (fmt === "ico" && window.__pcEncoders) {
+        Promise.resolve(window.__pcEncoders.ico(srcCanvas)).then(resolve);
       } else {
         resolve(null);
       }

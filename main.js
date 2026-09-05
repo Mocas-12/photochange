@@ -111,6 +111,34 @@
   /* ---------- 加载图片 ---------- */
   function loadImage(file) {
     if (!file) return;
+    if (isHeic(file)) {
+      loadHeicLib()
+        .then(function () { return window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 }); })
+        .then(function (out) {
+          if (Array.isArray(out)) out = out[0];
+          decodeFile(out, (file.name || "image").replace(/\.heicf?$/i, ""));
+        })
+        .catch(function (err) { alert("图片加载失败：" + err.message); });
+      return;
+    }
+    decodeFile(file, null);
+  }
+  /* HEIC / HEIF（iPhone 照片）：浏览器不能直接解码时按需加载转换库，转 JPG 进画布 */
+  function isHeic(file) {
+    var n = (file.name || "").toLowerCase();
+    return file.type === "image/heic" || file.type === "image/heif" || /\.heicf?$/.test(n);
+  }
+  function loadHeicLib() {
+    if (window.heic2any) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("HEIC 解码库加载失败，请检查网络后重试")); };
+      document.head.appendChild(s);
+    });
+  }
+  function decodeFile(file, nameOverride) {
     var reader = new FileReader();
     reader.onload = function (e) {
       var img = new Image();
@@ -130,7 +158,10 @@
         var tools = $("image-tools");
         if (tools) tools.style.display = "flex";
         drawScaled(); syncInputs();
-        fileNameInput.value = (file.name || "output").replace(/\.[^.]+$/, "");
+        fileNameInput.value = (nameOverride || file.name || "output").replace(/\.[^.]+$/, "");
+      };
+      img.onerror = function () {
+        alert("图片解码失败：当前浏览器可能不支持此格式");
       };
       img.src = e.target.result;
     };
@@ -412,6 +443,80 @@
   function toBlob(cv, mime, q) {
     return new Promise(function (res) { cv.toBlob(res, mime, q); });
   }
+  /* BMP（24 位无压缩）：透明区按白底合成，行尾按 4 字节对齐 */
+  function bmpBlob(cv) {
+    var w = cv.width, h = cv.height;
+    var img = cv.getContext("2d").getImageData(0, 0, w, h).data;
+    var rowSize = Math.floor((24 * w + 31) / 32) * 4;
+    var pixSize = rowSize * h;
+    var fileSize = 54 + pixSize;
+    var buf = new ArrayBuffer(fileSize);
+    var view = new DataView(buf);
+    var u8 = new Uint8Array(buf);
+    u8[0] = 0x42; u8[1] = 0x4D;                       /* "BM" */
+    view.setUint32(2, fileSize, true);
+    view.setUint32(10, 54, true);                     /* 像素数据偏移 */
+    view.setUint32(14, 40, true);                     /* BITMAPINFOHEADER */
+    view.setInt32(18, w, true);
+    view.setInt32(22, -h, true);                      /* 负高度 = 自上而下存储 */
+    view.setUint16(26, 1, true);                      /* 位面数 */
+    view.setUint16(28, 24, true);                     /* 24 bpp */
+    view.setUint32(34, pixSize, true);
+    view.setUint32(38, 2835, true); view.setUint32(42, 2835, true); /* 72 DPI */
+    for (var y = 0; y < h; y++) {
+      var row = 54 + y * rowSize;
+      var src = y * w * 4;
+      for (var x = 0; x < w; x++) {
+        var i = src + x * 4;
+        var a = img[i + 3] / 255, inv = 255 * (1 - a);
+        u8[row + x * 3]     = Math.round(img[i + 2] * a + inv); /* B */
+        u8[row + x * 3 + 1] = Math.round(img[i + 1] * a + inv); /* G */
+        u8[row + x * 3 + 2] = Math.round(img[i]     * a + inv); /* R */
+      }
+    }
+    return new Blob([buf], { type: "image/bmp" });
+  }
+  /* ICO（favicon）：16/32/48/64/128/256 多尺寸打包，PNG 压缩条目，非方形图居中裁方 */
+  async function icoBlob(cv) {
+    var max = Math.max(cv.width, cv.height);
+    var sizes = [16, 32, 48, 64, 128, 256].filter(function (s) { return s <= max; });
+    if (!sizes.length) sizes = [16];
+    var entries = [];
+    for (var i = 0; i < sizes.length; i++) {
+      var s = sizes[i];
+      var tmp = document.createElement("canvas");
+      tmp.width = s; tmp.height = s;
+      var c = tmp.getContext("2d");
+      c.imageSmoothingEnabled = true;
+      c.imageSmoothingQuality = "high";
+      var scale = Math.max(s / cv.width, s / cv.height);
+      var dw = cv.width * scale, dh = cv.height * scale;
+      c.drawImage(cv, (s - dw) / 2, (s - dh) / 2, dw, dh);
+      var png = await new Promise(function (res) { tmp.toBlob(res, "image/png"); });
+      if (png) entries.push({ size: s, blob: png });
+    }
+    if (!entries.length) throw new Error("ICO 编码失败");
+    var headSize = 6 + entries.length * 16;
+    var buf = new ArrayBuffer(headSize);
+    var view = new DataView(buf);
+    view.setUint16(0, 0, true);
+    view.setUint16(2, 1, true);                       /* 类型：图标 */
+    view.setUint16(4, entries.length, true);
+    var off = headSize;
+    var parts = [];
+    for (var k = 0; k < entries.length; k++) {
+      var e = entries[k], base = 6 + k * 16;
+      view.setUint8(base, e.size === 256 ? 0 : e.size);     /* 0 表示 256 */
+      view.setUint8(base + 1, e.size === 256 ? 0 : e.size);
+      view.setUint16(base + 4, 1, true);              /* 位面数 */
+      view.setUint16(base + 6, 32, true);             /* 色深 */
+      view.setUint32(base + 8, e.blob.size, true);
+      view.setUint32(base + 12, off, true);
+      parts.push(e.blob);
+      off += e.blob.size;
+    }
+    return new Blob([buf].concat(parts), { type: "image/x-icon" });
+  }
   /* 目标体积：二分搜索质量参数 */
   async function blobUnderKB(cv, mime, kb) {
     var limit = kb * 1024;
@@ -455,12 +560,24 @@
         trigger(pdf.output("blob"), "pdf");
         return;
       }
+      if (fmt === "bmp") {
+        trigger(bmpBlob(cv), "bmp");
+        return;
+      }
+      if (fmt === "ico") {
+        trigger(await icoBlob(cv), "ico");
+        return;
+      }
       var mime = fmt === "png" ? "image/png" : fmt === "webp" ? "image/webp" : "image/jpeg";
       var ext = fmt;
       var q = Math.max(0.1, Math.min(1, Number(qualityRange.value) || 0.92));
       var blob;
       if (kb > 0 && fmt === "png") {
         alert("PNG 为无损格式，无法按体积压缩；已自动改用 JPG 压缩。");
+        fmt = "jpg"; mime = "image/jpeg"; ext = "jpg";
+      }
+      if (fmt === "webp" && !CAN_WEBP) {
+        alert("当前浏览器不支持导出 WebP，已自动改用 JPG。");
         fmt = "jpg"; mime = "image/jpeg"; ext = "jpg";
       }
       if (fmt === "jpg") cv = flattenForExport(cv);
@@ -477,6 +594,16 @@
   applyQualityLabel();
   /* 老浏览器（如 iOS 17 及更早的 Safari）不支持 ctx.filter 时隐藏调整入口 */
   if (typeof ctx.filter !== "string" || !ctx.filter) toolAdjust.classList.add("hidden");
+  /* WebP 编码能力探测（Safari 部分版本不支持 toBlob('image/webp')，会静默输出 PNG） */
+  var CAN_WEBP = (function () {
+    try {
+      var p = document.createElement("canvas");
+      p.width = 1; p.height = 1;
+      return p.toDataURL("image/webp").indexOf("data:image/webp") === 0;
+    } catch (_) { return false; }
+  })();
+  /* 供状态徽章复用编码器，BMP/ICO 选中时也能显示预估体积 */
+  window.__pcEncoders = { bmp: bmpBlob, ico: icoBlob };
 
   /* 窗口尺寸 / 手机横竖屏变化后按新容器重新适配画布 */
   var resizeRaf = 0;

@@ -42,12 +42,12 @@
     <main class="app-main">
       <section class="left">
         <div id="dropzone" class="dropzone">
-          <input id="fileInput" type="file" accept="image/*" />
+          <input id="fileInput" type="file" accept="image/*,.avif,.heic,.heif" />
           <div class="dz-inner">
             <svg class="dz-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L7 20"/></svg>
             <div class="dz-copy">
               <div class="dz-title">拖拽图片到此处或点击选择</div>
-              <div class="dz-hint">支持 PNG / JPG / JPEG / WebP / BMP</div>
+              <div class="dz-hint">支持 PNG / JPG / WebP / BMP / AVIF / HEIC</div>
             </div>
             <button id="chooseBtn" class="btn primary">选择图片</button>
           </div>
@@ -138,6 +138,8 @@
             <option value="png">PNG</option>
             <option value="jpg">JPG</option>
             <option value="webp">WebP</option>
+            <option value="bmp">BMP</option>
+            <option value="ico">ICO</option>
             <option value="pdf">PDF</option>
           </select>
         </div>
@@ -195,7 +197,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
-    <script src="./main.js?v=3"></script>
+    <script src="./main.js?v=4"></script>
     <script src="./overlay-fix.js"></script>
     <script>
       (function(){
