@@ -7,6 +7,8 @@
   var canvas = document.getElementById('fx-canvas');
   if (!canvas || !canvas.getContext) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  /* 触屏设备跳过：常驻动画耗电，触摸拖动也会持续扰动点阵 */
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
 
   var ctx = canvas.getContext('2d');
   var dpr = Math.min(window.devicePixelRatio || 1, 2);

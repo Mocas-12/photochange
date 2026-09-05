@@ -216,6 +216,7 @@
         function applyTransform(){
           canvas.style.setProperty('--zoom-level', String(__zoom));
           canvas.style.setProperty('--rotation-angle', __angle + 'deg');
+          window.__pcZoom = __zoom;
           zoomText.textContent = Math.round(__zoom*100) + '%';
         }
         function clamp(v,min,max){return Math.max(min,Math.min(max,v))}

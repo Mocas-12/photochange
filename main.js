@@ -25,6 +25,11 @@
   var originalImage = null, workingImage = null;
   var selection = null, dragging = false;
   var history = [];
+  /* 触屏设备撤销步数收紧：多份全尺寸位图易撑爆移动端内存 */
+  var HISTORY_MAX = (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) ? 8 : 20;
+  /* 加载上限：最长边超过则等比缩小，避免移动端画布超限 */
+  var MAX_SIDE = 4096;
+  var baseW = 0, baseH = 0;
 
   /* ---------- 工具函数 ---------- */
   function setCanvasSize(w, h) { canvas.width = w; canvas.height = h; }
@@ -54,7 +59,7 @@
     c.width = workingImage.width; c.height = workingImage.height;
     c.getContext("2d").drawImage(workingImage, 0, 0);
     history.push(c);
-    if (history.length > 20) history.shift();
+    if (history.length > HISTORY_MAX) history.shift();
     toolUndo.disabled = false;
   }
   function undo() {
@@ -96,11 +101,14 @@
     reader.onload = function (e) {
       var img = new Image();
       img.onload = function () {
+        var scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+        baseW = Math.max(1, Math.round(img.naturalWidth * scale));
+        baseH = Math.max(1, Math.round(img.naturalHeight * scale));
         originalImage = img;
         workingImage = document.createElement("canvas");
-        workingImage.width = img.naturalWidth;
-        workingImage.height = img.naturalHeight;
-        workingImage.getContext("2d").drawImage(img, 0, 0);
+        workingImage.width = baseW;
+        workingImage.height = baseH;
+        workingImage.getContext("2d").drawImage(img, 0, 0, baseW, baseH);
         history.length = 0;
         toolUndo.disabled = true;
         selection = null;
@@ -111,7 +119,8 @@
     };
     reader.readAsDataURL(file);
   }
-  chooseBtn.addEventListener("click", function () { fileInput.click(); });
+  /* 整个拖放区可点击选图（移动端主要点击路径）；按钮点击冒泡到此统一处理 */
+  dropzone.addEventListener("click", function () { fileInput.click(); });
   dropzone.addEventListener("dragover", function (e) {
     e.preventDefault(); dropzone.classList.add("hover");
   });
@@ -144,25 +153,36 @@
     if (!originalImage) return;
     pushHistory();
     workingImage = document.createElement("canvas");
-    workingImage.width = originalImage.naturalWidth;
-    workingImage.height = originalImage.naturalHeight;
-    workingImage.getContext("2d").drawImage(originalImage, 0, 0);
+    workingImage.width = baseW;
+    workingImage.height = baseH;
+    workingImage.getContext("2d").drawImage(originalImage, 0, 0, baseW, baseH);
     selection = null;
     drawScaled(); syncInputs();
   });
 
-  /* ---------- 裁剪 ---------- */
+  /* ---------- 裁剪（Pointer Events：鼠标 / 触摸 / 触控笔通用） ---------- */
   function canvasPoint(evt) {
-    var rect = canvas.getBoundingClientRect();
-    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+    // 画布被 CSS 缩放/旋转过：以布局中心做逆变换，映射回位图坐标
+    var wrap = canvas.parentElement.getBoundingClientRect();
+    var cx = wrap.left + wrap.width / 2, cy = wrap.top + wrap.height / 2;
+    var z = window.__pcZoom || 1;
+    var a = ((window.currentRotation || 0) % 360) * Math.PI / 180;
+    var dx = evt.clientX - cx, dy = evt.clientY - cy;
+    var cos = Math.cos(-a), sin = Math.sin(-a);
+    return {
+      x: (dx * cos - dy * sin) / z + canvas.width / 2,
+      y: (dx * sin + dy * cos) / z + canvas.height / 2
+    };
   }
-  canvas.addEventListener("mousedown", function (e) {
-    if (!workingImage) return;
+  canvas.addEventListener("pointerdown", function (e) {
+    if (!workingImage || !e.isPrimary) return;
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
     dragging = true;
     selection = { x: canvasPoint(e).x, y: canvasPoint(e).y, w: 0, h: 0 };
   });
-  canvas.addEventListener("mousemove", function (e) {
-    if (!dragging || !selection) return;
+  canvas.addEventListener("pointermove", function (e) {
+    if (!dragging || !selection || !e.isPrimary) return;
     var p = canvasPoint(e);
     var ax = p.x - selection.x, ay = p.y - selection.y;
     var mode = stripAspect.value;
@@ -175,7 +195,10 @@
     selection.w = ax; selection.h = ay;
     drawScaled();
   });
-  window.addEventListener("mouseup", function () { dragging = false; });
+  function endDrag(e) { if (!e || e.isPrimary) dragging = false; }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", function () { dragging = false; });
+  window.addEventListener("pointerup", endDrag);
   cropApply.addEventListener("click", function () {
     if (!selection || !workingImage) return;
     var r = normRect(selection);
@@ -352,4 +375,14 @@
   /* ---------- 初始化 ---------- */
   uiFormatChange();
   applyQualityLabel();
+
+  /* 窗口尺寸 / 手机横竖屏变化后按新容器重新适配画布 */
+  var resizeRaf = 0;
+  window.addEventListener("resize", function () {
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(function () {
+      resizeRaf = 0;
+      if (workingImage) drawScaled();
+    });
+  });
 })();

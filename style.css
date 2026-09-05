@@ -61,7 +61,7 @@ html,body{overflow:hidden;height:100%}
   display:flex;align-items:center;gap:14px;
   padding:12px 24px;
   border-bottom:1px solid var(--border-subtle);
-  background:rgba(7,8,10,.72);backdrop-filter:blur(12px);
+  background:rgba(7,8,10,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   position:sticky;top:0;z-index:20;
 }
 /* 底部渐变光线 */
@@ -130,7 +130,7 @@ body.has-image .dz-icon,body.has-image .dz-hint{display:none}
 .image-tools-fixed{
   display:none;justify-content:center;align-items:center;gap:4px;
   padding:5px;margin-bottom:8px;
-  background:rgba(15,16,20,.78);backdrop-filter:blur(12px);
+  background:rgba(15,16,20,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border:1px solid var(--border-subtle);border-radius:999px;
   width:max-content;margin-left:auto;margin-right:auto;
   box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
@@ -171,7 +171,10 @@ canvas{
   transition:transform .3s ease;
   transform:rotate(var(--rotation-angle,0deg)) scale(var(--zoom-level,1));
   filter:drop-shadow(0 12px 32px rgba(0,0,0,.55));
+  user-select:none;-webkit-user-select:none;
 }
+/* 图片加载后画布接管触摸：拖动=框选裁剪，不触发页面滚动 */
+body.has-image canvas{touch-action:none}
 
 /* 空状态提示 */
 .canvas-hint{
@@ -189,7 +192,7 @@ body.has-image .canvas-hint{display:none}
 /* 信息徽章 */
 .badge{
   position:absolute;right:10px;bottom:10px;z-index:2;
-  background:rgba(10,11,13,.8);backdrop-filter:blur(8px);
+  background:rgba(10,11,13,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
   border:1px solid var(--border-subtle);border-radius:999px;
   padding:6px 12px;font-size:12px;color:var(--text-secondary);
 }
@@ -201,7 +204,7 @@ body.has-image .canvas-hint{display:none}
 .edit-toolbar{
   display:flex;align-items:center;justify-content:center;gap:4px;
   padding:5px;
-  background:rgba(15,16,20,.78);backdrop-filter:blur(12px);
+  background:rgba(15,16,20,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border:1px solid var(--border-subtle);border-radius:999px;
   width:max-content;margin:0 auto;
   box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
@@ -218,7 +221,7 @@ body.has-image .canvas-hint{display:none}
 .opstrip{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
   padding:8px 14px;
-  background:rgba(15,16,20,.72);backdrop-filter:blur(12px);
+  background:rgba(15,16,20,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border:1px solid var(--border-subtle);border-radius:var(--radius-md);
   animation:strip-in .22s ease;
 }
@@ -233,7 +236,7 @@ body.has-image .canvas-hint{display:none}
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   padding:10px 14px;
   background:linear-gradient(180deg,rgba(21,23,29,.66),rgba(12,13,16,.78));
-  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);
   box-shadow:var(--shadow-card);
   position:relative;
@@ -330,7 +333,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 .modal-overlay{
   position:fixed;inset:0;z-index:50;
   align-items:center;justify-content:center;
-  background:rgba(4,5,7,.7);backdrop-filter:blur(10px);
+  background:rgba(4,5,7,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
 }
 /* 弹窗显隐统一由 .open 类控制（配合 quota.js） */
 #proModal{display:none}
@@ -338,7 +341,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 .modal{
   position:relative;width:320px;max-width:90%;
   background:linear-gradient(180deg,rgba(24,26,33,.92),rgba(13,14,17,.95));
-  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   border:1px solid rgba(255,255,255,.1);
   border-radius:var(--radius-lg);padding:22px 18px 18px;color:var(--text-secondary);
   box-shadow:0 0 0 1px rgba(0,0,0,.4),0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(85,140,255,.08),inset 0 1px 0 rgba(255,255,255,.07);
@@ -366,7 +369,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 /* ---------------- 自定义 alert ---------------- */
 .alert-overlay{
   display:none;position:fixed;inset:0;z-index:9999;
-  background:rgba(4,5,7,.72);backdrop-filter:blur(6px);
+  background:rgba(4,5,7,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
   justify-content:center;align-items:center;
 }
 .alert-content{
@@ -456,6 +459,8 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   .opstrip{gap:8px;padding:8px 10px}
   .export-bar{gap:10px;padding:10px}
   .eb-download{margin-left:0;width:100%}
+  /* iOS Safari：输入框字号≥16px，避免聚焦时页面自动放大 */
+  input[type=text],input[type=number],select{font-size:16px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none !important;animation:none !important}
