@@ -7,8 +7,6 @@
   var canvas = document.getElementById('fx-canvas');
   if (!canvas || !canvas.getContext) return;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  /* 触屏设备跳过：常驻动画耗电，触摸拖动也会持续扰动点阵 */
-  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
 
   var ctx = canvas.getContext('2d');
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -106,6 +104,11 @@
   window.addEventListener('pointermove', onMove, { passive: true });
   document.addEventListener('pointerleave', onLeave);
   window.addEventListener('blur', onLeave);
+  /* 触摸没有"移出页面"：抬手/取消时松开点阵，恢复呼吸状态 */
+  window.addEventListener('pointerup', function (e) {
+    if (e.pointerType === 'touch') onLeave();
+  }, { passive: true });
+  window.addEventListener('pointercancel', onLeave, { passive: true });
   document.addEventListener('visibilitychange', onVisibility);
 
   resize();
