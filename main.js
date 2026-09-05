@@ -279,7 +279,6 @@
     workingImage = next;
     selection = null;
     drawScaled(); syncInputs();
-    toggleStrip(stripCrop, toolCrop); // 用完收起
   });
 
   /* ---------- 尺寸 / 预设 ---------- */
@@ -327,7 +326,6 @@
     nc.drawImage(workingImage, 0, 0, workingImage.width, workingImage.height, 0, 0, w, h);
     workingImage = next;
     drawScaled(); syncInputs();
-    toggleStrip(stripSize, toolSize); // 用完收起
   });
 
   /* ---------- 水印 ---------- */
