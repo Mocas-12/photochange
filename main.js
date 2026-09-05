@@ -10,9 +10,10 @@
   /* ---------- 元素 ---------- */
   var fileInput = $("fileInput"), dropzone = $("dropzone");
   var canvas = $("canvas"), ctx = canvas.getContext("2d");
-  var toolCrop = $("toolCrop"), toolSize = $("toolSize"), toolWm = $("toolWm");
+  var toolCrop = $("toolCrop"), toolSize = $("toolSize"), toolWm = $("toolWm"), toolAdjust = $("toolAdjust");
   var toolUndo = $("toolUndo"), toolReset = $("toolReset");
-  var stripCrop = $("stripCrop"), stripSize = $("stripSize"), stripWm = $("stripWm");
+  var stripCrop = $("stripCrop"), stripSize = $("stripSize"), stripWm = $("stripWm"), stripAdjust = $("stripAdjust");
+  var adjBrightness = $("adjBrightness"), adjContrast = $("adjContrast"), adjSaturate = $("adjSaturate"), adjReset = $("adjReset");
   var stripAspect = $("stripAspect"), cropApply = $("cropApply");
   var widthInput = $("widthInput"), heightInput = $("heightInput");
   var presetSelect = $("presetSelect"), lockRatio = $("lockRatio"), applyResize = $("applyResize");
@@ -43,8 +44,20 @@
       canvas.parentElement.clientWidth - 20, canvas.parentElement.clientHeight - 20);
     setCanvasSize(fit.w, fit.h);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.filter = isAdjustDefault() ? "none" : adjustFilter();
     ctx.drawImage(workingImage, 0, 0, canvas.width, canvas.height);
-    paintWatermark(ctx, canvas.width, canvas.height);
+    ctx.filter = "none";
+    /* 画布元素带 CSS 翻转：预览水印预先反向绘制，保证屏上观感与导出一致 */
+    var flip = window.__pcFlip || { x: 1, y: 1 };
+    if (flip.x !== 1 || flip.y !== 1) {
+      ctx.save();
+      ctx.translate(flip.x === -1 ? canvas.width : 0, flip.y === -1 ? canvas.height : 0);
+      ctx.scale(flip.x, flip.y);
+      paintWatermark(ctx, canvas.width, canvas.height);
+      ctx.restore();
+    } else {
+      paintWatermark(ctx, canvas.width, canvas.height);
+    }
     drawSelection();
   }
   function syncInputs() {
@@ -154,8 +167,8 @@
   /* ---------- 工具条：切换操作条 ---------- */
   function toggleStrip(strip, btn) {
     var isOpen = !strip.classList.contains("hidden");
-    [stripCrop, stripSize, stripWm].forEach(function (s) { s.classList.add("hidden"); });
-    [toolCrop, toolSize, toolWm].forEach(function (b) { b.classList.remove("active"); });
+    [stripCrop, stripSize, stripWm, stripAdjust].forEach(function (s) { s.classList.add("hidden"); });
+    [toolCrop, toolSize, toolWm, toolAdjust].forEach(function (b) { b.classList.remove("active"); });
     if (!isOpen) {
       strip.classList.remove("hidden");
       btn.classList.add("active");
@@ -164,6 +177,7 @@
   toolCrop.addEventListener("click", function () { toggleStrip(stripCrop, toolCrop); });
   toolSize.addEventListener("click", function () { toggleStrip(stripSize, toolSize); });
   toolWm.addEventListener("click", function () { toggleStrip(stripWm, toolWm); });
+  toolAdjust.addEventListener("click", function () { toggleStrip(stripAdjust, toolAdjust); });
   toolUndo.addEventListener("click", undo);
   toolReset.addEventListener("click", function () {
     if (!originalImage) return;
@@ -173,6 +187,9 @@
     workingImage.height = baseH;
     workingImage.getContext("2d").drawImage(originalImage, 0, 0, baseW, baseH);
     selection = null;
+    if (window.resetViewTransform) window.resetViewTransform();
+    adjust.brightness = 1; adjust.contrast = 1; adjust.saturate = 1;
+    adjBrightness.value = "1"; adjContrast.value = "1"; adjSaturate.value = "1";
     drawScaled(); syncInputs();
   });
 
@@ -185,9 +202,10 @@
     var a = ((window.currentRotation || 0) % 360) * Math.PI / 180;
     var dx = evt.clientX - cx, dy = evt.clientY - cy;
     var cos = Math.cos(-a), sin = Math.sin(-a);
+    var flip = window.__pcFlip || { x: 1, y: 1 };
     return {
-      x: (dx * cos - dy * sin) / z + canvas.width / 2,
-      y: (dx * sin + dy * cos) / z + canvas.height / 2
+      x: ((dx * cos - dy * sin) / z) * flip.x + canvas.width / 2,
+      y: ((dx * sin + dy * cos) / z) * flip.y + canvas.height / 2
     };
   }
   canvas.addEventListener("pointerdown", function (e) {
@@ -317,6 +335,28 @@
   wmPos.addEventListener("change", drawScaled);
   wmOpacity.addEventListener("input", drawScaled);
 
+  /* ---------- 调整（亮度/对比度/饱和度，非破坏式，导出时烘焙） ---------- */
+  var adjust = { brightness: 1, contrast: 1, saturate: 1 };
+  function isAdjustDefault() {
+    return adjust.brightness === 1 && adjust.contrast === 1 && adjust.saturate === 1;
+  }
+  function adjustFilter() {
+    return "brightness(" + adjust.brightness + ") contrast(" + adjust.contrast + ") saturate(" + adjust.saturate + ")";
+  }
+  function readAdjust() {
+    adjust.brightness = parseFloat(adjBrightness.value) || 1;
+    adjust.contrast = parseFloat(adjContrast.value) || 1;
+    adjust.saturate = parseFloat(adjSaturate.value) || 1;
+    drawScaled();
+  }
+  adjBrightness.addEventListener("input", readAdjust);
+  adjContrast.addEventListener("input", readAdjust);
+  adjSaturate.addEventListener("input", readAdjust);
+  adjReset.addEventListener("click", function () {
+    adjBrightness.value = "1"; adjContrast.value = "1"; adjSaturate.value = "1";
+    readAdjust();
+  });
+
   /* ---------- 导出 ---------- */
   function uiFormatChange() {
     var v = formatSelect.value;
@@ -338,6 +378,28 @@
     c.rotate(a * Math.PI / 180);
     c.drawImage(src, -src.width / 2, -src.height / 2);
     return cv;
+  }
+  /* 调整烘焙：把滤镜参数写进实际像素（导出用，预览走 ctx.filter） */
+  function applyAdjust(src) {
+    if (isAdjustDefault()) return src;
+    var out = document.createElement("canvas");
+    out.width = src.width; out.height = src.height;
+    var c = out.getContext("2d");
+    c.filter = adjustFilter();
+    c.drawImage(src, 0, 0);
+    c.filter = "none";
+    return out;
+  }
+  /* 镜像烘焙：fx/fy 为 -1 表示该轴翻转 */
+  function flippedCanvas(cv, fx, fy) {
+    if (fx === 1 && fy === 1) return cv;
+    var out = document.createElement("canvas");
+    out.width = cv.width; out.height = cv.height;
+    var c = out.getContext("2d");
+    c.translate(fx === -1 ? cv.width : 0, fy === -1 ? cv.height : 0);
+    c.scale(fx, fy);
+    c.drawImage(cv, 0, 0);
+    return out;
   }
   function trigger(blob, ext) {
     var name = (fileNameInput.value || "output").replace(/[\\/:*?"<>|]+/g, "").trim() || "output";
@@ -377,7 +439,8 @@
 
   downloadBtn.addEventListener("click", async function () {
     if (!workingImage) { alert("请先上传并转换一张图片"); return; }
-    var cv = applyWatermark(rotatedCanvas(workingImage, window.currentRotation || 0));
+    var flip = window.__pcFlip || { x: 1, y: 1 };
+    var cv = applyWatermark(flippedCanvas(rotatedCanvas(applyAdjust(workingImage), window.currentRotation || 0), flip.x, flip.y));
     var fmt = formatSelect.value;
     var kb = parseFloat(targetKB.value) || 0;
     try {
@@ -412,6 +475,8 @@
   /* ---------- 初始化 ---------- */
   uiFormatChange();
   applyQualityLabel();
+  /* 老浏览器（如 iOS 17 及更早的 Safari）不支持 ctx.filter 时隐藏调整入口 */
+  if (typeof ctx.filter !== "string" || !ctx.filter) toolAdjust.classList.add("hidden");
 
   /* 窗口尺寸 / 手机横竖屏变化后按新容器重新适配画布 */
   var resizeRaf = 0;

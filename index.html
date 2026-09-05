@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=2" />
+    <link rel="stylesheet" href="./style.css?v=3" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
@@ -60,6 +60,8 @@
             <div class="v-line"></div>
             <button onclick="rotateImage(-90)" title="逆时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
             <button onclick="rotateImage(90)" title="顺时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
+            <button id="flipH" onclick="toggleFlip('x')" title="水平镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 2v20"/></svg></button>
+            <button id="flipV" onclick="toggleFlip('y')" title="垂直镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M2 12h20"/></svg></button>
             <div class="v-line"></div>
             <button id="gridBtn" onclick="toggleGrid()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>标尺</button>
           </div>
@@ -68,6 +70,7 @@
             <button id="toolCrop" class="etool" title="裁剪"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>裁剪</button>
             <button id="toolSize" class="etool" title="尺寸与预设"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 9 15"/><path d="M12 3H3v18h18v-9"/><path d="M16 3h5v5"/></svg>尺寸</button>
             <button id="toolWm" class="etool" title="文字水印"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>水印</button>
+            <button id="toolAdjust" class="etool" title="亮度 / 对比度 / 饱和度"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>调整</button>
             <div class="v-line"></div>
             <button id="toolUndo" class="etool" disabled title="撤销 (Ctrl+Z)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>撤销</button>
             <button id="toolReset" class="etool" title="重置为原图"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 9 9c-2.52 0-4.93-1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>重置</button>
@@ -105,6 +108,16 @@
             </select>
             <label class="op-label">透明度</label>
             <input id="wmOpacity" type="range" min="0.1" max="1" step="0.05" value="0.5" style="max-width:90px" />
+          </div>
+          <!-- 操作条：调整 -->
+          <div id="stripAdjust" class="opstrip hidden">
+            <label class="op-label">亮度</label>
+            <input id="adjBrightness" type="range" min="0.5" max="1.5" step="0.05" value="1" style="max-width:110px" />
+            <label class="op-label">对比度</label>
+            <input id="adjContrast" type="range" min="0.5" max="1.5" step="0.05" value="1" style="max-width:110px" />
+            <label class="op-label">饱和度</label>
+            <input id="adjSaturate" type="range" min="0" max="2" step="0.05" value="1" style="max-width:110px" />
+            <button id="adjReset" class="btn ghost">还原</button>
           </div>
           <div class="canvas-wrap grid-on">
             <canvas id="canvas"></canvas>
@@ -182,7 +195,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="./expose.js"></script>
-    <script src="./main.js?v=2"></script>
+    <script src="./main.js?v=3"></script>
     <script src="./overlay-fix.js"></script>
     <script>
       (function(){
@@ -211,17 +224,29 @@
         var canvas=document.getElementById('canvas');
         var zoomText=document.getElementById('zoom-text');
         var gridBtn=document.getElementById('gridBtn');
+        var flipHBtn=document.getElementById('flipH');
+        var flipVBtn=document.getElementById('flipV');
         if(!tools||!canvas||!zoomText) return;
-        var __zoom=1, __angle=0;
+        var __zoom=1, __angle=0, __flipX=1, __flipY=1;
         function applyTransform(){
           canvas.style.setProperty('--zoom-level', String(__zoom));
           canvas.style.setProperty('--rotation-angle', __angle + 'deg');
+          canvas.style.setProperty('--flip-x', String(__flipX));
+          canvas.style.setProperty('--flip-y', String(__flipY));
           window.__pcZoom = __zoom;
+          window.__pcFlip = { x: __flipX, y: __flipY };
           zoomText.textContent = Math.round(__zoom*100) + '%';
+          if(flipHBtn)flipHBtn.classList.toggle('active',__flipX===-1);
+          if(flipVBtn)flipVBtn.classList.toggle('active',__flipY===-1);
         }
         function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
         window.changeZoom=function(delta){__zoom=clamp(__zoom+delta,0.2,4);applyTransform()};
         window.rotateImage=function(deg){__angle=(__angle+deg)%360;window.currentRotation=__angle;applyTransform()};
+        window.toggleFlip=function(axis){
+          if(axis==='y'){__flipY=-__flipY}else{__flipX=-__flipX}
+          applyTransform();
+        };
+        window.resetViewTransform=function(){__zoom=1;__angle=0;__flipX=1;__flipY=1;window.currentRotation=0;applyTransform()};
         window.toggleGrid=function(){
           var wrap=canvas.parentElement;
           var on=wrap.classList.toggle('grid-on');
