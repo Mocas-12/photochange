@@ -69,12 +69,6 @@ html,body{overflow:hidden;height:100%}
   content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
   background:linear-gradient(90deg,transparent 4%,rgba(85,179,255,.55) 32%,rgba(129,140,248,.45) 68%,transparent 96%);
 }
-.brand{
-  display:inline-flex;align-items:center;gap:10px;
-  font-weight:700;font-size:19px;letter-spacing:.2px;line-height:1;
-  background:linear-gradient(92deg,#ffffff 25%,#a5c9ff 60%,#b7b9ff 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
 /* 返回主页按钮（功能页 header 左侧） */
 .back-home{
   display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;
@@ -83,12 +77,6 @@ html,body{overflow:hidden;height:100%}
   cursor:pointer;transition:all .18s ease;flex:none;
 }
 .back-home:hover{color:var(--text-primary);border-color:var(--border-strong);background:rgba(255,255,255,.05)}
-.brand-dot{
-  width:8px;height:8px;border-radius:50%;flex:none;
-  background:var(--accent);
-  box-shadow:0 0 10px rgba(85,179,255,.95),0 0 26px rgba(85,179,255,.5);
-  animation:dot-pulse 3s ease-in-out infinite;
-}
 @keyframes dot-pulse{
   0%,100%{box-shadow:0 0 8px rgba(85,179,255,.8),0 0 18px rgba(85,179,255,.35)}
   50%{box-shadow:0 0 14px rgba(85,179,255,1),0 0 30px rgba(85,179,255,.6)}
@@ -322,12 +310,9 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 .quota-bar-inner{height:100%;width:100%;transition:width .2s ease;background:linear-gradient(90deg,#4da3ff,#5fc992)}
 .quota-bar-inner.warn{background:linear-gradient(90deg,#ffbc33,#ff9d5c)}
 .quota-bar-inner.danger{background:linear-gradient(90deg,#ff6363,#ff8f6b)}
-.quota-bar-inner.zero{background:var(--text-faint)}
 .quota-text{text-align:center;color:var(--text-faint);font-size:12px;line-height:1.4;margin-top:2px}
 .quota-text.exhausted{color:var(--danger)}
 .quota-hint{text-align:center;color:var(--warning);font-size:12px;line-height:1.4}
-
-.hidden{display:none !important}
 
 /* ---------------- 弹窗 ---------------- */
 .modal-overlay{
@@ -401,7 +386,6 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 .page-track>*:not(.is-active){filter:brightness(.55) saturate(.7);pointer-events:none}
 .page-track>.is-active{transition:filter .9s ease}
 .page-track>*:not(.is-active){transition:filter .9s ease}
-.page-track.no-anim{transition:none !important}
 
 /* ---------------- 着陆屏（Hero） ---------------- */
 .hero{

@@ -116,7 +116,7 @@
         .then(function () { return window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 }); })
         .then(function (out) {
           if (Array.isArray(out)) out = out[0];
-          decodeFile(out, (file.name || "image").replace(/\.heicf?$/i, ""));
+          decodeFile(out, (file.name || "image").replace(/\.hei[cf]$/i, ""));
         })
         .catch(function (err) { alert("图片加载失败：" + err.message); });
       return;
@@ -126,7 +126,7 @@
   /* HEIC / HEIF（iPhone 照片）：浏览器不能直接解码时按需加载转换库，转 JPG 进画布 */
   function isHeic(file) {
     var n = (file.name || "").toLowerCase();
-    return file.type === "image/heic" || file.type === "image/heif" || /\.heicf?$/.test(n);
+    return file.type === "image/heic" || file.type === "image/heif" || /\.hei[cf]$/i.test(n);
   }
   function loadHeicLib() {
     if (window.heic2any) return Promise.resolve();
@@ -139,33 +139,32 @@
     });
   }
   function decodeFile(file, nameOverride) {
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      var img = new Image();
-      img.onload = function () {
-        var scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
-        baseW = Math.max(1, Math.round(img.naturalWidth * scale));
-        baseH = Math.max(1, Math.round(img.naturalHeight * scale));
-        originalImage = img;
-        workingImage = document.createElement("canvas");
-        workingImage.width = baseW;
-        workingImage.height = baseH;
-        workingImage.getContext("2d").drawImage(img, 0, 0, baseW, baseH);
-        history.length = 0;
-        toolUndo.disabled = true;
-        selection = null;
-        document.body.classList.add("has-image");
-        var tools = $("image-tools");
-        if (tools) tools.style.display = "flex";
-        drawScaled(); syncInputs();
-        fileNameInput.value = (nameOverride || file.name || "output").replace(/\.[^.]+$/, "");
-      };
-      img.onerror = function () {
-        alert("图片解码失败：当前浏览器可能不支持此格式");
-      };
-      img.src = e.target.result;
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      var scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
+      baseW = Math.max(1, Math.round(img.naturalWidth * scale));
+      baseH = Math.max(1, Math.round(img.naturalHeight * scale));
+      originalImage = img;
+      workingImage = document.createElement("canvas");
+      workingImage.width = baseW;
+      workingImage.height = baseH;
+      workingImage.getContext("2d").drawImage(img, 0, 0, baseW, baseH);
+      history.length = 0;
+      toolUndo.disabled = true;
+      selection = null;
+      document.body.classList.add("has-image");
+      var tools = $("image-tools");
+      if (tools) tools.style.display = "flex";
+      drawScaled(); syncInputs();
+      fileNameInput.value = (nameOverride || file.name || "output").replace(/\.[^.]+$/, "");
     };
-    reader.readAsDataURL(file);
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      alert("图片解码失败：当前浏览器可能不支持此格式");
+    };
+    img.src = url;
   }
   /* 整个拖放区可点击选图（移动端主要点击路径）；按钮点击冒泡到此统一处理 */
   dropzone.addEventListener("click", function () { fileInput.click(); });

@@ -35,13 +35,13 @@
 
 ## ✨ Features
 
-- 🖼️ **Multiple ways to upload**: pick via button or drag & drop; supports PNG / JPG / JPEG / WebP / BMP
+- 🖼️ **Multiple ways to upload**: pick via button or drag & drop; supports PNG / JPG / JPEG / WebP / BMP / AVIF / HEIC
 - 🔍 **Canvas viewer**: zoom (20%–400%), ±90° rotation, ruler grid for alignment
 - ✂️ **Free crop**: free / 1:1 / 4:3 / 16:9 / 3:2 aspect ratios, with a semi-transparent mask outside the selection for a clear preview
 - 📐 **Resize**: width/height inputs with aspect-ratio lock, built-in presets for avatars, 1-inch/2-inch ID photos, official-account covers, Xiaohongshu, HD/FHD and more
 - 💧 **Text watermark**: custom text + 9-grid position + opacity control
 - ↩️ **Undo / Reset**: up to 20 undo steps (Ctrl+Z), one-click reset to the original image
-- 💾 **Multi-format export**: PNG / JPG / WebP / PDF (auto-fitted and centered on an A4 page)
+- 💾 **Multi-format export**: PNG / JPG / WebP / BMP / ICO / PDF (auto-fitted and centered on an A4 page)
 - 🎯 **Target-size compression**: "compress to N KB" binary-searches the closest quality setting automatically
 - 📊 **Live estimate**: the badge at the bottom-right of the canvas shows current format, resolution and export size
 - 🔑 **Quota system**: 5 free exports, permanently unlocked by an activation code, no account required
@@ -84,7 +84,6 @@ photochange/
 ├── page-switch.js      # Home ↔ workbench full-page switching
 ├── info-badge.js       # Status badge: live resolution & size estimates
 ├── expose.js           # Captures a reference to the current working canvas
-├── overlay-fix.js      # Fallback for selection-mask drawing
 ├── pointer-fx.js       # Pointer-following effects
 └── wechatpay/
     └── wechatpay.jpg   # Payment QR code image
