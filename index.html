@@ -95,6 +95,11 @@
             <span class="op-x">×</span>
             <input id="heightInput" class="dimension-input" type="number" min="1" step="1" placeholder="高" />
             <label class="switch"><input id="lockRatio" type="checkbox" checked /><span>锁比例</span></label>
+            <select id="fitMode" title="目标尺寸与图片长宽比不一致时的处理方式">
+              <option value="cover">裁剪填满</option>
+              <option value="contain">留白适应</option>
+              <option value="stretch">拉伸变形</option>
+            </select>
             <button id="applyResize" class="btn primary">应用</button>
           </div>
           <!-- 操作条：水印 -->

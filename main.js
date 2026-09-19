@@ -17,6 +17,7 @@
   var stripAspect = $("stripAspect"), cropApply = $("cropApply");
   var widthInput = $("widthInput"), heightInput = $("heightInput");
   var presetSelect = $("presetSelect"), lockRatio = $("lockRatio"), applyResize = $("applyResize");
+  var fitMode = $("fitMode");
   var wmEnable = $("wmEnable"), wmText = $("wmText"), wmPos = $("wmPos"), wmOpacity = $("wmOpacity");
   var formatSelect = $("formatSelect"), jpgOnlyRow = $("jpgOnlyRow");
   var qualityRange = $("qualityRange"), qualityValue = $("qualityValue");
@@ -322,7 +323,16 @@
     var nc = next.getContext("2d");
     nc.imageSmoothingEnabled = true;
     nc.imageSmoothingQuality = "high";
-    nc.drawImage(workingImage, 0, 0, workingImage.width, workingImage.height, 0, 0, w, h);
+    /* 目标长宽比与图片不一致时：默认等比缩放（裁剪填满 / 留白适应），只有选"拉伸"才变形 */
+    if (fitMode.value === "stretch") {
+      nc.drawImage(workingImage, 0, 0, workingImage.width, workingImage.height, 0, 0, w, h);
+    } else {
+      var scale = fitMode.value === "contain"
+        ? Math.min(w / workingImage.width, h / workingImage.height)
+        : Math.max(w / workingImage.width, h / workingImage.height);
+      var dw = workingImage.width * scale, dh = workingImage.height * scale;
+      nc.drawImage(workingImage, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    }
     workingImage = next;
     drawScaled(); syncInputs();
   });
