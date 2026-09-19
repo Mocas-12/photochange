@@ -317,6 +317,11 @@
     if (!workingImage) return;
     var w = parseInt(widthInput.value, 10), h = parseInt(heightInput.value, 10);
     if (!(w > 0 && h > 0)) return;
+    /* 图片已是目标尺寸时三种模式输出完全相同：提示先撤销，避免"换模式没效果"的困惑 */
+    if (workingImage.width === w && workingImage.height === h) {
+      alert("图片已经是 " + w + "×" + h + "。想换一种适应方式（裁剪填满 / 留白适应 / 拉伸变形），请先点「撤销」恢复，再选模式应用。");
+      return;
+    }
     pushHistory();
     var next = document.createElement("canvas");
     next.width = w; next.height = h;
