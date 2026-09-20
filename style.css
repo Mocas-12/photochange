@@ -111,6 +111,14 @@ html,body{overflow:hidden;height:100%}
 .dz-inner .btn{margin-left:12px;flex:none}
 body.has-image .dropzone{min-height:0;padding:7px 14px}
 body.has-image .dz-icon,body.has-image .dz-hint{display:none}
+/* 空态呼吸辉光：合成器友好的 opacity 动画,仅未加载图片时出现 */
+@keyframes breath{0%,100%{opacity:.3}50%{opacity:1}}
+body:not(.has-image) .dropzone{position:relative}
+body:not(.has-image) .dropzone::after{
+  content:"";position:absolute;inset:-1px;border-radius:var(--radius-md);pointer-events:none;
+  box-shadow:0 0 24px rgba(85,163,255,.16),inset 0 0 20px rgba(85,163,255,.06);
+  animation:breath 3.4s ease-in-out infinite;
+}
 
 #fileInput{display:none}
 
@@ -172,7 +180,9 @@ body.has-image canvas{touch-action:none}
 .canvas-hint svg{
   width:46px;height:46px;color:var(--text-faint);opacity:.9;
   filter:drop-shadow(0 0 14px rgba(85,163,255,.35));
+  animation:hint-float 3.6s ease-in-out infinite;
 }
+@keyframes hint-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .canvas-hint p{margin:0;font-size:15px;font-weight:600;color:var(--text-muted)}
 .canvas-hint span{font-size:12px;color:var(--text-faint)}
 body.has-image .canvas-hint{display:none}
@@ -303,6 +313,15 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   box-shadow:0 4px 24px rgba(85,140,255,.55),0 0 30px rgba(129,140,248,.3),inset 0 1px 0 rgba(255,255,255,.35);
   filter:brightness(1.08);
 }
+/* 主按钮悬停流光扫过 */
+.btn.primary{position:relative;overflow:hidden}
+.btn.primary::after{
+  content:"";position:absolute;top:-2px;bottom:-2px;left:0;width:45%;pointer-events:none;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:translateX(-140%) skewX(-18deg);
+  transition:transform .55s ease;
+}
+.btn.primary:hover::after{transform:translateX(330%) skewX(-18deg)}
 .btn.wide{width:100%;height:38px;font-size:14px}
 
 /* ---------------- 额度 ---------------- */
@@ -382,7 +401,8 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   will-change:transform;
 }
 .page-track>*{flex:0 0 100%;min-height:0}
-.page-track>.is-active{position:relative;z-index:2}
+.page-track>.is-active{position:relative;z-index:2;animation:page-settle .9s cubic-bezier(.22,.9,.28,1)}
+@keyframes page-settle{from{transform:scale(.985)}to{transform:none}}
 .page-track>*:not(.is-active){filter:brightness(.55) saturate(.7);pointer-events:none}
 .page-track>.is-active{transition:filter .9s ease}
 .page-track>*:not(.is-active){transition:filter .9s ease}
@@ -394,32 +414,54 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;padding:40px 20px 100px;
 }
+/* 入场:依次浮现(rise-in 系列);视差:指针驱动核心层反向轻移。
+   两套效果作用在不同元素上,避免 transform 互相覆盖 */
+@keyframes rise-in{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:none}
+}
+.hero-core{
+  display:flex;flex-direction:column;align-items:center;
+  transform:translate3d(calc(var(--px,0)*-9px),calc(var(--py,0)*-7px),0);
+  will-change:transform;
+}
 .hero-beacon{
   width:10px;height:10px;border-radius:50%;flex:none;
   background:var(--accent);
   box-shadow:0 0 12px rgba(85,179,255,.95),0 0 30px rgba(85,179,255,.5);
-  animation:dot-pulse 3s ease-in-out infinite;
+  animation:dot-pulse 3s ease-in-out infinite,rise-in .7s cubic-bezier(.22,.9,.28,1) both;
   margin-bottom:28px;
 }
 .hero-title{
   margin:0;font-size:clamp(44px,8vw,78px);font-weight:700;letter-spacing:.5px;line-height:1.1;
   background:linear-gradient(92deg,#ffffff 20%,#9cc8ff 55%,#b7b9ff 90%);
+  background-size:200% 100%;
   -webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 26px rgba(85,163,255,.35));
+  animation:rise-in .7s .1s cubic-bezier(.22,.9,.28,1) both,title-pan 8s 1.2s ease-in-out infinite alternate;
 }
-.hero-sub{margin:18px 0 0;font-size:15px;color:var(--text-muted);letter-spacing:.14em}
+@keyframes title-pan{from{background-position:0% 50%}to{background-position:100% 50%}}
+.hero-sub{margin:18px 0 0;font-size:15px;color:var(--text-muted);letter-spacing:.14em;animation:rise-in .7s .22s cubic-bezier(.22,.9,.28,1) both}
 .hero-meta{
   display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
   margin-top:28px;color:var(--text-faint);font-size:12.5px;line-height:1;
+  animation:rise-in .7s .34s cubic-bezier(.22,.9,.28,1) both;
 }
 .hero-meta .github-avatar{width:20px;height:20px;border-radius:50%;display:block}
 .hero-meta .sep{opacity:.5}
 .hero-meta .busuanzi-container{display:inline-flex;align-items:center;gap:8px}
 .hero-meta #busuanzi_container_site_pv,.hero-meta #busuanzi_container_site_uv{display:inline}
 
-/* 底部下滑提示箭头：透明 + 呼吸浮动 */
+/* 底部下滑提示箭头：透明 + 呼吸浮动（定位在包裹层，入场与 bob 分离互不打架） */
+.scroll-hint-wrap{
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  animation:rise-in-center .7s .5s cubic-bezier(.22,.9,.28,1) both;
+}
+@keyframes rise-in-center{
+  from{opacity:0;transform:translate(-50%,18px)}
+  to{opacity:1;transform:translate(-50%,0)}
+}
 .scroll-hint{
-  position:absolute;bottom:30px;left:50%;
   background:transparent;border:none;cursor:pointer;
   color:var(--text-muted);padding:10px;line-height:0;
   animation:hint-bob 2.2s ease-in-out infinite;
@@ -427,8 +469,8 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 }
 .scroll-hint:hover{color:var(--accent)}
 @keyframes hint-bob{
-  0%,100%{opacity:.3;transform:translate(-50%,0)}
-  50%{opacity:.95;transform:translate(-50%,8px)}
+  0%,100%{opacity:.3;transform:translateY(0)}
+  50%{opacity:.95;transform:translateY(8px)}
 }
 
 /* ---------------- 功能区（第 2 屏） ---------------- */

@@ -13,31 +13,35 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=3" />
+    <link rel="stylesheet" href="./style.css?v=4" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
     <canvas id="fx-canvas" aria-hidden="true"></canvas>
     <div id="pageTrack" class="page-track">
     <section class="hero" id="top">
-      <div class="hero-beacon"></div>
-      <h1 class="hero-title">PhotoChange</h1>
-      <p class="hero-sub">上传 · 裁剪 · 调整 · 转换</p>
-      <div class="hero-meta">
-        <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
-        <span>Unlimited Box</span>
-        <span class="sep">·</span>
-        <span>a18577y@gmail.com</span>
-        <span class="sep">·</span>
-        <span class="busuanzi-container">
-          <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
-          <span class="sep" id="busuanzi_sep" style="display:none">|</span>
-          <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
-        </span>
+      <div class="hero-core">
+        <div class="hero-beacon"></div>
+        <h1 class="hero-title">PhotoChange</h1>
+        <p class="hero-sub">上传 · 裁剪 · 调整 · 转换</p>
+        <div class="hero-meta">
+          <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
+          <span>Unlimited Box</span>
+          <span class="sep">·</span>
+          <span>a18577y@gmail.com</span>
+          <span class="sep">·</span>
+          <span class="busuanzi-container">
+            <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
+            <span class="sep" id="busuanzi_sep" style="display:none">|</span>
+            <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
+          </span>
+        </div>
       </div>
-      <button class="scroll-hint" aria-label="向下滑动" onclick="goToPage(1)">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-      </button>
+      <div class="scroll-hint-wrap">
+        <button class="scroll-hint" aria-label="向下滑动" onclick="goToPage(1)">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+        </button>
+      </div>
     </section>
     <section id="app">
     <header class="app-header">
@@ -225,7 +229,7 @@
       })();
     </script>
     <script src="./quota.js?v=3"></script>
-    <script src="./pointer-fx.js"></script>
+    <script src="./pointer-fx.js?v=2"></script>
     <script src="./page-switch.js?v=7"></script>
     <script src="./info-badge.js?v=2"></script>
     <script>
