@@ -35,15 +35,21 @@
 
 ## ✨ Features
 
-- 🖼️ **Multiple ways to upload**: pick via button or drag & drop; supports PNG / JPG / JPEG / WebP / BMP / AVIF / HEIC
+- 🖼️ **Multiple ways to upload**: pick via button or drag & drop; supports PNG / JPG / JPEG / WebP / BMP / AVIF / HEIC; multi-select turns on batch mode
 - 🔍 **Canvas viewer**: zoom (20%–400%), ±90° rotation, ruler grid for alignment
 - ✂️ **Free crop**: free / 1:1 / 4:3 / 16:9 / 3:2 aspect ratios, with a semi-transparent mask outside the selection for a clear preview
 - 📐 **Resize**: width/height inputs with aspect-ratio lock, built-in presets for avatars, 1-inch/2-inch ID photos, official-account covers, Xiaohongshu, HD/FHD and more
-- 💧 **Text watermark**: custom text + 9-grid position + opacity control
+- 💧 **Watermark**: text or logo image, single (9-grid position) or tiled diagonal anti-theft mode, opacity & size control
+- 🪪 **ID photo tools**: one-click background color replacement (white / blue / red + custom, auto-detected original color, edge feathering) and auto layout on 4×6" paper (300 DPI, print-ready)
+- 🎀 **Decoration**: rounded corners and photo borders with custom color
+- 📦 **Batch mode**: select multiple files, apply watermark / size / export settings to all, per-file status list
 - ↩️ **Undo / Reset**: up to 20 undo steps (Ctrl+Z), one-click reset to the original image
 - 💾 **Multi-format export**: PNG / JPG / WebP / BMP / ICO / PDF (auto-fitted and centered on an A4 page)
 - 🎯 **Target-size compression**: "compress to N KB" binary-searches the closest quality setting automatically
 - 📊 **Live estimate**: the badge at the bottom-right of the canvas shows current format, resolution and export size
+- 🔄 **Session restore**: the editing snapshot is auto-saved locally (IndexedDB, valid for 7 days); refresh or accidentally close the page and restore with one click
+- 📲 **PWA**: installable to the home screen, app-shell cached by a service worker for offline use
+- 🔒 **Privacy**: exports go through canvas re-encoding, so EXIF metadata (including GPS location) is stripped automatically
 - 🔑 **Quota system**: 5 free exports, permanently unlocked by an activation code, no account required
 
 ## 🎨 UI Design
@@ -84,7 +90,9 @@ photochange/
 ├── page-switch.js      # Home ↔ workbench full-page switching
 ├── info-badge.js       # Status badge: live resolution & size estimates
 ├── pointer-fx.js       # Pointer-following effects
+├── manifest.webmanifest / service-worker.js  # PWA: installable + offline shell
 ├── vendor/             # Self-hosted libs (jsPDF, heic2any)
+├── tests/              # Playwright smoke suite (npm test)
 └── wechatpay/
     └── wechatpay.jpg   # Payment QR code image
 ```
@@ -117,7 +125,7 @@ npx playwright install chromium
 npm test
 ```
 
-14 tests cover the crop-coordinate matrix (rotation × mirror), free-quota accounting (success consumes / failure doesn't / no-image guard), target-size export, undo, BMP/ICO encoders, and the dual-screen page switch.
+22 tests cover the crop-coordinate matrix (rotation × mirror), free-quota accounting, target-size export, BMP/ICO encoders, undo, ID-photo background replacement & print layout, decoration, tiled watermark, batch mode, session restore, and the dual-screen page switch.
 
 ## 🔑 Quota & Activation
 

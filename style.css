@@ -200,7 +200,8 @@ body.has-image .canvas-hint{display:none}
 /* ---------------- 右侧工具面板（玻璃拟态） ---------------- */
 /* ---------------- 编辑工具条 + 操作条 ---------------- */
 .edit-toolbar{
-  display:flex;align-items:center;justify-content:center;gap:4px;
+  display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;row-gap:4px;
+  max-width:100%;
   padding:5px;
   background:rgba(15,16,20,.78);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border:1px solid var(--border-subtle);border-radius:999px;
@@ -272,6 +273,38 @@ input[type=text]:focus,input[type=number]:focus,select:focus{
 input::placeholder{color:var(--text-faint)}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type='number']{-moz-appearance:textfield}
+/* 颜色输入与预设色板（证件照换底/装饰边框） */
+input[type=color]{
+  width:36px;height:var(--ctl-h);padding:2px 3px;flex:none;
+  background:var(--bg-input);border:1px solid var(--border-strong);border-radius:var(--radius-sm);cursor:pointer;
+}
+.swatches{display:flex;gap:6px;flex:none;align-items:center}
+.swatch{
+  width:22px;height:22px;border-radius:50%;cursor:pointer;padding:0;
+  border:1px solid var(--border-strong);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.swatch:hover{transform:scale(1.18);box-shadow:0 0 8px rgba(85,179,255,.45)}
+/* 批量面板 */
+.batch-panel{
+  background:rgba(15,16,20,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+  padding:8px 14px;margin-bottom:8px;
+}
+.batch-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.batch-head>span:first-child{font-size:13px;color:var(--text-secondary);font-weight:600}
+.batch-switch{flex:0 0 auto}
+.batch-list{
+  list-style:none;margin:6px 0 0;padding:0;max-height:150px;overflow:auto;
+  display:flex;flex-direction:column;gap:2px;
+}
+.batch-list li{
+  display:flex;justify-content:space-between;gap:10px;
+  font-size:12.5px;color:var(--text-muted);padding:3px 6px;border-radius:6px;
+}
+.batch-list li:nth-child(odd){background:rgba(255,255,255,.03)}
+.batch-status{color:var(--text-faint);font-variant-numeric:tabular-nums;flex:none}
+.batch-tip{margin-top:6px;font-size:11px;color:var(--text-faint)}
 input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0}
 #qualityValue{min-width:34px;text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:var(--text-secondary)}
 

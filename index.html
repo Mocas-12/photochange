@@ -4,16 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PhotoChange</title>
-    <meta name="description" content="PhotoChange — 免费在线图片工具：裁剪、改尺寸、加水印、调亮度对比度，导出 PNG / JPG / WebP / BMP / ICO / PDF，支持压缩到目标体积。" />
+    <meta name="description" content="PhotoChange — 免费在线图片工具：裁剪、改尺寸、加水印、证件照换底色、调亮度对比度，导出 PNG / JPG / WebP / BMP / ICO / PDF，支持压缩到目标体积。" />
+    <meta name="theme-color" content="#07080a" />
     <meta property="og:title" content="PhotoChange" />
-    <meta property="og:description" content="在线图片工具：裁剪 · 调整 · 水印 · 格式转换" />
+    <meta property="og:description" content="在线图片工具：裁剪 · 调整 · 水印 · 证件照 · 格式转换" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mocas-12.github.io/photochange/" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=4" />
+    <link rel="stylesheet" href="./style.css?v=5" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
@@ -50,13 +53,19 @@
     </header>
     <main class="app-main">
       <section class="left">
+        <!-- 会话恢复提示（IndexedDB 7 天内快照） -->
+        <div id="restoreBar" class="opstrip hidden">
+          <span>检测到上次未完成的编辑</span>
+          <button id="restoreYes" class="btn primary">恢复编辑</button>
+          <button id="restoreNo" class="btn ghost">丢弃</button>
+        </div>
         <div id="dropzone" class="dropzone">
-          <input id="fileInput" type="file" accept="image/*,.avif,.heic,.heif" />
+          <input id="fileInput" type="file" accept="image/*,.avif,.heic,.heif" multiple />
           <div class="dz-inner">
             <svg class="dz-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L7 20"/></svg>
             <div class="dz-copy">
               <div class="dz-title">拖拽图片到此处或点击选择</div>
-              <div class="dz-hint">支持 PNG / JPG / WebP / BMP / AVIF / HEIC</div>
+              <div class="dz-hint">支持 PNG / JPG / WebP / BMP / AVIF / HEIC · 多选可批量 · 导出自动清除 EXIF 隐私</div>
             </div>
             <button id="chooseBtn" class="btn primary">选择图片</button>
           </div>
@@ -80,6 +89,8 @@
             <button id="toolSize" class="etool" title="尺寸与预设"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 9 15"/><path d="M12 3H3v18h18v-9"/><path d="M16 3h5v5"/></svg>尺寸</button>
             <button id="toolWm" class="etool" title="文字水印"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>水印</button>
             <button id="toolAdjust" class="etool" title="亮度 / 对比度 / 饱和度"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>调整</button>
+            <button id="toolId" class="etool" title="证件照：换底色 / 打印排版"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>证件照</button>
+            <button id="toolDeco" class="etool" title="圆角 / 边框"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><rect x="7.5" y="7.5" width="9" height="9" rx="2"/></svg>装饰</button>
             <div class="v-line"></div>
             <button id="toolUndo" class="etool" disabled title="撤销 (Ctrl+Z)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>撤销</button>
             <button id="toolReset" class="etool" title="重置为原图"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 9 9c-2.52 0-4.93-1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>重置</button>
@@ -114,14 +125,26 @@
           <!-- 操作条：水印 -->
           <div id="stripWm" class="opstrip hidden">
             <label class="switch"><input id="wmEnable" type="checkbox" /><span>启用</span></label>
-            <input id="wmText" type="text" placeholder="水印文字…" style="max-width:180px" />
+            <select id="wmType" title="水印类型">
+              <option value="text">文字</option>
+              <option value="image">图片</option>
+            </select>
+            <input id="wmText" type="text" placeholder="水印文字…" style="max-width:140px" />
+            <input id="wmImgInput" type="file" accept="image/*" class="hidden" />
+            <button id="wmImgBtn" class="btn ghost" title="选择水印图片">选图</button>
+            <select id="wmMode" title="单个：九宫格定位；平铺：斜向铺满全图防盗用">
+              <option value="single">单个</option>
+              <option value="tile">平铺</option>
+            </select>
             <select id="wmPos">
               <option value="tl">左上</option><option value="tm">中上</option><option value="tr">右上</option>
               <option value="ml">居左</option><option value="mm">正中</option><option value="mr">居右</option>
               <option value="bl">左下</option><option value="bm">中下</option><option value="br">右下</option>
             </select>
             <label class="op-label">透明度</label>
-            <input id="wmOpacity" type="range" min="0.1" max="1" step="0.05" value="0.5" style="max-width:90px" />
+            <input id="wmOpacity" type="range" min="0.1" max="1" step="0.05" value="0.5" style="max-width:80px" />
+            <label class="op-label">大小</label>
+            <input id="wmScale" type="range" min="4" max="40" step="1" value="15" style="max-width:80px" title="图片水印宽度占比" />
           </div>
           <!-- 操作条：调整 -->
           <div id="stripAdjust" class="opstrip hidden">
@@ -133,6 +156,31 @@
             <input id="adjSaturate" type="range" min="0" max="2" step="0.05" value="1" style="max-width:110px" />
             <button id="adjReset" class="btn ghost">还原</button>
           </div>
+          <!-- 操作条：证件照 -->
+          <div id="stripId" class="opstrip hidden">
+            <label>原背景</label>
+            <input id="idOrig" type="color" value="#ffffff" title="打开面板时自动探测，可手动修正" />
+            <label>换成</label>
+            <div class="swatches">
+              <button class="swatch" data-c="#ffffff" style="background:#ffffff" title="白底"></button>
+              <button class="swatch" data-c="#438edb" style="background:#438edb" title="蓝底"></button>
+              <button class="swatch" data-c="#be0011" style="background:#be0011" title="红底"></button>
+            </div>
+            <input id="idNew" type="color" value="#438edb" />
+            <label class="op-label">容差</label>
+            <input id="idTol" type="range" min="5" max="120" step="1" value="45" style="max-width:110px" />
+            <button id="applyBg" class="btn primary">换底色</button>
+            <button id="genLayout" class="btn" title="按六寸相纸（4×6 @300dpi）自动排布，可直接打印裁切">生成六寸排版</button>
+          </div>
+          <!-- 操作条：装饰 -->
+          <div id="stripDeco" class="opstrip hidden">
+            <label class="op-label">圆角</label>
+            <input id="decoRadius" type="range" min="0" max="30" step="1" value="0" style="max-width:110px" />
+            <label class="op-label">边框</label>
+            <input id="decoBorder" type="range" min="0" max="40" step="1" value="0" style="max-width:110px" />
+            <input id="decoColor" type="color" value="#ffffff" title="边框颜色" />
+            <button id="applyDeco" class="btn primary">应用装饰</button>
+          </div>
           <div class="canvas-wrap grid-on">
             <canvas id="canvas"></canvas>
             <div class="canvas-hint">
@@ -141,6 +189,16 @@
               <span>上传一张图片开始编辑</span>
             </div>
             <div id="infoBadge" class="badge hidden">未加载</div>
+          </div>
+          <!-- 批量面板：多选上传后出现 -->
+          <div id="batchPanel" class="batch-panel hidden">
+            <div class="batch-head">
+              <span id="batchCount">已选 0 张</span>
+              <label class="switch batch-switch"><input id="batchResize" type="checkbox" /><span>应用尺寸设置</span></label>
+              <button id="batchClear" class="btn ghost">退出批量</button>
+            </div>
+            <ul id="batchList" class="batch-list"></ul>
+            <div class="batch-tip">批量按当前水印与导出设置逐张导出，每张消耗 1 次免费额度</div>
           </div>
         </div>
       </section>
@@ -210,7 +268,7 @@
       </div>
     </div>
     <script src="./vendor/jspdf.umd.min.js"></script>
-    <script src="./main.js?v=6"></script>
+    <script src="./main.js?v=7"></script>
     <script>
       (function(){
         function showAlert(msg){
@@ -327,6 +385,13 @@
         setTimeout(function(){ensureVisible();updateSep()},1200);
         setTimeout(finalizeFallback,5000);
       })();
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("./service-worker.js").catch(function () {});
+        });
+      }
     </script>
   </body>
   </html>

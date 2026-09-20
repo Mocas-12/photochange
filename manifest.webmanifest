@@ -1,0 +1,16 @@
+{
+  "name": "PhotoChange — 在线图片工具",
+  "short_name": "PhotoChange",
+  "description": "裁剪、改尺寸、水印、证件照换底、格式转换与压缩",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07080a",
+  "theme_color": "#07080a",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
