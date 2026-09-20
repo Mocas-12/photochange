@@ -2,3 +2,6 @@
 Thumbs.db
 *.log
 .zcodeignore
+node_modules/
+test-results/
+playwright-report/

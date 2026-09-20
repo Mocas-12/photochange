@@ -107,6 +107,18 @@ python -m http.server 5173
 
 > 推送（push）到 `main` 分支后，GitHub Pages 自动更新线上站点，无需手动构建。
 
+## 🧪 测试
+
+每次 push / PR 时 CI 会自动跑冒烟测试（Playwright + GitHub Actions）。本地运行：
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+共 14 个用例，覆盖裁剪坐标矩阵（旋转 × 镜像）、免费额度记账（成功扣减 / 失败不扣 / 无图拦截）、目标体积导出、撤销、BMP/ICO 编码器、双屏切换。
+
 ## 🔑 额度与激活
 
 - 免费模式：每台设备内置 5 次免费导出（本地计数，无需注册）

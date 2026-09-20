@@ -107,6 +107,18 @@ python -m http.server 5173
 
 > Pushing to the `main` branch automatically updates the live GitHub Pages site — no manual build needed.
 
+## 🧪 Tests
+
+Smoke tests run automatically in CI on every push/PR (Playwright + GitHub Actions). To run them locally:
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+14 tests cover the crop-coordinate matrix (rotation × mirror), free-quota accounting (success consumes / failure doesn't / no-image guard), target-size export, undo, BMP/ICO encoders, and the dual-screen page switch.
+
 ## 🔑 Quota & Activation
 
 - Free mode: every device gets 5 free exports (counted locally, no registration required)

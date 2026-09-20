@@ -1,0 +1,11 @@
+{
+  "name": "photochange",
+  "private": true,
+  "description": "PhotoChange — 在线图片工具（纯静态站点）",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
