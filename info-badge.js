@@ -73,24 +73,29 @@
 
   let raf = 0, pending = false;
   async function updateBadge() {
-    if (pending) return;
+    /* 上一次编码未完成时排到下一帧重试，而不是丢弃本次更新（否则徽章停留旧值）；
+       try/finally 保证编码抛异常后 pending 不会永久卡死 */
+    if (pending) { raf = requestAnimationFrame(updateBadge); return; }
     pending = true;
-    const src = getSrcCanvas();
-    const fmt = getFormat();
-    const q = qualityRange ? qualityRange.value : 0.92;
-    const blob = await blobFrom(src, fmt, q);
-    const bytes = blob ? blob.size : 0;
-    const w = src.width, h = src.height;
-    const fmtText = fmt.toUpperCase();
-    const sizeText = fmtBytes(bytes);
-    if (w > 0 && h > 0) {
-      badge.classList.remove("hidden");
-      badge.innerHTML = `<em>${fmtText}</em> · <span class="num">${w}×${h}</span> · <span class="num">${sizeText}</span>`;
-    } else {
-      badge.classList.add("hidden");
-      badge.textContent = "未加载";
+    try {
+      const src = getSrcCanvas();
+      const fmt = getFormat();
+      const q = qualityRange ? qualityRange.value : 0.92;
+      const blob = await blobFrom(src, fmt, q);
+      const bytes = blob ? blob.size : 0;
+      const w = src.width, h = src.height;
+      const fmtText = fmt.toUpperCase();
+      const sizeText = fmtBytes(bytes);
+      if (w > 0 && h > 0) {
+        badge.classList.remove("hidden");
+        badge.innerHTML = `<em>${fmtText}</em> · <span class="num">${w}×${h}</span> · <span class="num">${sizeText}</span>`;
+      } else {
+        badge.classList.add("hidden");
+        badge.textContent = "未加载";
+      }
+    } finally {
+      pending = false;
     }
-    pending = false;
   }
 
   function schedule() {

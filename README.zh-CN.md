@@ -83,8 +83,8 @@ photochange/
 ├── quota.js            # 免费额度计数与激活码校验
 ├── page-switch.js      # 首页 ↔ 工作台整页切换
 ├── info-badge.js       # 状态徽章：分辨率与体积实时预估
-├── expose.js           # 捕获当前工作画布引用
 ├── pointer-fx.js       # 指针跟随特效
+├── vendor/             # 自托管第三方库（jsPDF、heic2any）
 └── wechatpay/
     └── wechatpay.jpg   # 收款码图片
 ```

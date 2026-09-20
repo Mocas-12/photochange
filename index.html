@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PhotoChange</title>
+    <meta name="description" content="PhotoChange — 免费在线图片工具：裁剪、改尺寸、加水印、调亮度对比度，导出 PNG / JPG / WebP / BMP / ICO / PDF，支持压缩到目标体积。" />
+    <meta property="og:title" content="PhotoChange" />
+    <meta property="og:description" content="在线图片工具：裁剪 · 调整 · 水印 · 格式转换" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mocas-12.github.io/photochange/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -200,9 +205,8 @@
         <!-- activation-modal removed per new purchase flow -->
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="./expose.js"></script>
-    <script src="./main.js?v=5"></script>
+    <script src="./vendor/jspdf.umd.min.js"></script>
+    <script src="./main.js?v=6"></script>
     <script>
       (function(){
         function showAlert(msg){
@@ -220,10 +224,10 @@
         window.alert=function(msg){showAlert(msg)};
       })();
     </script>
-    <script src="./quota.js?v=2"></script>
+    <script src="./quota.js?v=3"></script>
     <script src="./pointer-fx.js"></script>
-    <script src="./page-switch.js?v=6"></script>
-    <script src="./info-badge.js"></script>
+    <script src="./page-switch.js?v=7"></script>
+    <script src="./info-badge.js?v=2"></script>
     <script>
       (function(){
         var tools=document.getElementById('image-tools');

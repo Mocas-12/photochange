@@ -34,6 +34,15 @@ function verifyCode(input){
     alert("激活码无效，请检查是否输入正确。");
   }
 }
+/* 导出成功后由 main.js 回调扣减额度；点击即扣会导致编码失败也白扣一次 */
+function consumeQuota(){
+  try{
+    if(isPro())return;
+    setCount(getCount()+1);
+    updateQuotaText()
+  }catch(e){}
+}
+window.__pcConsumeQuota=consumeQuota;
 function initQuota(){
   try{
     const dcRaw=Store.get("download_count");
@@ -49,10 +58,7 @@ function initQuota(){
 function setupQuotaListener(){
   try{
     function hasImage(){
-      try{
-        const c=window.__pc_lastSrcCanvas;
-        return !!(c&&c.width>0&&c.height>0);
-      }catch(e){return false}
+      return !!window.__pcHasImage;
     }
     function isDownloadClick(e){
       try{
@@ -85,9 +91,7 @@ function setupQuotaListener(){
           e.stopImmediatePropagation();e.preventDefault();
           return
         }
-        const next=getCount()+1;
-        setCount(next);
-        updateQuotaText()
+        /* 额度不在点击时扣减：等 main.js 导出成功后回调 consumeQuota */
       }catch(err){}
     },true)
   }catch(e){}

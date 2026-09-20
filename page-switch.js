@@ -28,7 +28,10 @@
   }
 
   function apply() {
-    track.style.transform = 'translateY(-' + (current * window.innerHeight) + 'px)';
+    /* 用首屏实际渲染高度而非 window.innerHeight：iOS 地址栏伸缩时
+       innerHeight 与 100svh 不一致，按 innerHeight 位移会裁掉第二屏顶部 */
+    var step = pages[0].getBoundingClientRect().height || window.innerHeight;
+    track.style.transform = 'translateY(-' + (current * step) + 'px)';
     for (var k = 0; k < pages.length; k++) {
       if (pages[k].classList) pages[k].classList.toggle('is-active', k === current);
     }

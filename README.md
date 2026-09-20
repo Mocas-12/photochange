@@ -83,8 +83,8 @@ photochange/
 ├── quota.js            # Free-quota counter and activation-code validation
 ├── page-switch.js      # Home ↔ workbench full-page switching
 ├── info-badge.js       # Status badge: live resolution & size estimates
-├── expose.js           # Captures a reference to the current working canvas
 ├── pointer-fx.js       # Pointer-following effects
+├── vendor/             # Self-hosted libs (jsPDF, heic2any)
 └── wechatpay/
     └── wechatpay.jpg   # Payment QR code image
 ```

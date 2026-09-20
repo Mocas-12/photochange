@@ -26,9 +26,11 @@
   /* ---------- 状态 ---------- */
   var originalImage = null, workingImage = null;
   var selection = null, dragging = false;
-  var history = [];
+  var history = [], historyBytes = 0;
   /* 触屏设备撤销步数收紧：多份全尺寸位图易撑爆移动端内存 */
   var HISTORY_MAX = (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) ? 8 : 20;
+  /* 历史总字节数封顶：4096² 图单份约 64MB，只限步数时高分辨率下会 OOM 崩标签页 */
+  var HISTORY_BYTES_MAX = ((window.matchMedia && window.matchMedia("(pointer: coarse)").matches) ? 192 : 512) * 1024 * 1024;
   /* 加载上限：最长边超过则等比缩小，避免移动端画布超限 */
   var MAX_SIDE = 4096;
   var baseW = 0, baseH = 0;
@@ -41,6 +43,8 @@
   }
   function drawScaled() {
     if (!workingImage) return;
+    /* 供信息徽章 / 额度判断直读当前位图（替代 drawImage 原型补丁） */
+    window.__pc_lastSrcCanvas = workingImage;
     var fit = fitToBox(workingImage.width, workingImage.height,
       canvas.parentElement.clientWidth - 20, canvas.parentElement.clientHeight - 20);
     setCanvasSize(fit.w, fit.h);
@@ -73,14 +77,20 @@
     var c = document.createElement("canvas");
     c.width = workingImage.width; c.height = workingImage.height;
     c.getContext("2d").drawImage(workingImage, 0, 0);
-    history.push(c);
-    if (history.length > HISTORY_MAX) history.shift();
+    var bytes = c.width * c.height * 4;
+    history.push({ c: c, bytes: bytes });
+    historyBytes += bytes;
+    while (history.length > HISTORY_MAX || historyBytes > HISTORY_BYTES_MAX) {
+      historyBytes -= history[0].bytes;
+      history.shift();
+    }
     toolUndo.disabled = false;
   }
   function undo() {
-    var c = history.pop();
-    if (!c) return;
-    workingImage = c;
+    var e = history.pop();
+    if (!e) return;
+    historyBytes -= e.bytes;
+    workingImage = e.c;
     selection = null;
     drawScaled(); syncInputs();
     toolUndo.disabled = history.length === 0;
@@ -131,11 +141,23 @@
   }
   function loadHeicLib() {
     if (window.heic2any) return Promise.resolve();
+    /* 优先自托管，CDN 兜底：避免第三方脚本被墙或被劫持 */
+    var sources = ["./vendor/heic2any.min.js",
+      "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"];
     return new Promise(function (resolve, reject) {
+      var attempt = 0;
       var s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js";
       s.onload = function () { resolve(); };
-      s.onerror = function () { reject(new Error("HEIC 解码库加载失败，请检查网络后重试")); };
+      s.onerror = function () {
+        attempt += 1;
+        if (attempt < sources.length) {
+          s.src = sources[attempt];
+          document.head.appendChild(s);
+        } else {
+          reject(new Error("HEIC 解码库加载失败，请检查网络后重试"));
+        }
+      };
+      s.src = sources[0];
       document.head.appendChild(s);
     });
   }
@@ -152,10 +174,11 @@
       workingImage.width = baseW;
       workingImage.height = baseH;
       workingImage.getContext("2d").drawImage(img, 0, 0, baseW, baseH);
-      history.length = 0;
+      history.length = 0; historyBytes = 0;
       toolUndo.disabled = true;
       selection = null;
       document.body.classList.add("has-image");
+      window.__pcHasImage = true;
       var tools = $("image-tools");
       if (tools) tools.style.display = "flex";
       drawScaled(); syncInputs();
@@ -226,17 +249,20 @@
 
   /* ---------- 裁剪（Pointer Events：鼠标 / 触摸 / 触控笔通用） ---------- */
   function canvasPoint(evt) {
-    // 画布被 CSS 缩放/旋转过：以布局中心做逆变换，映射回位图坐标
+    // 画布被 CSS 缩放/旋转/镜像过：以布局中心做逆变换，映射回位图坐标。
+    // CSS transform 组合为 Flip·Rotate·Zoom，逆变换必须按相反顺序
+    // un-flip → un-rotate → un-zoom，否则 90°/270° 旋转+镜像时选区错位
     var wrap = canvas.parentElement.getBoundingClientRect();
     var cx = wrap.left + wrap.width / 2, cy = wrap.top + wrap.height / 2;
     var z = window.__pcZoom || 1;
-    var a = ((window.currentRotation || 0) % 360) * Math.PI / 180;
     var dx = evt.clientX - cx, dy = evt.clientY - cy;
-    var cos = Math.cos(-a), sin = Math.sin(-a);
     var flip = window.__pcFlip || { x: 1, y: 1 };
+    dx *= flip.x; dy *= flip.y;
+    var a = ((window.currentRotation || 0) % 360) * Math.PI / 180;
+    var cos = Math.cos(-a), sin = Math.sin(-a);
     return {
-      x: ((dx * cos - dy * sin) / z) * flip.x + canvas.width / 2,
-      y: ((dx * sin + dy * cos) / z) * flip.y + canvas.height / 2
+      x: (dx * cos - dy * sin) / z + canvas.width / 2,
+      y: (dx * sin + dy * cos) / z + canvas.height / 2
     };
   }
   canvas.addEventListener("pointerdown", function (e) {
@@ -404,6 +430,11 @@
   function uiFormatChange() {
     var v = formatSelect.value;
     jpgOnlyRow.classList.toggle("hidden", !(v === "jpg" || v === "webp"));
+    /* 目标体积只对有损格式（PNG 走自动转 JPG）生效：PDF/BMP/ICO 选中时禁用输入，避免静默失效 */
+    var kbApplies = (v === "jpg" || v === "webp" || v === "png");
+    targetKB.disabled = !kbApplies;
+    targetKB.placeholder = kbApplies ? "不限" : "不可用";
+    if (!kbApplies) targetKB.value = "";
   }
   formatSelect.addEventListener("change", uiFormatChange);
   function applyQualityLabel() { qualityValue.textContent = Number(qualityRange.value).toFixed(2); }
@@ -451,6 +482,10 @@
     a.href = url; a.download = name + "." + ext;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
+  }
+  /* 导出成功后消耗免费额度（quota.js 注入）；放在这里保证编码失败不扣次数 */
+  function commitExport() {
+    if (typeof window.__pcConsumeQuota === "function") window.__pcConsumeQuota();
   }
   function toBlob(cv, mime, q) {
     return new Promise(function (res) { cv.toBlob(res, mime, q); });
@@ -570,14 +605,17 @@
         pdf.addImage(dataUrl, "JPEG", (pw - cv.width * r) / 2, (ph - cv.height * r) / 2,
           cv.width * r, cv.height * r, "", "FAST");
         trigger(pdf.output("blob"), "pdf");
+        commitExport();
         return;
       }
       if (fmt === "bmp") {
         trigger(bmpBlob(cv), "bmp");
+        commitExport();
         return;
       }
       if (fmt === "ico") {
         trigger(await icoBlob(cv), "ico");
+        commitExport();
         return;
       }
       var mime = fmt === "png" ? "image/png" : fmt === "webp" ? "image/webp" : "image/jpeg";
@@ -595,7 +633,7 @@
       if (fmt === "jpg") cv = flattenForExport(cv);
       if (kb > 0) blob = await blobUnderKB(cv, mime, kb);
       else blob = await toBlob(cv, mime, q);
-      if (blob) trigger(blob, ext);
+      if (blob) { trigger(blob, ext); commitExport(); }
     } catch (err) {
       alert("导出失败：" + err.message);
     }
