@@ -4,8 +4,9 @@
 
 # PhotoChange
 
-**A pure-frontend image workbench — upload · crop · resize · convert, everything done locally**
+**A pure-frontend image workbench — crop · resize · ID photos · watermark · batch convert, all done locally**
 
+[![CI](https://github.com/Mocas-12/photochange/actions/workflows/ci.yml/badge.svg)](https://github.com/Mocas-12/photochange/actions/workflows/ci.yml)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Live-222?logo=githubpages&logoColor=white)](https://mocas-12.github.io/photochange/)
 [![HTML5](https://img.shields.io/badge/HTML5-5-E34F26?logo=html5&logoColor=white)](https://developer.mozilla.org/zh-CN/docs/Web/HTML)
 [![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)
@@ -28,6 +29,7 @@
 - [How It Works](#-how-it-works)
 - [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
+- [Tests](#-tests)
 - [Quota & Activation](#-quota--activation)
 - [FAQ](#-faq)
 - [Privacy & Security](#-privacy--security)
@@ -61,23 +63,26 @@
 | Accent | Blue→purple gradient primary buttons + outer glow |
 | Page layout | Home / workbench dual full-page switching (wheel · touch · keyboard · arrows) |
 | Canvas | Ruler-grid texture + empty-state hint + bottom-right info badge |
-| Motion | Toolbar slide-in, breathing light dots, pointer effects; respects the system "reduce motion" setting |
+| Motion | Staggered hero entrance, title gradient pan, pointer parallax, occasional meteors, breathing dropzone, button shine; respects the system "reduce motion" setting |
 
 ## 🧠 How It Works
 
 ```mermaid
 flowchart LR
-    A[🖼️ Upload image] --> B[✂️ Canvas editing<br/>crop · resize · watermark · rotate]
+    A[🖼️ Upload image<br/>single or batch] --> B[✂️ Canvas editing<br/>crop · resize · watermark · ID photo · decoration]
     B --> C[⚙️ Export parameters<br/>format · quality · target size]
-    C --> D[💾 Local encoding & export<br/>PNG · JPG · WebP · PDF]
+    C --> D[💾 Local encoding & export<br/>PNG · JPG · WebP · BMP · ICO · PDF]
     D --> E[⬇️ Direct browser download]
+    B -.auto-snapshot.-> F[🔄 Session restore<br/>IndexedDB · 7 days]
 ```
 
-1. **Local loading**: `FileReader` reads the image and draws it onto the working canvas; the original is stored separately so it can be restored at any time
-2. **Non-destructive editing**: crop / scale / watermark are all done via Canvas, with each step pushed onto the undo stack (up to 20 steps)
-3. **Size compression**: once a target size is set, a binary search over the quality parameter (0.05–0.95, up to 9 rounds) picks the highest quality that stays under the target
-4. **PDF export**: the canvas is converted to JPEG and embedded into an A4 page via jsPDF, auto-scaled and centered
-5. **Fully local**: images and export results never leave the browser — no server involved at any point
+1. **Local loading**: the file is decoded via `createObjectURL` + `Image` and drawn onto the working canvas (capped at 4096 px on the long side); HEIC/AVIF go through a self-hosted heic2any first. The original is kept separately for one-click reset
+2. **Non-destructive editing**: crop / resize / watermark / adjustments are all done via Canvas, with each step pushed onto the undo stack (up to 20 steps, memory-capped so large photos can't crash the tab)
+3. **ID-photo background replacement**: the original background color is auto-detected from the four corners; pixels within the tolerance become the new color with a smoothstep-feathered edge. "Print layout" tiles the photo onto a 4×6" sheet at 300 DPI
+4. **Size compression**: once a target size is set, a binary search over the quality parameter (0.05–0.95, up to 9 rounds) picks the highest quality that stays under the target
+5. **PDF export**: the canvas is converted to JPEG and embedded into an A4 page via jsPDF, auto-scaled and centered
+6. **Session & offline**: edits are snapshot into IndexedDB (watermark/adjust metadata included) and can be restored after a refresh within 7 days; a service worker caches the app shell so the installed PWA works offline
+7. **Fully local**: images and export results never leave the browser — no server involved at any point; exports are re-encoded through the canvas, stripping EXIF metadata (including GPS) automatically
 
 ## 📁 Project Structure
 
@@ -137,6 +142,30 @@ npm test
 ## ❓ FAQ
 
 <details>
+<summary><b>How do I make a printable ID-photo sheet?</b></summary>
+
+- Open <b>ID Photo</b>: the original background color is auto-detected — pick white / blue / red (or a custom color) and apply; then click <b>Print Layout</b> to tile the photo onto a 4×6" sheet (300 DPI) ready to print and cut. The built-in 1-inch / 2-inch presets under <b>Resize</b> give the standard photo dimensions first
+</details>
+
+<details>
+<summary><b>Does background replacement work on complex backgrounds?</b></summary>
+
+- It works on roughly uniform backgrounds (studio-style ID photos, solid backdrops) via color-distance matching. Busy or gradient backgrounds need AI matting, which is not built in yet
+</details>
+
+<details>
+<summary><b>The browser asks "allow multiple downloads" during batch export</b></summary>
+
+- Allow it. Each image is exported as an individual file named after the original; the batch panel shows per-file status and output size
+</details>
+
+<details>
+<summary><b>I accidentally refreshed and lost my edits</b></summary>
+
+- Edits are auto-saved locally (IndexedDB). Reopen the page within 7 days and click <b>Restore</b> on the banner to pick up where you left off
+</details>
+
+<details>
 <summary><b>Why is there no "quality" option for PNG</b></summary>
 
 - PNG uses lossless compression and offers no lossy "quality" parameter; file size depends mainly on image content and resolution
@@ -169,6 +198,7 @@ npm test
 ## 🔒 Privacy & Security
 
 - 🖼️ Images are processed entirely in the browser — **never uploaded, never stored, never routed through any server**
+- 🔒 Exports are re-encoded through the canvas, so EXIF metadata (including GPS location) is stripped automatically
 - 🔑 No sign-up or login; quota and activation state stay on this device only
 - 📊 Visitor analytics record anonymous counts only, with no personally identifiable information collected
 
