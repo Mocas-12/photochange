@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://busuanzi.ibruce.info http://busuanzi.ibruce.info; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://github.com https://avatars.githubusercontent.com; connect-src 'self' https://busuanzi.ibruce.info http://busuanzi.ibruce.info; object-src 'none'; base-uri 'self'" />
     <title>PhotoChange — 免费在线图片工具</title>
     <meta name="description" content="PhotoChange — 免费在线图片工具：裁剪、改尺寸、加水印、证件照换底色、调亮度对比度，导出 PNG / JPG / WebP / BMP / ICO / PDF，支持压缩到目标体积。" />
     <meta name="theme-color" content="#07080a" />
@@ -14,11 +15,9 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preload" href="./fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=7" />
+    <link rel="stylesheet" href="./style.css?v=9" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
@@ -43,7 +42,7 @@
         </div>
       </div>
       <div class="scroll-hint-wrap">
-        <button class="scroll-hint" aria-label="向下滑动" onclick="goToPage(1)">
+        <button class="scroll-hint" aria-label="向下滑动" data-act="goto-app">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
         </button>
       </div>
@@ -74,16 +73,16 @@
         </div>
         <div class="display-main-container">
           <div id="image-tools" class="image-tools-fixed">
-            <button onclick="changeZoom(-0.1)" title="缩小" aria-label="缩小"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg></button>
+            <button data-act="zoom-out" title="缩小" aria-label="缩小"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg></button>
             <span class="zoom-text" id="zoom-text">100%</span>
-            <button onclick="changeZoom(0.1)" title="放大" aria-label="放大"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg></button>
+            <button data-act="zoom-in" title="放大" aria-label="放大"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg></button>
             <div class="v-line"></div>
-            <button onclick="rotateImage(-90)" title="逆时针旋转" aria-label="逆时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-            <button onclick="rotateImage(90)" title="顺时针旋转" aria-label="顺时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
-            <button id="flipH" onclick="toggleFlip('x')" title="水平镜像" aria-label="水平镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 2v20"/></svg></button>
-            <button id="flipV" onclick="toggleFlip('y')" title="垂直镜像" aria-label="垂直镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M2 12h20"/></svg></button>
+            <button data-act="rotate-ccw" title="逆时针旋转" aria-label="逆时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+            <button data-act="rotate-cw" title="顺时针旋转" aria-label="顺时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
+            <button id="flipH" data-act="flip-x" title="水平镜像" aria-label="水平镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 2v20"/></svg></button>
+            <button id="flipV" data-act="flip-y" title="垂直镜像" aria-label="垂直镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M2 12h20"/></svg></button>
             <div class="v-line"></div>
-            <button id="gridBtn" onclick="toggleGrid()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>标尺</button>
+            <button id="gridBtn" data-act="grid"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>标尺</button>
           </div>
           <!-- 编辑工具条：裁剪/尺寸/水印/撤销/重置 -->
           <div class="edit-toolbar">
@@ -184,7 +183,7 @@
             <button id="applyDeco" class="btn primary">应用装饰</button>
           </div>
           <div class="canvas-wrap grid-on">
-            <canvas id="canvas"></canvas>
+            <canvas id="canvas" tabindex="0" aria-label="图片画布：上传后拖拽框选裁剪；键盘方向键移动选区，Shift+方向键调整大小，Enter 应用裁剪，Esc 取消"></canvas>
             <div class="canvas-hint">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-4.5-4.5L7 20"/></svg>
               <p>画布空空如也</p>
@@ -200,7 +199,7 @@
               <button id="batchClear" class="btn ghost">退出批量</button>
             </div>
             <ul id="batchList" class="batch-list"></ul>
-            <div class="batch-tip">批量按当前水印与导出设置逐张导出，每张消耗 1 次免费额度</div>
+            <div class="batch-tip">批量按当前水印与导出设置逐张导出，免费无限制</div>
           </div>
         </div>
       </section>
@@ -232,9 +231,7 @@
         </div>
         <div class="eb-download">
           <button id="downloadBtn" class="btn primary wide">导出下载</button>
-          <div id="quotaBar" class="quota-bar"><div class="quota-bar-inner" id="quotaBarInner"></div></div>
-          <div id="quotaText" class="quota-text"></div>
-          <div id="quotaHint" class="quota-hint hidden">提示：这是最后一次免费额度，建议立即激活专业版以防中断</div>
+          <a class="support-link" href="https://mbd.pub/o/bread/mbd-YZWblJ9paA==" target="_blank" rel="noopener" title="完全免费无限制；觉得好用的话，欢迎请作者喝杯咖啡">免费无限制 · 支持开发者</a>
         </div>
       </section>
     </main>
@@ -246,166 +243,15 @@
     <div id="custom-alert" class="alert-overlay">
       <div class="alert-content" role="alertdialog" aria-modal="true" aria-labelledby="alert-message">
         <p id="alert-message">请先上传并转换一张图片</p>
-        <button onclick="closeAlert()" class="alert-btn">确认</button>
+        <button class="alert-btn">确认</button>
       </div>
     </div>
-    <div id="proModal" class="modal-overlay">
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="proModalTitle">
-        <button id="closeX" class="modal-close-btn" onclick="closeProModal()" aria-label="关闭">×</button>
-        <div id="activation-form">
-          <h3 id="proModalTitle">额度已用尽</h3>
-          <p>您已达到免费下载额度。请开通专业版以解锁无限下载次数！</p>
-          <div class="row">
-            <input id="activateInput" class="dimension-input" type="text" placeholder="输入激活码" />
-          </div>
-          <div class="actions">
-            <button id="activateBtn" class="btn primary">激活</button>
-            <button id="closeModal" class="btn ghost" onclick="closeProModal()">稍后再说</button>
-          </div>
-          <div class="activation-footer">
-            <button class="get-code-btn" onclick="window.open('https://mbd.pub/o/bread/mbd-YZWblJ9paA==','_blank')">还没有激活码？点击获取</button>
-          </div>
-        </div>
-        <!-- activation-modal removed per new purchase flow -->
-      </div>
-    </div>
-    <script src="./main.js?v=8"></script>
-    <script>
-      (function(){
-        var lastFocus=null;
-        function showAlert(msg){
-          var m=document.getElementById('alert-message');
-          var ov=document.getElementById('custom-alert');
-          if(m) m.innerText=String(msg);
-          if(ov&&!ov.style.display||ov.style.display!=='flex'){
-            lastFocus=document.activeElement;
-            ov.style.display='flex';
-            var b=ov.querySelector('.alert-btn');
-            if(b)setTimeout(function(){b.focus()},30);
-          }
-        }
-        function closeAlert(){
-          var ov=document.getElementById('custom-alert');
-          if(ov) ov.style.display='none';
-          if(lastFocus&&lastFocus.focus){lastFocus.focus();lastFocus=null}
-        }
-        window.showAlert=showAlert;
-        window.closeAlert=closeAlert;
-        window.alert=function(msg){showAlert(msg)};
-        document.addEventListener('keydown',function(e){
-          if(e.key==='Escape'){
-            var ov=document.getElementById('custom-alert');
-            if(ov&&ov.style.display==='flex')closeAlert();
-          }
-        });
-      })();
-    </script>
-    <script src="./quota.js?v=4"></script>
+    <script type="module" src="./js/alerts.js?v=9"></script>
+    <script type="module" src="./js/view-tools.js?v=9"></script>
+    <script type="module" src="./js/bootstrap.js?v=9"></script>
+    <script type="module" src="./main.js?v=9"></script>
     <script src="./pointer-fx.js?v=4"></script>
     <script src="./page-switch.js?v=8"></script>
     <script src="./info-badge.js?v=4"></script>
-    <script>
-      (function(){
-        var tools=document.getElementById('image-tools');
-        var canvas=document.getElementById('canvas');
-        var zoomText=document.getElementById('zoom-text');
-        var gridBtn=document.getElementById('gridBtn');
-        var flipHBtn=document.getElementById('flipH');
-        var flipVBtn=document.getElementById('flipV');
-        if(!tools||!canvas||!zoomText) return;
-        var __zoom=1, __angle=0, __flipX=1, __flipY=1;
-        function applyTransform(){
-          canvas.style.setProperty('--zoom-level', String(__zoom));
-          canvas.style.setProperty('--rotation-angle', __angle + 'deg');
-          canvas.style.setProperty('--flip-x', String(__flipX));
-          canvas.style.setProperty('--flip-y', String(__flipY));
-          window.__pcZoom = __zoom;
-          window.__pcFlip = { x: __flipX, y: __flipY };
-          zoomText.textContent = Math.round(__zoom*100) + '%';
-          if(flipHBtn)flipHBtn.classList.toggle('active',__flipX===-1);
-          if(flipVBtn)flipVBtn.classList.toggle('active',__flipY===-1);
-        }
-        function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
-        window.changeZoom=function(delta){__zoom=clamp(__zoom+delta,0.2,4);applyTransform()};
-        window.rotateImage=function(deg){__angle=(__angle+deg)%360;window.currentRotation=__angle;applyTransform()};
-        window.toggleFlip=function(axis){
-          if(axis==='y'){__flipY=-__flipY}else{__flipX=-__flipX}
-          applyTransform();
-        };
-        window.resetViewTransform=function(){__zoom=1;__angle=0;__flipX=1;__flipY=1;window.currentRotation=0;applyTransform()};
-        window.toggleGrid=function(){
-          var wrap=canvas.parentElement;
-          var on=wrap.classList.toggle('grid-on');
-          if(gridBtn){gridBtn.classList.toggle('active',on)}
-        };
-        applyTransform();
-        (function(){
-          try{
-            var on=canvas.parentElement.classList.contains('grid-on');
-            if(gridBtn){gridBtn.classList.toggle('active',on)}
-          }catch(_){}
-        })();
-        function showTools(){tools.style.display='flex';document.body.classList.add('has-image')}
-        var fileInput=document.getElementById('fileInput');
-        var dropzone=document.getElementById('dropzone');
-        if(fileInput){fileInput.addEventListener('change',function(){showTools()})}
-        if(dropzone){dropzone.addEventListener('drop',function(){showTools()})}
-      })();
-    </script>
-    <script>
-      /* Ctrl+Z 撤销 */
-      document.addEventListener('keydown',function(e){
-        if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){
-          var tag=e.target&&e.target.tagName;
-          if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
-          var btn=document.getElementById('toolUndo');
-          if(btn&&!btn.disabled)btn.click();
-        }
-      });
-    </script>
-    <script>
-      (function(){
-        function visible(el){if(!el)return false;const s=getComputedStyle(el);return s.display!=='none'&&s.visibility!=='hidden'}
-        function ensureVisible(){
-          const pvC=document.getElementById('busuanzi_container_site_pv');
-          const uvC=document.getElementById('busuanzi_container_site_uv');
-          const pvV=document.getElementById('busuanzi_value_site_pv');
-          const uvV=document.getElementById('busuanzi_value_site_uv');
-          if(pvC){pvC.style.display='inline'}
-          if(uvC){uvC.style.display='inline'}
-          if(pvV&&(!pvV.textContent||pvV.textContent.trim()==='')){pvV.textContent='加载中...'}
-          if(uvV&&(!uvV.textContent||uvV.textContent.trim()==='')){uvV.textContent='加载中...'}
-        }
-        function finalizeFallback(){
-          const pvV=document.getElementById('busuanzi_value_site_pv');
-          const uvV=document.getElementById('busuanzi_value_site_uv');
-          if(pvV&&pvV.textContent==='加载中...'){pvV.textContent='暂不可用'}
-          if(uvV&&uvV.textContent==='加载中...'){uvV.textContent='暂不可用'}
-        }
-        function updateSep(){
-          const pv=document.getElementById('busuanzi_container_site_pv');
-          const uv=document.getElementById('busuanzi_container_site_uv');
-          const sep=document.getElementById('busuanzi_sep');
-          if(!sep)return;
-          sep.style.display = (visible(pv)&&visible(uv)) ? 'inline' : 'none';
-        }
-        const pv=document.getElementById('busuanzi_container_site_pv');
-        const uv=document.getElementById('busuanzi_container_site_uv');
-        const obsCfg={attributes:true,attributeFilter:['style','class']};
-        if(pv){new MutationObserver(function(){ensureVisible();updateSep()}).observe(pv,obsCfg)}
-        if(uv){new MutationObserver(function(){ensureVisible();updateSep()}).observe(uv,obsCfg)}
-        document.addEventListener('DOMContentLoaded',function(){ensureVisible();updateSep()});
-        window.addEventListener('load',function(){ensureVisible();updateSep()});
-        setTimeout(function(){ensureVisible();updateSep()},1200);
-        setTimeout(finalizeFallback,5000);
-      })();
-    </script>
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", function () {
-          navigator.serviceWorker.register("./service-worker.js").catch(function () {});
-        });
-      }
-    </script>
   </body>
   </html>

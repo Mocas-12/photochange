@@ -28,6 +28,15 @@
 }
 
 *{box-sizing:border-box}
+/* 自托管 Inter 可变字体（latin 子集 48KB，覆盖 400-700；中文回退系统字体） */
+@font-face{
+  font-family:'Inter';
+  font-style:normal;
+  font-weight:400 700;
+  font-display:swap;
+  src:url('./fonts/inter-latin-var.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
 html{height:100%;background:var(--bg-void)}
 body{
   margin:0;min-height:100%;
@@ -255,7 +264,9 @@ body.has-image .canvas-hint{display:none}
   min-width:170px;margin-left:auto;
 }
 .eb-download .btn.wide{height:38px}
-.eb-download .quota-text{font-size:11px}
+/* 开发者支持入口：免费无限制，非阻断的感谢渠道 */
+.support-link{font-size:12px;color:var(--text-muted);text-align:center;text-decoration:none;line-height:1.4}
+.support-link:hover{color:var(--accent)}
 .hidden{display:none !important}
 input[type=text],input[type=number],select{
   flex:1;min-width:0;height:var(--ctl-h);
@@ -356,52 +367,6 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 }
 .btn.primary:hover::after{transform:translateX(330%) skewX(-18deg)}
 .btn.wide{width:100%;height:38px;font-size:14px}
-
-/* ---------------- 额度 ---------------- */
-.quota-bar{height:6px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:2px}
-.quota-bar-inner{height:100%;width:100%;transition:width .2s ease;background:linear-gradient(90deg,#4da3ff,#5fc992)}
-.quota-bar-inner.warn{background:linear-gradient(90deg,#ffbc33,#ff9d5c)}
-.quota-bar-inner.danger{background:linear-gradient(90deg,#ff6363,#ff8f6b)}
-.quota-text{text-align:center;color:var(--text-faint);font-size:12px;line-height:1.4;margin-top:2px}
-.quota-text.exhausted{color:var(--danger)}
-.quota-hint{text-align:center;color:var(--warning);font-size:12px;line-height:1.4}
-
-/* ---------------- 弹窗 ---------------- */
-.modal-overlay{
-  position:fixed;inset:0;z-index:50;
-  align-items:center;justify-content:center;
-  background:rgba(4,5,7,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
-}
-/* 弹窗显隐统一由 .open 类控制（配合 quota.js） */
-#proModal{display:none}
-#proModal.open{display:flex}
-.modal{
-  position:relative;width:320px;max-width:90%;
-  background:linear-gradient(180deg,rgba(24,26,33,.92),rgba(13,14,17,.95));
-  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:var(--radius-lg);padding:22px 18px 18px;color:var(--text-secondary);
-  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(85,140,255,.08),inset 0 1px 0 rgba(255,255,255,.07);
-}
-.modal h3{margin:0 0 8px;font-size:16px;font-weight:600;color:var(--text-primary);letter-spacing:.2px}
-.modal p{margin:0 0 12px;opacity:.85;font-size:13px;line-height:1.6}
-.modal .row{margin-top:10px}
-.modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-.modal-close-btn{
-  position:absolute;top:12px;right:12px;background:transparent;border:none;
-  color:var(--text-faint);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;
-  border-radius:8px;transition:color .18s ease,background .18s ease;
-}
-.modal-close-btn:hover{color:var(--danger);background:rgba(255,99,99,.1)}
-.activation-footer{margin-top:14px;text-align:center}
-.get-code-btn{
-  width:100%;height:34px;padding:0 10px;
-  background:rgba(85,179,255,.06);
-  border:1px solid rgba(85,179,255,.22);border-radius:999px;
-  color:var(--text-muted);font-size:13px;font-family:var(--font);letter-spacing:.2px;cursor:pointer;
-  transition:all .18s ease;
-}
-.get-code-btn:hover{background:rgba(85,179,255,.12);border-color:rgba(85,179,255,.45);color:var(--accent)}
 
 /* ---------------- 自定义 alert ---------------- */
 .alert-overlay{

@@ -1,8 +1,14 @@
 /* ============================================================
-   PhotoChange — 核心逻辑 v2
+   PhotoChange — 核心编排（ES module 入口）
    三段式工作流：顶部工具条(裁剪/尺寸/水印/撤销/重置)
    + 画布 + 底部导出条(格式/质量/目标体积/文件名/导出)
+   纯编码器在 js/exporters.js，会话存储在 js/session.js，
+   视图工具在 js/view-tools.js；本文件是依赖画布状态的编排层
    ============================================================ */
+import { bmpBlob, icoBlob, blobUnderKB, flattenForExport, loadJsPdf } from "./js/exporters.js?v=9";
+import { sessionPut, sessionGet, sessionClear } from "./js/session.js?v=9";
+import { showTools } from "./js/view-tools.js?v=9";
+
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
@@ -189,10 +195,8 @@
       history.length = 0; historyBytes = 0;
       toolUndo.disabled = true;
       selection = null;
-      document.body.classList.add("has-image");
       window.__pcHasImage = true;
-      var tools = $("image-tools");
-      if (tools) tools.style.display = "flex";
+      showTools();
       drawScaled(); syncInputs();
       fileNameInput.value = (nameOverride || file.name || "output").replace(/\.[^.]+$/, "");
       scheduleSessionSave();
@@ -290,14 +294,36 @@
       y: (dx * sin + dy * cos) / z + canvas.height / 2
     };
   }
+  /* 触屏捏合缩放：第二根手指落下进入捏合，按指距比例设定倍率；
+     捏合期间取消裁剪拖拽，抬起到单指后重新按下才继续框选 */
+  var activePtrs = new Map();
+  var pinch = null;
+  function ptrDist() {
+    var pts = Array.from(activePtrs.values());
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  }
   canvas.addEventListener("pointerdown", function (e) {
     if (!workingImage || !e.isPrimary) return;
     e.preventDefault();
     try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    activePtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activePtrs.size === 2) {
+      pinch = { startDist: ptrDist(), startZoom: window.__pcZoom || 1 };
+      dragging = false;
+      selection = null;
+      drawScaled();
+      return;
+    }
     dragging = true;
     selection = { x: canvasPoint(e).x, y: canvasPoint(e).y, w: 0, h: 0 };
   });
   canvas.addEventListener("pointermove", function (e) {
+    if (activePtrs.has(e.pointerId)) activePtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && activePtrs.size >= 2) {
+      var d = ptrDist();
+      if (pinch.startDist > 0) window.setViewZoom(pinch.startZoom * (d / pinch.startDist));
+      return;
+    }
     if (!dragging || !selection || !e.isPrimary) return;
     var p = canvasPoint(e);
     var ax = p.x - selection.x, ay = p.y - selection.y;
@@ -311,10 +337,43 @@
     selection.w = ax; selection.h = ay;
     drawScaled();
   });
-  function endDrag(e) { if (!e || e.isPrimary) dragging = false; }
+  function endDrag(e) {
+    if (e && e.pointerId != null) activePtrs.delete(e.pointerId);
+    if (activePtrs.size < 2) pinch = null;
+    if (!e || e.isPrimary) dragging = false;
+  }
   canvas.addEventListener("pointerup", endDrag);
-  canvas.addEventListener("pointercancel", function () { dragging = false; });
+  canvas.addEventListener("pointercancel", endDrag);
   window.addEventListener("pointerup", endDrag);
+
+  /* 键盘裁剪：方向键建/移选区，Shift+方向键调大小，Enter 应用，Esc 清除。
+     stopPropagation 防止 page-switch 把方向键当翻页 */
+  canvas.addEventListener("keydown", function (e) {
+    if (!workingImage) return;
+    var k = e.key;
+    var isArrow = k.indexOf("Arrow") === 0;
+    if (!isArrow && k !== "Enter" && k !== "Escape") return;
+    e.stopPropagation();
+    e.preventDefault();
+    if (k === "Escape") { selection = null; drawScaled(); return; }
+    if (k === "Enter") { if (selection) cropApply.click(); return; }
+    var step = Math.max(4, Math.round(Math.min(canvas.width, canvas.height) * 0.01));
+    var dx = k === "ArrowRight" ? step : k === "ArrowLeft" ? -step : 0;
+    var dy = k === "ArrowDown" ? step : k === "ArrowUp" ? -step : 0;
+    if (!selection) {
+      var w0 = Math.round(canvas.width * 0.2), h0 = Math.round(canvas.height * 0.2);
+      selection = { x: (canvas.width - w0) / 2, y: (canvas.height - h0) / 2, w: w0, h: h0 };
+    } else if (e.shiftKey) {
+      if (dx) selection.w += dx;
+      if (dy) selection.h += dy;
+    } else {
+      var r = normRect(selection);
+      r.x = Math.max(0, Math.min(canvas.width - r.w, r.x + dx));
+      r.y = Math.max(0, Math.min(canvas.height - r.h, r.y + dy));
+      selection = r;
+    }
+    drawScaled();
+  });
   cropApply.addEventListener("click", function () {
     if (!selection || !workingImage) return;
     var r = normRect(selection);
@@ -611,7 +670,6 @@
       if (!b) { alert("排版导出失败"); return; }
       var name = (fileNameInput.value || "output").replace(/[\\/:*?"<>|]+/g, "").trim() || "output";
       triggerNamed(b, "jpg", name + "-排版");
-      commitExport();
     }, "image/jpeg", 0.92);
   }
   genLayout.addEventListener("click", generateLayout);
@@ -709,18 +767,7 @@
     c.drawImage(cv, 0, 0);
     return out;
   }
-  /* PDF 库按需加载：364KB 的 jsPDF 只在真正导出 PDF 时付出成本（自托管，无网络依赖） */
-  function loadJsPdf() {
-    if (window.jspdf) return Promise.resolve();
-    return new Promise(function (resolve, reject) {
-      var s = document.createElement("script");
-      s.onload = function () { resolve(); };
-      s.onerror = function () { reject(new Error("PDF 组件加载失败，请检查网络后重试")); };
-      s.src = "./vendor/jspdf.umd.min.js";
-      document.head.appendChild(s);
-    });
-  }
-  window.__pcLoadJsPdf = loadJsPdf;
+  /* PDF / BMP / ICO / 目标体积编码在 js/exporters.js（纯画布→Blob，无状态） */
   function triggerNamed(blob, ext, baseName) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -732,117 +779,18 @@
     var name = (fileNameInput.value || "output").replace(/[\\/:*?"<>|]+/g, "").trim() || "output";
     triggerNamed(blob, ext, name);
   }
-  /* 导出成功后消耗免费额度（quota.js 注入）；放在这里保证编码失败不扣次数 */
-  function commitExport() {
-    if (typeof window.__pcConsumeQuota === "function") window.__pcConsumeQuota();
-  }
   function toBlob(cv, mime, q) {
     return new Promise(function (res) { cv.toBlob(res, mime, q); });
   }
-  /* BMP（24 位无压缩）：透明区按白底合成，行尾按 4 字节对齐 */
-  function bmpBlob(cv) {
-    var w = cv.width, h = cv.height;
-    var img = cv.getContext("2d").getImageData(0, 0, w, h).data;
-    var rowSize = Math.floor((24 * w + 31) / 32) * 4;
-    var pixSize = rowSize * h;
-    var fileSize = 54 + pixSize;
-    var buf = new ArrayBuffer(fileSize);
-    var view = new DataView(buf);
-    var u8 = new Uint8Array(buf);
-    u8[0] = 0x42; u8[1] = 0x4D;                       /* "BM" */
-    view.setUint32(2, fileSize, true);
-    view.setUint32(10, 54, true);                     /* 像素数据偏移 */
-    view.setUint32(14, 40, true);                     /* BITMAPINFOHEADER */
-    view.setInt32(18, w, true);
-    view.setInt32(22, -h, true);                      /* 负高度 = 自上而下存储 */
-    view.setUint16(26, 1, true);                      /* 位面数 */
-    view.setUint16(28, 24, true);                     /* 24 bpp */
-    view.setUint32(34, pixSize, true);
-    view.setUint32(38, 2835, true); view.setUint32(42, 2835, true); /* 72 DPI */
-    for (var y = 0; y < h; y++) {
-      var row = 54 + y * rowSize;
-      var src = y * w * 4;
-      for (var x = 0; x < w; x++) {
-        var i = src + x * 4;
-        var a = img[i + 3] / 255, inv = 255 * (1 - a);
-        u8[row + x * 3]     = Math.round(img[i + 2] * a + inv); /* B */
-        u8[row + x * 3 + 1] = Math.round(img[i + 1] * a + inv); /* G */
-        u8[row + x * 3 + 2] = Math.round(img[i]     * a + inv); /* R */
-      }
-    }
-    return new Blob([buf], { type: "image/bmp" });
-  }
-  /* ICO（favicon）：16/32/48/64/128/256 多尺寸打包，PNG 压缩条目，非方形图居中裁方 */
-  async function icoBlob(cv) {
-    var max = Math.max(cv.width, cv.height);
-    var sizes = [16, 32, 48, 64, 128, 256].filter(function (s) { return s <= max; });
-    if (!sizes.length) sizes = [16];
-    var entries = [];
-    for (var i = 0; i < sizes.length; i++) {
-      var s = sizes[i];
-      var tmp = document.createElement("canvas");
-      tmp.width = s; tmp.height = s;
-      var c = tmp.getContext("2d");
-      c.imageSmoothingEnabled = true;
-      c.imageSmoothingQuality = "high";
-      var scale = Math.max(s / cv.width, s / cv.height);
-      var dw = cv.width * scale, dh = cv.height * scale;
-      c.drawImage(cv, (s - dw) / 2, (s - dh) / 2, dw, dh);
-      var png = await new Promise(function (res) { tmp.toBlob(res, "image/png"); });
-      if (png) entries.push({ size: s, blob: png });
-    }
-    if (!entries.length) throw new Error("ICO 编码失败");
-    var headSize = 6 + entries.length * 16;
-    var buf = new ArrayBuffer(headSize);
-    var view = new DataView(buf);
-    view.setUint16(0, 0, true);
-    view.setUint16(2, 1, true);                       /* 类型：图标 */
-    view.setUint16(4, entries.length, true);
-    var off = headSize;
-    var parts = [];
-    for (var k = 0; k < entries.length; k++) {
-      var e = entries[k], base = 6 + k * 16;
-      view.setUint8(base, e.size === 256 ? 0 : e.size);     /* 0 表示 256 */
-      view.setUint8(base + 1, e.size === 256 ? 0 : e.size);
-      view.setUint16(base + 4, 1, true);              /* 位面数 */
-      view.setUint16(base + 6, 32, true);             /* 色深 */
-      view.setUint32(base + 8, e.blob.size, true);
-      view.setUint32(base + 12, off, true);
-      parts.push(e.blob);
-      off += e.blob.size;
-    }
-    return new Blob([buf].concat(parts), { type: "image/x-icon" });
-  }
-  /* 目标体积：二分搜索质量参数 */
-  async function blobUnderKB(cv, mime, kb) {
-    var limit = kb * 1024;
-    var lo = 0.05, hi = 0.95, best = null;
-    for (var i = 0; i < 9; i++) {
-      var mid = (lo + hi) / 2;
-      var b = await toBlob(cv, mime, mid);
-      if (!b) break;
-      if (b.size <= limit) { best = b; lo = mid; }
-      else hi = mid;
-    }
-    if (!best) best = await toBlob(cv, mime, 0.05);
-    return best;
-  }
-  /* JPG/PDF 不支持透明通道：导出前合成白底，避免透明区域变黑 */
-  function flattenForExport(cv) {
-    var out = document.createElement("canvas");
-    out.width = cv.width; out.height = cv.height;
-    var c = out.getContext("2d");
-    c.fillStyle = "#ffffff";
-    c.fillRect(0, 0, out.width, out.height);
-    c.drawImage(cv, 0, 0);
-    return out;
-  }
+  /* BMP/ICO/目标体积/白底合成的纯编码器在 js/exporters.js */
 
   /* 组装导出画布：调整烘焙 → 旋转 → 镜像 → 水印（单图与批量共用） */
   function buildExportCanvas(src) {
     var flip = window.__pcFlip || { x: 1, y: 1 };
     return applyWatermark(flippedCanvas(rotatedCanvas(applyAdjust(src), window.currentRotation || 0), flip.x, flip.y));
   }
+  /* 渲染回归测试钩子：固定操作序列的导出管线输出可被断言 */
+  window.__pcBuildExportCanvas = buildExportCanvas;
   /* 按导出条设置编码；quiet=批量时不弹格式回退提示 */
   async function encodeCanvas(cv, quiet) {
     var fmt = formatSelect.value;
@@ -926,15 +874,9 @@
   }
   async function exportBatch() {
     var n = batchFiles.length;
-    var isProUser = typeof window.isPro === "function" ? window.isPro() : false;
-    var left = typeof window.remaining === "function" ? window.remaining() : n;
-    var allowed = isProUser ? n : Math.min(n, Math.max(0, left));
-    if (allowed < n) {
-      alert("免费额度仅剩 " + left + " 次，本次将只导出前 " + allowed + " 张。开通专业版可解除限制。");
-    }
     var resizeOn = batchResize.checked;
     var tw = parseInt(widthInput.value, 10), th = parseInt(heightInput.value, 10);
-    for (var i = 0; i < allowed; i++) {
+    for (var i = 0; i < n; i++) {
       var st = batchList.children[i] && batchList.children[i].querySelector(".batch-status");
       try {
         var cv = await decodeToCanvas(batchFiles[i]);
@@ -945,7 +887,6 @@
         if (!res.blob) throw new Error("编码失败");
         var base = (batchFiles[i].name || "image").replace(/\.[^.]+$/, "");
         triggerNamed(res.blob, res.ext, base);
-        commitExport();
         if (st) st.textContent = "✓ " + Math.max(1, Math.round(res.blob.size / 1024)) + " KB";
       } catch (err) {
         if (st) st.textContent = "✗ " + ((err && err.message) || "失败");
@@ -963,7 +904,7 @@
     if (!workingImage) { alert("请先上传并转换一张图片"); return; }
     try {
       var res = await encodeCanvas(buildExportCanvas(workingImage), false);
-      if (res.blob) { trigger(res.blob, res.ext); commitExport(); }
+      if (res.blob) trigger(res.blob, res.ext);
     } catch (err) {
       alert("导出失败：" + err.message);
     }
@@ -982,40 +923,11 @@
       return p.toDataURL("image/webp").indexOf("data:image/webp") === 0;
     } catch (_) { return false; }
   })();
-  /* 供状态徽章复用编码器，BMP/ICO 选中时也能显示预估体积 */
-  window.__pcEncoders = { bmp: bmpBlob, ico: icoBlob };
 
-  /* ---------- 会话恢复（IndexedDB）：刷新/误关不丢正在编辑的图 ---------- */
-  var SESSION_DB = "photochange", SESSION_STORE = "session";
+  /* ---------- 会话恢复（IndexedDB）：刷新/误关不丢正在编辑的图 ----------
+     存储读写在 js/session.js；过期判断（7 天）在此处 */
   var SESSION_MAX_AGE = 7 * 24 * 3600 * 1000;
   var saveTimer = 0;
-  function idbOpen() {
-    return new Promise(function (resolve, reject) {
-      var rq = indexedDB.open(SESSION_DB, 1);
-      rq.onupgradeneeded = function () { rq.result.createObjectStore(SESSION_STORE); };
-      rq.onsuccess = function () { resolve(rq.result); };
-      rq.onerror = function () { reject(rq.error); };
-    });
-  }
-  function sessionPut(record) {
-    idbOpen().then(function (db) {
-      db.transaction(SESSION_STORE, "readwrite").objectStore(SESSION_STORE).put(record, "last");
-    }).catch(function () {});
-  }
-  function sessionGet() {
-    return idbOpen().then(function (db) {
-      return new Promise(function (resolve) {
-        var rq = db.transaction(SESSION_STORE, "readonly").objectStore(SESSION_STORE).get("last");
-        rq.onsuccess = function () { resolve(rq.result || null); };
-        rq.onerror = function () { resolve(null); };
-      });
-    }).catch(function () { return null; });
-  }
-  function sessionClear() {
-    idbOpen().then(function (db) {
-      db.transaction(SESSION_STORE, "readwrite").objectStore(SESSION_STORE).delete("last");
-    }).catch(function () {});
-  }
   function collectMeta() {
     return {
       fileName: fileNameInput.value,
@@ -1023,6 +935,21 @@
       wmOpacity: wmOpacity.value, wmType: wmType.value, wmMode: wmMode.value, wmScale: wmScale.value,
       adjB: adjBrightness.value, adjC: adjContrast.value, adjS: adjSaturate.value
     };
+  }
+  /* 视图变换一并入快照：恢复后旋转/镜像不丢 */
+  function collectView() {
+    return {
+      r: window.currentRotation || 0,
+      fx: (window.__pcFlip || { x: 1 }).x,
+      fy: (window.__pcFlip || { y: 1 }).y
+    };
+  }
+  function applyViewTransform(v) {
+    if (!v) return;
+    if (window.resetViewTransform) window.resetViewTransform();
+    if (v.r && window.rotateImage) window.rotateImage(v.r);
+    if (v.fx === -1 && window.toggleFlip) window.toggleFlip("x");
+    if (v.fy === -1 && window.toggleFlip) window.toggleFlip("y");
   }
   function applyMeta(m) {
     fileNameInput.value = m.fileName || "";
@@ -1040,14 +967,17 @@
     adjust.contrast = parseFloat(adjContrast.value) || 1;
     adjust.saturate = parseFloat(adjSaturate.value) || 1;
   }
-  /* 位图落库（防抖）：改动停止 0.8s 后写 PNG 快照 */
+  /* 位图落库（防抖）：改动停止 0.8s 后写快照。
+     超 12MP 的大图改用 JPEG 0.85——PNG 编码在主线程要数百毫秒，滑杆会卡；
+     恢复路径本来就走 decodeToCanvas，格式无感知 */
   function scheduleSessionSave() {
     if (!workingImage) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
+      var big = workingImage.width * workingImage.height > 12 * 1024 * 1024;
       workingImage.toBlob(function (b) {
-        if (b) sessionPut({ blob: b, meta: collectMeta(), ts: Date.now() });
-      }, "image/png");
+        if (b) sessionPut({ blob: b, meta: collectMeta(), view: collectView(), ts: Date.now() });
+      }, big ? "image/jpeg" : "image/png", big ? 0.85 : undefined);
     }, 800);
   }
   function initRestore() {
@@ -1066,11 +996,10 @@
           history.length = 0; historyBytes = 0;
           toolUndo.disabled = true;
           selection = null;
-          document.body.classList.add("has-image");
           window.__pcHasImage = true;
-          var tools = $("image-tools");
-          if (tools) tools.style.display = "flex";
+          showTools();
           applyMeta(rec.meta || {});
+          applyViewTransform(rec.view);
           drawScaled(); syncInputs();
         }).catch(function () {
           sessionClear();

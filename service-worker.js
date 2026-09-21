@@ -1,19 +1,16 @@
 /* ============================================================
    PhotoChange Service Worker
    页面：网络优先，离线回退缓存；
-   静态资源：缓存优先 + 后台更新（带 ?v= 版本号，改版自动换新）
-   跨域资源（字体/busuanzi）不拦截
+   静态资源：缓存优先 + 后台更新。
+   预缓存清单在 install 时动态生成：解析 index.html 的本地资源
+   （含 ?v= 版本号），并跟进入口 module 的静态 import——
+   改版只动 index.html 一处，清单自动换新，无需手工同步。
+   跨域资源（busuanzi）不拦截；自托管字体随 index.html 入清单。
    ============================================================ */
-const CACHE = "photochange-v3";
-const SHELL = [
-  "./",
-  "./index.html",
-  "./style.css?v=7",
-  "./main.js?v=8",
-  "./quota.js?v=4",
-  "./page-switch.js?v=8",
-  "./info-badge.js?v=4",
-  "./pointer-fx.js?v=4",
+const CACHE = "photochange-v4";
+
+/* 与版本号无关的固定资源（懒加载库也预缓存，保证离线 PDF/HEIC 可用） */
+const STATIC = [
   "./vendor/jspdf.umd.min.js",
   "./vendor/heic2any.min.js",
   "./logo.svg",
@@ -23,10 +20,32 @@ const SHELL = [
   "./icons/apple-touch-icon.png"
 ];
 
+/* 兜底清单：index.html 拉取失败时至少保证可离线打开 */
+const FALLBACK = ["./", "./index.html"].concat(STATIC);
+
+async function buildShell() {
+  try {
+    const html = await (await fetch("./index.html", { cache: "reload" })).text();
+    const rel = [...html.matchAll(/(?:src|href)="\.\/([^"?]+(?:\?v=\d+)?)"/g)].map(m => "./" + m[1]);
+    const shell = new Set(["./", "./index.html"].concat(rel).concat(STATIC));
+    /* 入口 module 的静态 import（exporters/session 等不在 index.html 里），跟进一层 */
+    const entry = rel.find(u => /main\.js/.test(u));
+    if (entry) {
+      try {
+        const js = await (await fetch(entry, { cache: "reload" })).text();
+        [...js.matchAll(/from\s*"\.\/([^"]+)"/g)].forEach(m => shell.add("./" + m[1]));
+      } catch (_) {}
+    }
+    return [...shell];
+  } catch (_) {
+    return FALLBACK;
+  }
+}
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(CACHE)
-      .then((c) => c.addAll(SHELL))
+    buildShell()
+      .then((list) => caches.open(CACHE).then((c) => c.addAll(list)))
       .then(() => self.skipWaiting())
   );
 });

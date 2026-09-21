@@ -30,7 +30,7 @@
 - [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
 - [Tests](#-tests)
-- [Quota & Activation](#-quota--activation)
+- [Support the Developer](#-support-the-developer)
 - [FAQ](#-faq)
 - [Privacy & Security](#-privacy--security)
 - [License](#-license)
@@ -52,7 +52,7 @@
 - 🔄 **Session restore**: the editing snapshot is auto-saved locally (IndexedDB, valid for 7 days); refresh or accidentally close the page and restore with one click
 - 📲 **PWA**: installable to the home screen, app-shell cached by a service worker for offline use
 - 🔒 **Privacy**: exports go through canvas re-encoding, so EXIF metadata (including GPS location) is stripped automatically
-- 🔑 **Quota system**: 5 free exports, permanently unlocked by an activation code, no account required
+- 💛 **Developer-support model**: completely free — unlimited exports, no feature locks, no account required. If it helps you, consider buying the author a coffee
 
 ## 🎨 UI Design
 
@@ -88,16 +88,22 @@ flowchart LR
 
 ```text
 photochange/
-├── index.html          # Single-page structure: workbench + activation modal + custom toasts
-├── style.css           # Deep Space Glow theme (glassmorphism + ambient glow)
-├── main.js             # Editing core: crop / resize / watermark / export
-├── quota.js            # Free-quota counter and activation-code validation
+├── index.html          # Single-page structure: workbench + custom toast overlay (no inline scripts, CSP-enforced)
+├── style.css           # Deep Space Glow theme (glassmorphism + ambient glow + self-hosted Inter)
+├── main.js             # Editing orchestrator: crop / resize / watermark / export flows
+├── js/
+│   ├── exporters.js    # Pure encoders: BMP / ICO / target-size binary search / on-demand jsPDF
+│   ├── session.js      # Session storage: IndexedDB read/write
+│   ├── view-tools.js   # View transforms: zoom / rotate / mirror / ruler + toolbar visibility
+│   ├── alerts.js       # Custom alert overlay: focus management + background inert
+│   └── bootstrap.js    # Visitor-counter fallback + service-worker registration
+├── fonts/              # Self-hosted Inter variable font (latin subset)
 ├── page-switch.js      # Home ↔ workbench full-page switching
 ├── info-badge.js       # Status badge: live resolution & size estimates
-├── pointer-fx.js       # Pointer-following effects
-├── manifest.webmanifest / service-worker.js  # PWA: installable + offline shell
-├── vendor/             # Self-hosted libs (jsPDF, heic2any)
-├── tests/              # Playwright smoke suite (npm test)
+├── pointer-fx.js       # Pointer-following effects (auto-paused on the workbench page)
+├── manifest.webmanifest / service-worker.js  # PWA: installable + offline shell (pre-cache list auto-generated)
+├── vendor/             # Self-hosted libs (jsPDF, heic2any — both loaded on demand)
+├── tests/              # Playwright suite (npm test)
 └── wechatpay/
     └── wechatpay.jpg   # Payment QR code image
 ```
@@ -130,14 +136,16 @@ npx playwright install chromium
 npm test
 ```
 
-22 tests cover the crop-coordinate matrix (rotation × mirror), free-quota accounting, target-size export, BMP/ICO encoders, undo, ID-photo background replacement & print layout, decoration, tiled watermark, batch mode, session restore, and the dual-screen page switch.
+29 tests cover the crop-coordinate matrix (rotation × mirror), the three resize fit-modes, watermark 9-grid positioning, keyboard cropping, export policy, target-size export, BMP/ICO encoders, render regression (deterministic pixel assertions over a fixed op sequence), first-screen size budgets, undo, ID-photo background replacement & print layout, decoration, tiled watermark, batch mode, session restore (parameters + view transforms), and the dual-screen page switch.
 
-## 🔑 Quota & Activation
+## 💛 Support the Developer
 
-- Free mode: every device gets 5 free exports (counted locally, no registration required)
-- Once the quota is used up, clicking export automatically opens the activation modal, which links to Mianbaoduo to get an activation code
-- Activation codes use the format `CYxxxS1X`; activation unlocks the device permanently with unlimited exports
-- Quota and activation state are stored in the browser's localStorage; clearing browser data resets them
+This project runs on a **developer-support model**, stated here explicitly:
+
+- **Completely free**: every feature is unlimited — no export caps, no feature locks, no account required
+- **No paywall**: there are no activation codes and no "pro" tier. If any earlier wording suggested otherwise, that was outdated documentation — the tool itself has always run fully local and fully featured
+- **Support is optional**: if the tool helps you, [buy the author a coffee](https://mbd.pub/o/bread/mbd-YZWblJ9paA==) (there's also a link in the export bar). It's a purely voluntary thank-you and unlocks nothing because nothing is locked
+- Contributions go toward domains, CDN and continued development
 
 ## ❓ FAQ
 
@@ -189,17 +197,12 @@ npm test
 - Set a "compress to N KB" target size, lower the JPG / WebP quality, or first reduce the resolution under "Resize"
 </details>
 
-<details>
-<summary><b>Does the quota reset when switching devices or clearing browser data</b></summary>
-
-- Yes. The quota is stored only in this device's localStorage and is not tied to any account
-</details>
-
 ## 🔒 Privacy & Security
 
 - 🖼️ Images are processed entirely in the browser — **never uploaded, never stored, never routed through any server**
 - 🔒 Exports are re-encoded through the canvas, so EXIF metadata (including GPS location) is stripped automatically
-- 🔑 No sign-up or login; quota and activation state stay on this device only
+- 🔑 No sign-up or login; editing snapshots and session data stay on this device only
+- 🛡️ A site-wide Content-Security-Policy constrains script origins; jsPDF / heic2any are self-hosted and loaded on demand
 - 📊 Visitor analytics record anonymous counts only, with no personally identifiable information collected
 
 ## 📄 License

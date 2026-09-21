@@ -145,23 +145,23 @@ test.describe("裁剪坐标矩阵", () => {
   }
 });
 
-/* ---------- 免费额度 ---------- */
-test.describe("免费额度", () => {
-  test("导出成功扣 1 次", async ({ page }) => {
+/* ---------- 导出策略（开发者支持模式：免费无限制） ---------- */
+test.describe("导出策略", () => {
+  test("免费无限制：连导 2 次均成功", async ({ page }) => {
     await freshPage(page);
     expect(await uploadQuad(page)).toBe(true);
-    await page.evaluate(() => document.getElementById("downloadBtn").click());
-    await expect.poll(
-      () => page.evaluate(() => localStorage.getItem("download_count")),
-      { timeout: 8000 },
-    ).toBe("1");
+    for (let i = 0; i < 2; i++) {
+      const dl = page.waitForEvent("download", { timeout: 15000 });
+      await page.evaluate(() => document.getElementById("downloadBtn").click());
+      expect((await dl).suggestedFilename()).toMatch(/\.png$/);
+    }
+    expect(await page.evaluate(() => document.getElementById("proModal"))).toBeNull();
   });
 
-  test("导出失败不扣次数", async ({ page }) => {
+  test("导出失败弹错误提示", async ({ page }) => {
     await freshPage(page);
     expect(await uploadQuad(page)).toBe(true);
     await page.evaluate(() => {
-      localStorage.setItem("download_count", "1");
       const fs = document.getElementById("formatSelect");
       fs.value = "pdf";
       fs.dispatchEvent(new Event("change", { bubbles: true }));
@@ -170,14 +170,12 @@ test.describe("免费额度", () => {
       document.getElementById("downloadBtn").click();
     });
     await expect(page.locator("#alert-message")).toContainText("导出失败");
-    expect(await page.evaluate(() => localStorage.getItem("download_count"))).toBe("1");
   });
 
-  test("无图导出被拦截且不扣次数", async ({ page }) => {
+  test("无图导出被拦截", async ({ page }) => {
     await freshPage(page);
     await page.evaluate(() => document.getElementById("downloadBtn").click());
     await expect(page.locator("#alert-message")).toContainText("请先上传");
-    expect(await page.evaluate(() => localStorage.getItem("download_count"))).toBe("0");
   });
 });
 
@@ -320,17 +318,13 @@ test.describe("证件照", () => {
     expect(px.center[1]).toBeLessThan(80);
   });
 
-  test("生成六寸排版：触发下载且扣额度", async ({ page }) => {
+  test("生成六寸排版：触发下载", async ({ page }) => {
     await freshPage(page);
     expect(await uploadQuad(page)).toBe(true);
     const dlPromise = page.waitForEvent("download", { timeout: 15000 });
     await page.evaluate(() => document.getElementById("genLayout").click());
     const dl = await dlPromise;
     expect(dl.suggestedFilename()).toMatch(/-排版\.jpg$/);
-    await expect.poll(
-      () => page.evaluate(() => localStorage.getItem("download_count")),
-      { timeout: 5000 },
-    ).toBe("1");
   });
 });
 
@@ -454,11 +448,7 @@ test.describe("批量处理", () => {
     const downloads = [];
     page.on("download", (d) => downloads.push(d));
     await page.evaluate(() => document.getElementById("downloadBtn").click());
-    await expect.poll(
-      () => page.evaluate(() => localStorage.getItem("download_count")),
-      { timeout: 15000 },
-    ).toBe("3");
-    expect(downloads.length).toBe(3);
+    await expect.poll(() => downloads.length, { timeout: 15000 }).toBe(3);
     const statuses = await page.locator(".batch-status").allTextContents();
     expect(statuses.filter((s) => s.indexOf("✓") === 0).length).toBe(3);
   });
@@ -486,6 +476,236 @@ test.describe("会话恢复", () => {
     ).toBe(true);
     const size = await page.evaluate(() => document.getElementById("canvas").width);
     expect(size).toBe(cropped.w);
+  });
+});
+
+/* ---------- 尺寸适配模式 ---------- */
+test.describe("尺寸适配", () => {
+  test("stretch/contain/cover 输出正确", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    const apply = (mode) => page.evaluate((mode) => {
+      document.getElementById("fitMode").value = mode;
+      document.getElementById("widthInput").value = "100";
+      document.getElementById("heightInput").value = "400";
+      document.getElementById("applyResize").click();
+    }, mode);
+    const undo = () => page.evaluate(() => document.getElementById("toolUndo").click());
+    const px = (x, y) => page.evaluate(([x, y]) => {
+      const c = document.getElementById("canvas");
+      const d = c.getContext("2d").getImageData(x, y, 1, 1).data;
+      return [d[0], d[1], d[2], d[3]];
+    }, [x, y]);
+    /* stretch 200×200 → 100×400：采样 (25,100) 对应源 (50,50) = 红色象限 */
+    await apply("stretch");
+    let p = await px(25, 100);
+    expect(p[0]).toBeGreaterThan(200);
+    await undo();
+    /* contain：留白透明，绘制区不透明 */
+    await apply("contain");
+    p = await px(2, 2);
+    expect(p[3]).toBe(0);
+    p = await px(50, 200);
+    expect(p[3]).toBe(255);
+    await undo();
+    /* cover：无透明填满 */
+    await apply("cover");
+    p = await px(2, 2);
+    expect(p[3]).toBe(255);
+    /* 预览画布按容器缩放，工作位图才是真实输出尺寸 */
+    const dims = await page.evaluate(() =>
+      window.__pc_lastSrcCanvas.width + "x" + window.__pc_lastSrcCanvas.height);
+    expect(dims).toBe("100x400");
+  });
+});
+
+/* ---------- 水印定位 ---------- */
+test.describe("水印定位", () => {
+  test("九宫格：tl 与 br 亮像素集中在对应象限", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    const setPos = (pos) => page.evaluate((pos) => {
+      const on = document.getElementById("wmEnable");
+      on.checked = true; on.dispatchEvent(new Event("change", { bubbles: true }));
+      const t = document.getElementById("wmText");
+      t.value = "WWW"; t.dispatchEvent(new Event("input", { bubbles: true }));
+      const o = document.getElementById("wmOpacity");
+      o.value = "1"; o.dispatchEvent(new Event("input", { bubbles: true }));
+      const p = document.getElementById("wmPos");
+      p.value = pos; p.dispatchEvent(new Event("change", { bubbles: true }));
+    }, pos);
+    const quads = () => page.evaluate(() => {
+      const c = document.getElementById("canvas");
+      const w = c.width, h = c.height;
+      const d = c.getContext("2d").getImageData(0, 0, w, h).data;
+      let tl = 0, br = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const i = (y * w + x) * 4;
+          if (d[i] > 220 && d[i + 1] > 220 && d[i + 2] > 220) {
+            if (y < h / 2 && x < w / 2) tl++;
+            if (y >= h / 2 && x >= w / 2) br++;
+          }
+        }
+      }
+      return { tl, br };
+    });
+    await setPos("tl");
+    const a = await quads();
+    await setPos("br");
+    const b = await quads();
+    expect(a.tl).toBeGreaterThan(a.br * 3);
+    expect(b.br).toBeGreaterThan(b.tl * 3);
+  });
+});
+
+/* ---------- 键盘裁剪 ---------- */
+test.describe("键盘裁剪", () => {
+  test("方向键建选区，Shift 扩选，Enter 应用", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    await page.evaluate(() => {
+      const canvas = document.getElementById("canvas");
+      canvas.focus();
+      const kd = (key, shift) => canvas.dispatchEvent(
+        new KeyboardEvent("keydown", { key, shiftKey: !!shift, bubbles: true, cancelable: true }));
+      kd("ArrowRight");                                   /* 中心建 20% 选区 */
+      for (let i = 0; i < 5; i++) kd("ArrowRight", true); /* Shift 加宽 */
+      for (let i = 0; i < 5; i++) kd("ArrowDown", true);  /* Shift 加高 */
+      kd("Enter");                                        /* 应用裁剪 */
+    });
+    const dims = await page.evaluate(() =>
+      document.getElementById("canvas").width + "x" + document.getElementById("canvas").height);
+    const [w, h] = dims.split("x").map(Number);
+    expect(w).toBeLessThan(200);
+    expect(h).toBeLessThan(200);
+    expect(w).toBeGreaterThan(20);
+  });
+
+  test("画布聚焦时方向键不触发翻页", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    const before = await page.evaluate(() => document.getElementById("pageTrack").style.transform);
+    await page.evaluate(() => {
+      const canvas = document.getElementById("canvas");
+      canvas.focus();
+      canvas.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }));
+    });
+    const after = await page.evaluate(() => document.getElementById("pageTrack").style.transform);
+    expect(after).toBe(before);
+  });
+});
+
+/* ---------- 会话恢复：参数与视图 ---------- */
+test.describe("会话恢复扩展", () => {
+  test("恢复水印/调整参数与旋转镜像", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => { localStorage.clear(); });
+    await page.reload();
+    await page.waitForLoadState("domcontentloaded");
+    expect(await uploadQuad(page)).toBe(true);
+    await page.evaluate(() => {
+      const on = document.getElementById("wmEnable");
+      on.checked = true; on.dispatchEvent(new Event("change", { bubbles: true }));
+      const t = document.getElementById("wmText");
+      t.value = "ABC"; t.dispatchEvent(new Event("input", { bubbles: true }));
+      const b = document.getElementById("adjBrightness");
+      b.value = "1.2"; b.dispatchEvent(new Event("input", { bubbles: true }));
+      window.rotateImage(90);
+      window.toggleFlip("x");
+    });
+    await page.waitForTimeout(1500); /* 防抖 0.8s + toBlob */
+    await page.reload();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.locator("#restoreBar")).toBeVisible();
+    await page.evaluate(() => document.getElementById("restoreYes").click());
+    await expect.poll(() => page.evaluate(() => window.__pcHasImage === true), { timeout: 5000 }).toBe(true);
+    const st = await page.evaluate(() => ({
+      wm: document.getElementById("wmEnable").checked,
+      text: document.getElementById("wmText").value,
+      b: document.getElementById("adjBrightness").value,
+      rot: window.currentRotation,
+      fx: window.__pcFlip.x,
+    }));
+    expect(st.wm).toBe(true);
+    expect(st.text).toBe("ABC");
+    expect(st.b).toBe("1.2");
+    expect(st.rot).toBe(90);
+    expect(st.fx).toBe(-1);
+  });
+});
+
+/* ---------- 渲染回归 ---------- */
+test.describe("渲染回归", () => {
+  test("固定操作序列的导出管线输出确定性像素", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    const res = await page.evaluate(async () => {
+      /* 图片水印（运行时合成圆点，不依赖系统字体，跨平台稳定） */
+      const wc = document.createElement("canvas"); wc.width = 40; wc.height = 40;
+      const wg = wc.getContext("2d");
+      wg.fillStyle = "#ffffff";
+      wg.beginPath(); wg.arc(20, 20, 14, 0, Math.PI * 2); wg.fill();
+      const blob = await new Promise((r) => wc.toBlob(r, "image/png"));
+      const dt = new DataTransfer();
+      dt.items.add(new File([blob], "wm.png", { type: "image/png" }));
+      const inp = document.getElementById("wmImgInput");
+      inp.files = dt.files;
+      inp.dispatchEvent(new Event("change", { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 400));
+      const type = document.getElementById("wmType");
+      type.value = "image"; type.dispatchEvent(new Event("change", { bubbles: true }));
+      const o = document.getElementById("wmOpacity");
+      o.value = "1"; o.dispatchEvent(new Event("input", { bubbles: true }));
+      const on = document.getElementById("wmEnable");
+      on.checked = true; on.dispatchEvent(new Event("change", { bubbles: true }));
+      const mode = document.getElementById("wmMode");
+      mode.value = "single"; mode.dispatchEvent(new Event("change", { bubbles: true }));
+      const pos = document.getElementById("wmPos");
+      pos.value = "mm"; pos.dispatchEvent(new Event("change", { bubbles: true }));
+      window.rotateImage(90);
+      window.toggleFlip("x");
+      const b = document.getElementById("adjBrightness");
+      b.value = "0.8"; b.dispatchEvent(new Event("input", { bubbles: true }));
+      const out = window.__pcBuildExportCanvas(window.__pc_lastSrcCanvas);
+      /* 旋转90°+镜像后：左上角 = 源图红色象限 × 亮度0.8 = (204,0,0) */
+      const corner = out.getContext("2d").getImageData(10, 10, 1, 1).data;
+      const all = out.getContext("2d").getImageData(0, 0, out.width, out.height).data;
+      let bright = 0;
+      for (let i = 0; i < all.length; i += 4) {
+        if (all[i] > 220 && all[i + 1] > 220 && all[i + 2] > 220) bright++;
+      }
+      return { r: corner[0], g: corner[1], b: corner[2], bright };
+    });
+    expect(res.r).toBeGreaterThan(180);
+    expect(res.g).toBeLessThan(30);
+    expect(res.b).toBeLessThan(30);
+    expect(res.bright).toBeGreaterThan(50);
+  });
+});
+
+/* ---------- 资源预算 ---------- */
+test.describe("资源预算", () => {
+  test("首屏同步 JS/CSS 体积受控，重型库不进首屏", async () => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const root = path.join(__dirname, "..");
+    const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+    /* 懒加载库不允许出现在首屏 HTML */
+    expect(html).not.toContain("vendor/jspdf");
+    expect(html).not.toContain("vendor/heic2any");
+    const local = (re) => [...html.matchAll(re)].map((m) => m[1]);
+    const scripts = local(/src="\.\/([^"?]+)(?:\?v=\d+)?"/g).filter((f) => f.endsWith(".js"));
+    const styles = local(/href="\.\/([^"?]+)(?:\?v=\d+)?"/g).filter((f) => f.endsWith(".css"));
+    const size = (f) => fs.statSync(path.join(root, f)).size;
+    expect(scripts.length).toBeGreaterThan(3);
+    let total = 0;
+    for (const f of scripts) {
+      expect(size(f)).toBeLessThan(100 * 1024);
+      total += size(f);
+    }
+    expect(total).toBeLessThan(200 * 1024);
+    for (const f of styles) expect(size(f)).toBeLessThan(40 * 1024);
   });
 });
 
