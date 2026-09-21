@@ -3,20 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PhotoChange</title>
+    <title>PhotoChange — 免费在线图片工具</title>
     <meta name="description" content="PhotoChange — 免费在线图片工具：裁剪、改尺寸、加水印、证件照换底色、调亮度对比度，导出 PNG / JPG / WebP / BMP / ICO / PDF，支持压缩到目标体积。" />
     <meta name="theme-color" content="#07080a" />
     <meta property="og:title" content="PhotoChange" />
     <meta property="og:description" content="在线图片工具：裁剪 · 调整 · 水印 · 证件照 · 格式转换" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mocas-12.github.io/photochange/" />
+    <meta property="og:image" content="https://mocas-12.github.io/photochange/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=5" />
+    <link rel="stylesheet" href="./style.css?v=7" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
@@ -72,14 +74,14 @@
         </div>
         <div class="display-main-container">
           <div id="image-tools" class="image-tools-fixed">
-            <button onclick="changeZoom(-0.1)" title="缩小"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg></button>
+            <button onclick="changeZoom(-0.1)" title="缩小" aria-label="缩小"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg></button>
             <span class="zoom-text" id="zoom-text">100%</span>
-            <button onclick="changeZoom(0.1)" title="放大"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg></button>
+            <button onclick="changeZoom(0.1)" title="放大" aria-label="放大"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6M11 8v6"/></svg></button>
             <div class="v-line"></div>
-            <button onclick="rotateImage(-90)" title="逆时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-            <button onclick="rotateImage(90)" title="顺时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
-            <button id="flipH" onclick="toggleFlip('x')" title="水平镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 2v20"/></svg></button>
-            <button id="flipV" onclick="toggleFlip('y')" title="垂直镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M2 12h20"/></svg></button>
+            <button onclick="rotateImage(-90)" title="逆时针旋转" aria-label="逆时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+            <button onclick="rotateImage(90)" title="顺时针旋转" aria-label="顺时针旋转"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
+            <button id="flipH" onclick="toggleFlip('x')" title="水平镜像" aria-label="水平镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 2v20"/></svg></button>
+            <button id="flipV" onclick="toggleFlip('y')" title="垂直镜像" aria-label="垂直镜像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/><path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M2 12h20"/></svg></button>
             <div class="v-line"></div>
             <button id="gridBtn" onclick="toggleGrid()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>标尺</button>
           </div>
@@ -97,7 +99,7 @@
           </div>
           <!-- 操作条：裁剪 -->
           <div id="stripCrop" class="opstrip hidden">
-            <label>长宽比</label>
+            <label for="stripAspect">长宽比</label>
             <select id="stripAspect">
               <option value="free">自由</option>
               <option value="1:1">1:1</option>
@@ -110,10 +112,10 @@
           </div>
           <!-- 操作条：尺寸 -->
           <div id="stripSize" class="opstrip hidden">
-            <select id="presetSelect"><option value="0">常用预设…</option></select>
-            <input id="widthInput" class="dimension-input" type="number" min="1" step="1" placeholder="宽" />
+            <select id="presetSelect" aria-label="尺寸预设"><option value="0">常用预设…</option></select>
+            <input id="widthInput" class="dimension-input" type="number" min="1" step="1" placeholder="宽" aria-label="宽度（像素）" />
             <span class="op-x">×</span>
-            <input id="heightInput" class="dimension-input" type="number" min="1" step="1" placeholder="高" />
+            <input id="heightInput" class="dimension-input" type="number" min="1" step="1" placeholder="高" aria-label="高度（像素）" />
             <label class="switch"><input id="lockRatio" type="checkbox" checked /><span>锁比例</span></label>
             <select id="fitMode" title="目标尺寸与图片长宽比不一致时的处理方式">
               <option value="cover">裁剪填满</option>
@@ -129,56 +131,56 @@
               <option value="text">文字</option>
               <option value="image">图片</option>
             </select>
-            <input id="wmText" type="text" placeholder="水印文字…" style="max-width:140px" />
-            <input id="wmImgInput" type="file" accept="image/*" class="hidden" />
+            <input id="wmText" type="text" placeholder="水印文字…" aria-label="水印文字" style="max-width:140px" />
+            <input id="wmImgInput" type="file" accept="image/*" class="hidden" aria-label="选择水印图片" />
             <button id="wmImgBtn" class="btn ghost" title="选择水印图片">选图</button>
             <select id="wmMode" title="单个：九宫格定位；平铺：斜向铺满全图防盗用">
               <option value="single">单个</option>
               <option value="tile">平铺</option>
             </select>
-            <select id="wmPos">
+            <select id="wmPos" aria-label="水印位置">
               <option value="tl">左上</option><option value="tm">中上</option><option value="tr">右上</option>
               <option value="ml">居左</option><option value="mm">正中</option><option value="mr">居右</option>
               <option value="bl">左下</option><option value="bm">中下</option><option value="br">右下</option>
             </select>
-            <label class="op-label">透明度</label>
+            <label class="op-label" for="wmOpacity">透明度</label>
             <input id="wmOpacity" type="range" min="0.1" max="1" step="0.05" value="0.5" style="max-width:80px" />
-            <label class="op-label">大小</label>
+            <label class="op-label" for="wmScale">大小</label>
             <input id="wmScale" type="range" min="4" max="40" step="1" value="15" style="max-width:80px" title="图片水印宽度占比" />
           </div>
           <!-- 操作条：调整 -->
           <div id="stripAdjust" class="opstrip hidden">
-            <label class="op-label">亮度</label>
+            <label class="op-label" for="adjBrightness">亮度</label>
             <input id="adjBrightness" type="range" min="0.5" max="1.5" step="0.05" value="1" style="max-width:110px" />
-            <label class="op-label">对比度</label>
+            <label class="op-label" for="adjContrast">对比度</label>
             <input id="adjContrast" type="range" min="0.5" max="1.5" step="0.05" value="1" style="max-width:110px" />
-            <label class="op-label">饱和度</label>
+            <label class="op-label" for="adjSaturate">饱和度</label>
             <input id="adjSaturate" type="range" min="0" max="2" step="0.05" value="1" style="max-width:110px" />
             <button id="adjReset" class="btn ghost">还原</button>
           </div>
           <!-- 操作条：证件照 -->
           <div id="stripId" class="opstrip hidden">
-            <label>原背景</label>
+            <label for="idOrig">原背景</label>
             <input id="idOrig" type="color" value="#ffffff" title="打开面板时自动探测，可手动修正" />
-            <label>换成</label>
+            <label for="idNew">换成</label>
             <div class="swatches">
-              <button class="swatch" data-c="#ffffff" style="background:#ffffff" title="白底"></button>
-              <button class="swatch" data-c="#438edb" style="background:#438edb" title="蓝底"></button>
-              <button class="swatch" data-c="#be0011" style="background:#be0011" title="红底"></button>
+              <button class="swatch" data-c="#ffffff" style="background:#ffffff" title="白底" aria-label="白底"></button>
+              <button class="swatch" data-c="#438edb" style="background:#438edb" title="蓝底" aria-label="蓝底"></button>
+              <button class="swatch" data-c="#be0011" style="background:#be0011" title="红底" aria-label="红底"></button>
             </div>
             <input id="idNew" type="color" value="#438edb" />
-            <label class="op-label">容差</label>
+            <label class="op-label" for="idTol">容差</label>
             <input id="idTol" type="range" min="5" max="120" step="1" value="45" style="max-width:110px" />
             <button id="applyBg" class="btn primary">换底色</button>
             <button id="genLayout" class="btn" title="按六寸相纸（4×6 @300dpi）自动排布，可直接打印裁切">生成六寸排版</button>
           </div>
           <!-- 操作条：装饰 -->
           <div id="stripDeco" class="opstrip hidden">
-            <label class="op-label">圆角</label>
+            <label class="op-label" for="decoRadius">圆角</label>
             <input id="decoRadius" type="range" min="0" max="30" step="1" value="0" style="max-width:110px" />
-            <label class="op-label">边框</label>
+            <label class="op-label" for="decoBorder">边框</label>
             <input id="decoBorder" type="range" min="0" max="40" step="1" value="0" style="max-width:110px" />
-            <input id="decoColor" type="color" value="#ffffff" title="边框颜色" />
+            <input id="decoColor" type="color" value="#ffffff" title="边框颜色" aria-label="边框颜色" />
             <button id="applyDeco" class="btn primary">应用装饰</button>
           </div>
           <div class="canvas-wrap grid-on">
@@ -226,7 +228,7 @@
           <span class="eb-unit">KB</span>
         </div>
         <div class="eb-group grow">
-          <input id="fileName" type="text" placeholder="文件名" />
+          <input id="fileName" type="text" placeholder="文件名" aria-label="导出文件名" />
         </div>
         <div class="eb-download">
           <button id="downloadBtn" class="btn primary wide">导出下载</button>
@@ -242,16 +244,16 @@
          .page-track 带有 transform，会成为 position:fixed 后代的包含块，
          弹窗若放在轨道内会跟随轨道位移，在第二页时被移出视口 -->
     <div id="custom-alert" class="alert-overlay">
-      <div class="alert-content">
+      <div class="alert-content" role="alertdialog" aria-modal="true" aria-labelledby="alert-message">
         <p id="alert-message">请先上传并转换一张图片</p>
         <button onclick="closeAlert()" class="alert-btn">确认</button>
       </div>
     </div>
     <div id="proModal" class="modal-overlay">
-      <div class="modal">
-        <button id="closeX" class="modal-close-btn" onclick="closeProModal()">×</button>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="proModalTitle">
+        <button id="closeX" class="modal-close-btn" onclick="closeProModal()" aria-label="关闭">×</button>
         <div id="activation-form">
-          <h3>额度已用尽</h3>
+          <h3 id="proModalTitle">额度已用尽</h3>
           <p>您已达到免费下载额度。请开通专业版以解锁无限下载次数！</p>
           <div class="row">
             <input id="activateInput" class="dimension-input" type="text" placeholder="输入激活码" />
@@ -267,29 +269,41 @@
         <!-- activation-modal removed per new purchase flow -->
       </div>
     </div>
-    <script src="./vendor/jspdf.umd.min.js"></script>
-    <script src="./main.js?v=7"></script>
+    <script src="./main.js?v=8"></script>
     <script>
       (function(){
+        var lastFocus=null;
         function showAlert(msg){
           var m=document.getElementById('alert-message');
           var ov=document.getElementById('custom-alert');
           if(m) m.innerText=String(msg);
-          if(ov) ov.style.display='flex';
+          if(ov&&!ov.style.display||ov.style.display!=='flex'){
+            lastFocus=document.activeElement;
+            ov.style.display='flex';
+            var b=ov.querySelector('.alert-btn');
+            if(b)setTimeout(function(){b.focus()},30);
+          }
         }
         function closeAlert(){
           var ov=document.getElementById('custom-alert');
           if(ov) ov.style.display='none';
+          if(lastFocus&&lastFocus.focus){lastFocus.focus();lastFocus=null}
         }
         window.showAlert=showAlert;
         window.closeAlert=closeAlert;
         window.alert=function(msg){showAlert(msg)};
+        document.addEventListener('keydown',function(e){
+          if(e.key==='Escape'){
+            var ov=document.getElementById('custom-alert');
+            if(ov&&ov.style.display==='flex')closeAlert();
+          }
+        });
       })();
     </script>
-    <script src="./quota.js?v=3"></script>
-    <script src="./pointer-fx.js?v=2"></script>
-    <script src="./page-switch.js?v=7"></script>
-    <script src="./info-badge.js?v=2"></script>
+    <script src="./quota.js?v=4"></script>
+    <script src="./pointer-fx.js?v=4"></script>
+    <script src="./page-switch.js?v=8"></script>
+    <script src="./info-badge.js?v=4"></script>
     <script>
       (function(){
         var tools=document.getElementById('image-tools');

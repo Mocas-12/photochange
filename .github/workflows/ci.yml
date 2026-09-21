@@ -23,3 +23,23 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # 部署门禁：仅在测试通过后上线（Pages 源已切到 GitHub Actions）
+  deploy:
+    needs: smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

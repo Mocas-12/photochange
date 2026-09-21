@@ -4,16 +4,16 @@
    静态资源：缓存优先 + 后台更新（带 ?v= 版本号，改版自动换新）
    跨域资源（字体/busuanzi）不拦截
    ============================================================ */
-const CACHE = "photochange-v1";
+const CACHE = "photochange-v3";
 const SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=5",
-  "./main.js?v=7",
-  "./quota.js?v=3",
-  "./page-switch.js?v=7",
-  "./info-badge.js?v=2",
-  "./pointer-fx.js?v=2",
+  "./style.css?v=7",
+  "./main.js?v=8",
+  "./quota.js?v=4",
+  "./page-switch.js?v=8",
+  "./info-badge.js?v=4",
+  "./pointer-fx.js?v=4",
   "./vendor/jspdf.umd.min.js",
   "./vendor/heic2any.min.js",
   "./logo.svg",

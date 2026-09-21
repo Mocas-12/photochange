@@ -60,7 +60,14 @@
         const q = Math.max(0.1, Math.min(1, Number(quality) || 0.92));
         srcCanvas.toBlob((b) => resolve(b), "image/jpeg", q);
       } else if (fmt === "pdf") {
-        makePdfBlobFromCanvas(srcCanvas).then(resolve);
+        /* PDF 库按需加载：徽章跟着等待加载，失败则显示 - KB */
+        if (window.__pcLoadJsPdf) {
+          window.__pcLoadJsPdf()
+            .then(function () { return makePdfBlobFromCanvas(srcCanvas); })
+            .then(resolve, function () { resolve(null); });
+        } else {
+          resolve(makePdfBlobFromCanvas(srcCanvas));
+        }
       } else if (fmt === "bmp" && window.__pcEncoders) {
         Promise.resolve(window.__pcEncoders.bmp(srcCanvas)).then(resolve);
       } else if (fmt === "ico" && window.__pcEncoders) {
@@ -86,7 +93,8 @@
       const w = src.width, h = src.height;
       const fmtText = fmt.toUpperCase();
       const sizeText = fmtBytes(bytes);
-      if (w > 0 && h > 0) {
+      /* 空画布(未上传)不显示徽章：300×150 占位尺寸没有信息量 */
+      if (w > 0 && h > 0 && document.body.classList.contains("has-image")) {
         badge.classList.remove("hidden");
         badge.innerHTML = `<em>${fmtText}</em> · <span class="num">${w}×${h}</span> · <span class="num">${sizeText}</span>`;
       } else {

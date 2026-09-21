@@ -12,7 +12,7 @@
   --text-primary:#f9f9f9;
   --text-secondary:#d4d6da;
   --text-muted:#9c9ea3;
-  --text-faint:#6a6c71;
+  --text-faint:#7b7d83;
   --accent:#55b3ff;
   --accent-2:#818cf8;
   --accent-soft:rgba(85,179,255,.16);
@@ -336,9 +336,9 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 .btn:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05)}
 .btn.ghost{background:transparent;border-color:var(--border-subtle);color:var(--text-muted)}
 .btn.ghost:hover{color:var(--text-primary);border-color:var(--border-strong)}
-/* 主按钮：蓝紫渐变 + 外发光 */
+/* 主按钮：蓝紫渐变 + 外发光（两端色值经校准，白字对比度 ≥4.5:1） */
 .btn.primary{
-  background:linear-gradient(135deg,#4da3ff 0%,#7b8cff 100%);
+  background:linear-gradient(135deg,#2378cf 0%,#4e5ed8 100%);
   color:#fff;border:1px solid rgba(160,180,255,.4);border-radius:999px;font-weight:600;
   box-shadow:0 4px 16px rgba(85,140,255,.35),inset 0 1px 0 rgba(255,255,255,.3);
 }
@@ -419,7 +419,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 .alert-btn{
   display:inline-flex;align-items:center;justify-content:center;
   height:34px;padding:0 28px;border:none;border-radius:999px;cursor:pointer;
-  background:linear-gradient(135deg,#4da3ff,#7b8cff);color:#fff;
+  background:linear-gradient(135deg,#2378cf,#4e5ed8);color:#fff;
   font-family:var(--font);font-size:13px;font-weight:600;letter-spacing:.3px;
   box-shadow:0 4px 16px rgba(85,140,255,.35),inset 0 1px 0 rgba(255,255,255,.3);
   transition:all .18s ease;

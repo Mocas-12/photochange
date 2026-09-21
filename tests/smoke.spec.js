@@ -86,13 +86,13 @@ test.describe("启动", () => {
     const boot = await page.evaluate(() => ({
       title: document.title,
       encoders: typeof window.__pcEncoders === "object",
-      jspdf: typeof window.jspdf === "object" || typeof window.jspdf === "function",
+      jspdf: typeof window.__pcLoadJsPdf === "function",
       goToPage: typeof window.goToPage === "function",
       metaDesc: !!document.querySelector('meta[name="description"]'),
       exposeGone: !document.querySelector('script[src*="expose"]'),
       hasImage: window.__pcHasImage === true,
     }));
-    expect(boot.title).toBe("PhotoChange");
+    expect(boot.title).toBe("PhotoChange — 免费在线图片工具");
     expect(boot.encoders).toBe(true);
     expect(boot.jspdf).toBe(true);
     expect(boot.goToPage).toBe(true);
@@ -165,7 +165,8 @@ test.describe("免费额度", () => {
       const fs = document.getElementById("formatSelect");
       fs.value = "pdf";
       fs.dispatchEvent(new Event("change", { bubbles: true }));
-      delete window.jspdf; /* 模拟编码失败 */
+      /* 模拟编码失败：jspdf 存在但缺 jsPDF 构造器（懒加载下 delete 掉会被重新注入） */
+      window.jspdf = {};
       document.getElementById("downloadBtn").click();
     });
     await expect(page.locator("#alert-message")).toContainText("导出失败");

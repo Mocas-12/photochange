@@ -15,13 +15,20 @@ function updateQuotaText(){try{const el=document.getElementById("quotaText");con
 /* ---------- 弹窗显隐：统一走 .open 类（style.css 中 #proModal.open{display:flex}） ---------- */
 function proModalEl(){return document.getElementById("proModal")}
 function modalIsOpen(){const m=proModalEl();return !!(m&&m.classList.contains("open"))}
+let lastFocusBeforeModal=null;
 function showModal(){try{
   if(isPro())return;
   if(getCount()<QUOTA)return;
   const m=proModalEl();
-  if(m){m.style.removeProperty("display");m.classList.add("open")}
+  if(m&&!m.classList.contains("open")){
+    lastFocusBeforeModal=document.activeElement;
+    m.style.removeProperty("display");m.classList.add("open");
+    /* 焦点移入弹窗：键盘/读屏用户不必在暗处摸索 */
+    const inp=document.getElementById("activateInput");
+    if(inp)setTimeout(()=>inp.focus(),30);
+  }
 }catch(e){}}
-function hideModal(){try{const m=proModalEl();if(m)m.classList.remove("open")}catch(e){}}
+function hideModal(){try{const m=proModalEl();if(m&&m.classList.remove){const was=m.classList.contains("open");m.classList.remove("open");if(was&&lastFocusBeforeModal&&lastFocusBeforeModal.focus){lastFocusBeforeModal.focus();lastFocusBeforeModal=null}}}catch(e){}}
 
 function verifyCode(input){
   const code=(input||"").trim().toUpperCase();

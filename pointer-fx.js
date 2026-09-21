@@ -172,6 +172,18 @@
   }, { passive: true });
   window.addEventListener('pointercancel', onLeave, { passive: true });
   document.addEventListener('visibilitychange', onVisibility);
+  /* 功能页时点阵被面板遮住且无指针乐趣：停帧省电（移动端电量），回首页恢复 */
+  window.addEventListener('pcpage', function (e) {
+    var active = !(e.detail && e.detail.page > 0);
+    if (active === running) return;
+    running = active;
+    if (running) {
+      rafId = requestAnimationFrame(frame);
+    } else {
+      cancelAnimationFrame(rafId);
+      ctx.clearRect(0, 0, W, H);
+    }
+  });
 
   resize();
   rafId = requestAnimationFrame(frame);

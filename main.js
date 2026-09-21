@@ -709,6 +709,18 @@
     c.drawImage(cv, 0, 0);
     return out;
   }
+  /* PDF 库按需加载：364KB 的 jsPDF 只在真正导出 PDF 时付出成本（自托管，无网络依赖） */
+  function loadJsPdf() {
+    if (window.jspdf) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("PDF 组件加载失败，请检查网络后重试")); };
+      s.src = "./vendor/jspdf.umd.min.js";
+      document.head.appendChild(s);
+    });
+  }
+  window.__pcLoadJsPdf = loadJsPdf;
   function triggerNamed(blob, ext, baseName) {
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -839,6 +851,7 @@
     var kb = parseFloat(targetKB.value) || 0;
     var q = Math.max(0.1, Math.min(1, Number(qualityRange.value) || 0.92));
     if (fmt === "pdf") {
+      await loadJsPdf();
       cv = flattenForExport(cv);
       var dataUrl = cv.toDataURL("image/jpeg", 0.92);
       var pdf = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
@@ -865,7 +878,10 @@
 
   /* ---------- 批量处理 ---------- */
   function loadBatch(files) {
-    batchFiles = Array.prototype.slice.call(files, 0, 30);
+    var all = Array.prototype.slice.call(files);
+    /* 批量上限 30：超出部分明确告知，不静默丢弃 */
+    if (all.length > 30) alert("一次最多批量处理 30 张，已只取前 30 张（本次共选 " + all.length + " 张）");
+    batchFiles = all.slice(0, 30);
     renderBatchList();
     batchPanel.classList.remove("hidden");
     /* 预览第一张：水印等效果照常实时可见 */
@@ -932,7 +948,7 @@
         commitExport();
         if (st) st.textContent = "✓ " + Math.max(1, Math.round(res.blob.size / 1024)) + " KB";
       } catch (err) {
-        if (st) st.textContent = "✗ 失败";
+        if (st) st.textContent = "✗ " + ((err && err.message) || "失败");
       }
     }
   }

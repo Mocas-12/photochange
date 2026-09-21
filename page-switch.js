@@ -44,6 +44,8 @@
     animating = true;
     current = i;
     apply();
+    /* 通知点阵特效等外围模块当前页码（pointer-fx 据此停帧/恢复） */
+    try { window.dispatchEvent(new CustomEvent('pcpage', { detail: { page: current } })); } catch (_) {}
     setTimeout(function () { animating = false; }, reduced ? 60 : DURATION + 80);
   }
   window.goToPage = goTo;
