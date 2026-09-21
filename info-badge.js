@@ -86,7 +86,8 @@
       const w = src.width, h = src.height;
       const fmtText = fmt.toUpperCase();
       const sizeText = fmtBytes(bytes);
-      if (w > 0 && h > 0) {
+      /* 空画布(未上传)不显示徽章：300×150 的占位尺寸没有信息量 */
+      if (w > 0 && h > 0 && document.body.classList.contains("has-image")) {
         badge.classList.remove("hidden");
         badge.innerHTML = `<em>${fmtText}</em> · <span class="num">${w}×${h}</span> · <span class="num">${sizeText}</span>`;
       } else {

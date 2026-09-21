@@ -7,16 +7,16 @@
     <meta name="description" content="PhotoChange — 免费在线图片工具：裁剪、改尺寸、加水印、证件照换底色、调亮度对比度，导出 PNG / JPG / WebP / BMP / ICO / PDF，支持压缩到目标体积。" />
     <meta name="theme-color" content="#07080a" />
     <meta property="og:title" content="PhotoChange" />
-    <meta property="og:description" content="在线图片工具：裁剪 · 调整 · 水印 · 证件照 · 格式转换" />
+    <meta property="og:description" content="在线图片工具：裁剪、水印、证件照换底、格式转换，图片不上传服务器。" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mocas-12.github.io/photochange/" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=5" />
+    <link rel="stylesheet" href="./style.css?v=6" />
     <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   </head>
   <body>
@@ -24,21 +24,20 @@
     <div id="pageTrack" class="page-track">
     <section class="hero" id="top">
       <div class="hero-core">
-        <div class="hero-beacon"></div>
         <h1 class="hero-title">PhotoChange</h1>
-        <p class="hero-sub">上传 · 裁剪 · 调整 · 转换</p>
+        <p class="hero-sub">裁剪、水印、证件照换底、格式转换<br />图片不上传服务器，导出自动清除 EXIF。</p>
         <div class="hero-meta">
           <img src="https://github.com/Mocas-12.png" class="github-avatar" alt="Avatar" />
           <span>Unlimited Box</span>
-          <span class="sep">·</span>
-          <span>a18577y@gmail.com</span>
-          <span class="sep">·</span>
-          <span class="busuanzi-container">
-            <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
-            <span class="sep" id="busuanzi_sep" style="display:none">|</span>
-            <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
-          </span>
         </div>
+      </div>
+      <div class="hero-foot">
+        <span>a18577y@gmail.com</span>
+        <span class="busuanzi-container">
+          <span id="busuanzi_container_site_pv">访问 <span id="busuanzi_value_site_pv"></span></span>
+          <span class="sep" id="busuanzi_sep" style="display:none">|</span>
+          <span id="busuanzi_container_site_uv">访客 <span id="busuanzi_value_site_uv"></span></span>
+        </span>
       </div>
       <div class="scroll-hint-wrap">
         <button class="scroll-hint" aria-label="向下滑动" onclick="goToPage(1)">
@@ -49,7 +48,7 @@
     <section id="app">
     <header class="app-header">
       <button id="brandHome" class="back-home" title="返回首页"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>返回主页</button>
-      <div class="subtitle">上传 · 裁剪 · 调整 · 转换</div>
+      <div class="subtitle">本地处理，图片不上传</div>
     </header>
     <main class="app-main">
       <section class="left">
@@ -287,9 +286,9 @@
       })();
     </script>
     <script src="./quota.js?v=3"></script>
-    <script src="./pointer-fx.js?v=2"></script>
+    <script src="./pointer-fx.js?v=3"></script>
     <script src="./page-switch.js?v=7"></script>
-    <script src="./info-badge.js?v=2"></script>
+    <script src="./info-badge.js?v=3"></script>
     <script>
       (function(){
         var tools=document.getElementById('image-tools');

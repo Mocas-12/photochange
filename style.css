@@ -1,6 +1,7 @@
 /* ============================================================
-   PhotoChange — Deep Space Glow v2 (Raycast-inspired)
-   近黑蓝底 · 三层氛围光晕 · 玻璃拟态面板 · 蓝紫渐变强调
+   PhotoChange — Darkroom Workbench v3
+   深色工作台 · 单一蓝色强调（砍掉第二渐变色相）· 画布是唯一亮面
+   动效纪律：一次入场编排 + 点阵指针交互，其余环境动画一律移除
    ============================================================ */
 :root{
   --bg-void:#07080a;
@@ -14,7 +15,6 @@
   --text-muted:#9c9ea3;
   --text-faint:#6a6c71;
   --accent:#55b3ff;
-  --accent-2:#818cf8;
   --accent-soft:rgba(85,179,255,.16);
   --success:#5fc992;
   --warning:#ffbc33;
@@ -25,6 +25,7 @@
   --ctl-h:34px;
   --shadow-card:0 0 0 1px rgba(0,0,0,.35),0 16px 40px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.05);
   --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;
+  --font-display:'Space Grotesk',var(--font);
 }
 
 *{box-sizing:border-box}
@@ -32,24 +33,26 @@ html{height:100%;background:var(--bg-void)}
 body{
   margin:0;min-height:100%;
   display:flex;flex-direction:column;
-  font-family:var(--font);font-size:14px;font-weight:500;line-height:1.5;letter-spacing:.2px;
+  font-family:var(--font);font-size:14px;font-weight:500;line-height:1.5;
   color:var(--text-secondary);background:transparent;
   -webkit-font-smoothing:antialiased;
 }
-/* ---- 三层深空氛围光晕 ---- */
+/* ---- 顶部单一环境光：亮桌的光源感，全站仅此一处氛围光 ---- */
 body::before{
   content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:
-    radial-gradient(1000px 540px at 50% -12%, rgba(85,163,255,.16), transparent 62%),
-    radial-gradient(760px 520px at 94% 4%, rgba(129,140,248,.11), transparent 60%),
-    radial-gradient(900px 640px at -12% 112%, rgba(56,189,248,.09), transparent 62%);
+  background:radial-gradient(1100px 620px at 50% -14%, rgba(85,163,255,.13), transparent 62%);
 }
 ::selection{background:rgba(85,179,255,.32);color:#fff}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 
-/* 全局隐藏滚动条（滚轮/触摸板滚动不受影响），锚点平滑滚动 */
+/* 根层隐藏滚动条；内容滚动区保留细滚动条，矮视口下给出可滚提示 */
 html{scrollbar-width:none;-ms-overflow-style:none}
-::-webkit-scrollbar{width:0;height:0;display:none}
+.app-main,.batch-list{
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.16) transparent;
+}
+.app-main::-webkit-scrollbar,.batch-list::-webkit-scrollbar{width:8px;height:8px}
+.app-main::-webkit-scrollbar-thumb,.batch-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:8px}
+.app-main::-webkit-scrollbar-track,.batch-list::-webkit-scrollbar-track{background:transparent}
 html,body{overflow:hidden;height:100%}
 
 /* ---------------- 特效点阵层 ---------------- */
@@ -64,23 +67,14 @@ html,body{overflow:hidden;height:100%}
   background:rgba(7,8,10,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   position:sticky;top:0;z-index:20;
 }
-/* 底部渐变光线 */
-.app-header::after{
-  content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;pointer-events:none;
-  background:linear-gradient(90deg,transparent 4%,rgba(85,179,255,.55) 32%,rgba(129,140,248,.45) 68%,transparent 96%);
-}
 /* 返回主页按钮（功能页 header 左侧） */
 .back-home{
   display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;
   background:transparent;border:1px solid var(--border-subtle);border-radius:999px;
-  color:var(--text-muted);font-family:var(--font);font-size:12.5px;letter-spacing:.2px;
+  color:var(--text-muted);font-family:var(--font);font-size:12.5px;
   cursor:pointer;transition:all .18s ease;flex:none;
 }
 .back-home:hover{color:var(--text-primary);border-color:var(--border-strong);background:rgba(255,255,255,.05)}
-@keyframes dot-pulse{
-  0%,100%{box-shadow:0 0 8px rgba(85,179,255,.8),0 0 18px rgba(85,179,255,.35)}
-  50%{box-shadow:0 0 14px rgba(85,179,255,1),0 0 30px rgba(85,179,255,.6)}
-}
 .subtitle{opacity:.6;font-size:13px;line-height:1;padding-top:1px}
 
 /* ---------------- 布局骨架 ---------------- */
@@ -135,7 +129,7 @@ body:not(.has-image) .dropzone::after{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   height:30px;min-width:30px;padding:0 9px;
   background:transparent;border:none;color:var(--text-muted);
-  font-size:12px;font-weight:500;font-family:var(--font);letter-spacing:.2px;
+  font-size:12px;font-weight:500;font-family:var(--font);
   cursor:pointer;border-radius:999px;transition:all .18s ease;
 }
 .image-tools-fixed button:hover{color:var(--text-primary);background:rgba(255,255,255,.08)}
@@ -179,10 +173,7 @@ body.has-image canvas{touch-action:none}
 }
 .canvas-hint svg{
   width:46px;height:46px;color:var(--text-faint);opacity:.9;
-  filter:drop-shadow(0 0 14px rgba(85,163,255,.35));
-  animation:hint-float 3.6s ease-in-out infinite;
 }
-@keyframes hint-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .canvas-hint p{margin:0;font-size:15px;font-weight:600;color:var(--text-muted)}
 .canvas-hint span{font-size:12px;color:var(--text-faint)}
 body.has-image .canvas-hint{display:none}
@@ -211,7 +202,7 @@ body.has-image .canvas-hint{display:none}
 .etool{
   display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;
   background:transparent;border:none;color:var(--text-muted);
-  font-size:12.5px;font-weight:500;font-family:var(--font);letter-spacing:.2px;
+  font-size:12.5px;font-weight:500;font-family:var(--font);
   cursor:pointer;border-radius:999px;transition:all .18s ease;
 }
 .etool:hover:not(:disabled){color:var(--text-primary);background:rgba(255,255,255,.08)}
@@ -238,11 +229,6 @@ body.has-image .canvas-hint{display:none}
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);
   box-shadow:var(--shadow-card);
-  position:relative;
-}
-.export-bar::before{
-  content:"";position:absolute;top:0;left:12%;right:12%;height:1px;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
 }
 .eb-group{display:flex;align-items:center;gap:8px;min-height:34px}
 .eb-group label{font-size:13px;color:var(--text-muted);line-height:1;white-space:nowrap}
@@ -262,7 +248,7 @@ input[type=text],input[type=number],select{
   background:var(--bg-input);
   border:1px solid var(--border-strong);border-radius:var(--radius-sm);
   padding:0 10px;color:var(--text-primary);
-  font-family:var(--font);font-size:13px;letter-spacing:.2px;line-height:1;
+  font-family:var(--font);font-size:13px;line-height:1;
   transition:border-color .18s ease,box-shadow .18s ease;
 }
 select{cursor:pointer}
@@ -330,21 +316,21 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   height:var(--ctl-h);padding:0 14px;
   border:1px solid var(--border-strong);background:transparent;color:var(--text-primary);
   border-radius:var(--radius-sm);cursor:pointer;
-  font-family:var(--font);font-size:13px;font-weight:500;letter-spacing:.3px;line-height:1;
+  font-family:var(--font);font-size:13px;font-weight:500;line-height:1;
   transition:all .18s ease;white-space:nowrap;
 }
 .btn:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05)}
 .btn.ghost{background:transparent;border-color:var(--border-subtle);color:var(--text-muted)}
 .btn.ghost:hover{color:var(--text-primary);border-color:var(--border-strong)}
-/* 主按钮：蓝紫渐变 + 外发光 */
+/* 主按钮：单一强调蓝（渐变只留给额度条的状态语义） */
 .btn.primary{
-  background:linear-gradient(135deg,#4da3ff 0%,#7b8cff 100%);
-  color:#fff;border:1px solid rgba(160,180,255,.4);border-radius:999px;font-weight:600;
-  box-shadow:0 4px 16px rgba(85,140,255,.35),inset 0 1px 0 rgba(255,255,255,.3);
+  background:#4da3ff;
+  color:#fff;border:1px solid rgba(190,220,255,.45);border-radius:999px;font-weight:600;
+  box-shadow:0 4px 14px rgba(77,163,255,.3),inset 0 1px 0 rgba(255,255,255,.28);
 }
 .btn.primary:hover{
-  box-shadow:0 4px 24px rgba(85,140,255,.55),0 0 30px rgba(129,140,248,.3),inset 0 1px 0 rgba(255,255,255,.35);
-  filter:brightness(1.08);
+  background:#67b2ff;
+  box-shadow:0 4px 22px rgba(77,163,255,.45),inset 0 1px 0 rgba(255,255,255,.35);
 }
 /* 主按钮悬停流光扫过 */
 .btn.primary{position:relative;overflow:hidden}
@@ -381,9 +367,9 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   border:1px solid rgba(255,255,255,.1);
   border-radius:var(--radius-lg);padding:22px 18px 18px;color:var(--text-secondary);
-  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(85,140,255,.08),inset 0 1px 0 rgba(255,255,255,.07);
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 30px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.07);
 }
-.modal h3{margin:0 0 8px;font-size:16px;font-weight:600;color:var(--text-primary);letter-spacing:.2px}
+.modal h3{margin:0 0 8px;font-size:16px;font-weight:600;color:var(--text-primary)}
 .modal p{margin:0 0 12px;opacity:.85;font-size:13px;line-height:1.6}
 .modal .row{margin-top:10px}
 .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
@@ -398,7 +384,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   width:100%;height:34px;padding:0 10px;
   background:rgba(85,179,255,.06);
   border:1px solid rgba(85,179,255,.22);border-radius:999px;
-  color:var(--text-muted);font-size:13px;font-family:var(--font);letter-spacing:.2px;cursor:pointer;
+  color:var(--text-muted);font-size:13px;font-family:var(--font);cursor:pointer;
   transition:all .18s ease;
 }
 .get-code-btn:hover{background:rgba(85,179,255,.12);border-color:rgba(85,179,255,.45);color:var(--accent)}
@@ -413,18 +399,18 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   background:linear-gradient(180deg,rgba(24,26,33,.94),rgba(13,14,17,.96));
   border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);
   padding:24px;width:300px;text-align:center;
-  box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(85,140,255,.08),inset 0 1px 0 rgba(255,255,255,.07);
+  box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.07);
 }
 .alert-content p{color:var(--text-primary);margin:0 0 20px;font-size:14px;line-height:1.6}
 .alert-btn{
   display:inline-flex;align-items:center;justify-content:center;
   height:34px;padding:0 28px;border:none;border-radius:999px;cursor:pointer;
-  background:linear-gradient(135deg,#4da3ff,#7b8cff);color:#fff;
-  font-family:var(--font);font-size:13px;font-weight:600;letter-spacing:.3px;
-  box-shadow:0 4px 16px rgba(85,140,255,.35),inset 0 1px 0 rgba(255,255,255,.3);
+  background:#4da3ff;color:#fff;
+  font-family:var(--font);font-size:13px;font-weight:600;
+  box-shadow:0 4px 14px rgba(77,163,255,.3),inset 0 1px 0 rgba(255,255,255,.28);
   transition:all .18s ease;
 }
-.alert-btn:hover{filter:brightness(1.08);box-shadow:0 4px 24px rgba(85,140,255,.55),inset 0 1px 0 rgba(255,255,255,.35)}
+.alert-btn:hover{background:#67b2ff;box-shadow:0 4px 22px rgba(77,163,255,.45),inset 0 1px 0 rgba(255,255,255,.35)}
 
 /* ---------------- 双屏轨道结构 ---------------- */
 .page-track{
@@ -458,32 +444,33 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   transform:translate3d(calc(var(--px,0)*-9px),calc(var(--py,0)*-7px),0);
   will-change:transform;
 }
-.hero-beacon{
-  width:10px;height:10px;border-radius:50%;flex:none;
-  background:var(--accent);
-  box-shadow:0 0 12px rgba(85,179,255,.95),0 0 30px rgba(85,179,255,.5);
-  animation:dot-pulse 3s ease-in-out infinite,rise-in .7s cubic-bezier(.22,.9,.28,1) both;
-  margin-bottom:28px;
-}
 .hero-title{
-  margin:0;font-size:clamp(44px,8vw,78px);font-weight:700;letter-spacing:.5px;line-height:1.1;
-  background:linear-gradient(92deg,#ffffff 20%,#9cc8ff 55%,#b7b9ff 90%);
-  background-size:200% 100%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 26px rgba(85,163,255,.35));
-  animation:rise-in .7s .1s cubic-bezier(.22,.9,.28,1) both,title-pan 8s 1.2s ease-in-out infinite alternate;
+  margin:0;font-family:var(--font-display);
+  font-size:clamp(46px,8vw,80px);font-weight:700;letter-spacing:-.02em;line-height:1.08;
+  color:var(--text-primary);
+  animation:rise-in .7s .1s cubic-bezier(.22,.9,.28,1) both;
 }
-@keyframes title-pan{from{background-position:0% 50%}to{background-position:100% 50%}}
-.hero-sub{margin:18px 0 0;font-size:15px;color:var(--text-muted);letter-spacing:.14em;animation:rise-in .7s .22s cubic-bezier(.22,.9,.28,1) both}
+.hero-sub{
+  margin:20px 0 0;max-width:32em;
+  font-size:16px;line-height:1.7;color:var(--text-secondary);
+  animation:rise-in .7s .22s cubic-bezier(.22,.9,.28,1) both;
+}
 .hero-meta{
-  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
-  margin-top:28px;color:var(--text-faint);font-size:12.5px;line-height:1;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:30px;color:var(--text-faint);font-size:12.5px;line-height:1;
   animation:rise-in .7s .34s cubic-bezier(.22,.9,.28,1) both;
 }
-.hero-meta .github-avatar{width:20px;height:20px;border-radius:50%;display:block}
-.hero-meta .sep{opacity:.5}
-.hero-meta .busuanzi-container{display:inline-flex;align-items:center;gap:8px}
-.hero-meta #busuanzi_container_site_pv,.hero-meta #busuanzi_container_site_uv{display:inline}
+.hero-meta .github-avatar{width:22px;height:22px;border-radius:50%;display:block}
+/* 邮箱 + 访问统计：弱化为右上角版本信息，不占主视觉中轴 */
+.hero-foot{
+  position:absolute;top:22px;right:26px;
+  display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px;
+  max-width:70vw;color:var(--text-faint);font-size:12px;line-height:1;
+  animation:rise-in .7s .4s cubic-bezier(.22,.9,.28,1) both;
+}
+.hero-foot .sep{opacity:.4}
+.hero-foot .busuanzi-container{display:inline-flex;align-items:center;gap:8px}
+.hero-foot #busuanzi_container_site_pv,.hero-foot #busuanzi_container_site_uv{display:inline}
 
 /* 底部下滑提示箭头：透明 + 呼吸浮动（定位在包裹层，入场与 bob 分离互不打架） */
 .scroll-hint-wrap{
@@ -515,6 +502,7 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
   .canvas-wrap{min-height:200px}
   .app-header{padding:10px 16px}
   .hero{padding:40px 20px 90px}
+  .hero-foot{top:16px;right:16px}
   .opstrip{gap:8px;padding:8px 10px}
   .export-bar{gap:10px;padding:10px}
   .eb-download{margin-left:0;width:100%}
