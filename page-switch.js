@@ -20,9 +20,7 @@
   function overlayOpen() {
     try {
       var a = document.getElementById('custom-alert');
-      var m = document.getElementById('proModal');
       if (a && getComputedStyle(a).display !== 'none') return true;
-      if (m && getComputedStyle(m).display !== 'none') return true;
     } catch (_) {}
     return false;
   }
@@ -100,7 +98,6 @@
   });
 
   /* ---- 初始化 ---- */
-  track.dataset.pageSwitch = 'v6';
   var brand = document.getElementById('brandHome');
   if (brand) {
     brand.addEventListener('click', function () { goTo(0); });

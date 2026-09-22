@@ -56,7 +56,7 @@ import { showTools } from "./js/view-tools.js?v=9";
   function setCanvasSize(w, h) { canvas.width = w; canvas.height = h; }
   function fitToBox(nw, nh, maxW, maxH) {
     var r = Math.min(maxW / nw, maxH / nh, 1);
-    return { w: Math.max(1, Math.round(nw * r)), h: Math.max(1, Math.round(nh * r)), r: r };
+    return { w: Math.max(1, Math.round(nw * r)), h: Math.max(1, Math.round(nh * r)) };
   }
   function drawScaled() {
     if (!workingImage) return;
@@ -640,7 +640,7 @@ import { showTools } from "./js/view-tools.js?v=9";
   }
   applyBg.addEventListener("click", applyBgReplace);
   /* 预设底色色板 */
-  Array.prototype.forEach.call(document.querySelectorAll("#stripId .swatch"), function (btn) {
+  document.querySelectorAll("#stripId .swatch").forEach(function (btn) {
     btn.addEventListener("click", function () {
       idNew.value = btn.getAttribute("data-c");
     });
@@ -782,7 +782,6 @@ import { showTools } from "./js/view-tools.js?v=9";
   function toBlob(cv, mime, q) {
     return new Promise(function (res) { cv.toBlob(res, mime, q); });
   }
-  /* BMP/ICO/目标体积/白底合成的纯编码器在 js/exporters.js */
 
   /* 组装导出画布：调整烘焙 → 旋转 → 镜像 → 水印（单图与批量共用） */
   function buildExportCanvas(src) {
@@ -826,7 +825,7 @@ import { showTools } from "./js/view-tools.js?v=9";
 
   /* ---------- 批量处理 ---------- */
   function loadBatch(files) {
-    var all = Array.prototype.slice.call(files);
+    var all = Array.from(files);
     /* 批量上限 30：超出部分明确告知，不静默丢弃 */
     if (all.length > 30) alert("一次最多批量处理 30 张，已只取前 30 张（本次共选 " + all.length + " 张）");
     batchFiles = all.slice(0, 30);

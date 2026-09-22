@@ -32,8 +32,6 @@ function closeAlert() {
   if (lastFocus && lastFocus.focus) { lastFocus.focus(); lastFocus = null; }
 }
 
-window.showAlert = showAlert;
-window.closeAlert = closeAlert;
 window.alert = function (msg) { showAlert(msg); };
 
 overlay.querySelector(".alert-btn").addEventListener("click", closeAlert);

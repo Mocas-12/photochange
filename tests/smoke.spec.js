@@ -295,7 +295,6 @@ test.describe("证件照", () => {
     });
     expect(ok).toBe(true);
     await page.evaluate(() => {
-      window.goToPage && document.getElementById("pageTrack");
       document.getElementById("toolId").click();       /* 打开面板并自动探测原背景 */
     });
     await page.evaluate(() => {
