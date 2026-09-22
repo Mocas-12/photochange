@@ -94,7 +94,7 @@
       if (f > 0.03) {
         // 受亮点：蓝 → 靛紫渐变提亮
         var g = Math.round(163 + (180 - 163) * f);
-        var b = Math.round(255 - (252 - 255) * f);
+        var b = Math.round(255 + (252 - 255) * f);
         ctx.fillStyle = 'rgba(' + Math.round(85 + 80 * f) + ',' + g + ',' + b + ',' + Math.min(alpha, 0.9).toFixed(3) + ')';
         ctx.beginPath();
         ctx.arc(d.x, d.y, size, 0, 6.2832);
