@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 
 const ROOT = process.cwd();
-const PORT = 8123;
+const PORT = Number(process.env.TEST_PORT) || 8931;
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
