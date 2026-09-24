@@ -207,7 +207,7 @@ This project runs on a **developer-support model**, stated here explicitly:
 
 ## 📄 License
 
-This project is for learning and demonstration purposes and has no open-source license; fork it yourself if you want to reuse it.
+This project is open-sourced under the [MIT](./LICENSE) license — free to use, modify and redistribute (commercial use included), as long as the copyright and license notice are kept in your copy.
 
 ---
 
