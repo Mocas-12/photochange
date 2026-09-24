@@ -93,11 +93,15 @@ photochange/
 ├── main.js             # 编辑编排入口：裁剪 / 尺寸 / 水印 / 导出流程
 ├── js/
 │   ├── exporters.js    # 纯编码器：BMP / ICO / 目标体积二分 / jsPDF 按需加载
+│   ├── state.js        # 共享可变编辑状态（main/crop/watermark 的公共面）
+│   ├── crop.js         # 裁剪与画布手势：选区拖拽 / 键盘裁剪 / 双指捏合
+│   ├── watermark.js    # 水印：文字/图片 × 九宫格/平铺，预览与导出共用绘制核心
 │   ├── session.js      # 会话存储：IndexedDB 读写
 │   ├── view-tools.js   # 视图变换：缩放 / 旋转 / 镜像 / 标尺 + 工具条显隐
 │   ├── alerts.js       # 自定义 alert 弹层：焦点管理 + 背景 inert 圈禁
 │   └── bootstrap.js    # 访问计数兜底 + Service Worker 注册
 ├── fonts/              # 自托管 Inter 可变字体（latin 子集）
+├── scripts/            # lighthouse-run.mjs：Lighthouse 质量门禁（阈值断言）
 ├── page-switch.js      # 首页 ↔ 工作台整页切换
 ├── info-badge.js       # 状态徽章：分辨率与体积实时预估
 ├── pointer-fx.js       # 指针跟随特效（功能页自动停帧省电）
@@ -128,15 +132,16 @@ python -m http.server 5173
 
 ## 🧪 测试
 
-每次 push / PR 时 CI 会自动跑冒烟测试（Playwright + GitHub Actions）。本地运行：
+每次 push / PR 时 CI 会自动跑冒烟测试与 Lighthouse 质量门禁（两者都通过才会部署上线）。本地运行：
 
 ```bash
 npm install
 npx playwright install chromium
-npm test
+npm test           # Playwright 用例
+npm run lighthouse # Lighthouse 审计（性能数值指标 + a11y/最佳实践/SEO 阈值）
 ```
 
-共 29 个用例，覆盖裁剪坐标矩阵（旋转 × 镜像）、尺寸三种适配模式、水印九宫格定位、键盘裁剪、导出策略、目标体积导出、BMP/ICO 编码器、渲染回归（固定操作序列的确定性像素断言）、资源尺寸预算、撤销、证件照换底与排版、装饰、平铺水印、批量处理、会话恢复（含参数与视图变换）、双屏切换。
+共 34 个用例，覆盖裁剪坐标矩阵（旋转 × 镜像）、尺寸三种适配模式、水印九宫格定位、键盘裁剪、导出策略、目标体积导出、BMP/ICO 编码器、渲染回归（固定操作序列的确定性像素断言）、首屏资源尺寸预算、JS 函数覆盖率基线、移动端视口全链路、撤销、证件照换底与排版、装饰、平铺水印、批量处理、会话恢复（含参数与视图变换）、双屏切换。
 
 ## 💛 开发者支持
 

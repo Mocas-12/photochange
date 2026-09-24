@@ -708,6 +708,125 @@ test.describe("资源预算", () => {
   });
 });
 
+/* ---------- 证件照色板 ---------- */
+test.describe("证件照色板", () => {
+  test("点击预设色板写入目标底色", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    await page.evaluate(() => {
+      document.getElementById("toolId").click();
+      document.querySelector('#stripId .swatch[data-c="#be0011"]').click();
+    });
+    const v = await page.evaluate(() => document.getElementById("idNew").value);
+    expect(v.toLowerCase()).toBe("#be0011");
+  });
+});
+
+/* ---------- 批量截断 ---------- */
+test.describe("批量截断", () => {
+  test("超 30 张明确提示且只取 30", async ({ page }) => {
+    await freshPage(page);
+    await page.evaluate(async () => {
+      const c = document.createElement("canvas"); c.width = 60; c.height = 60;
+      const g = c.getContext("2d"); g.fillStyle = "#888888"; g.fillRect(0, 0, 60, 60);
+      const blob = await new Promise((r) => c.toBlob(r, "image/png"));
+      const dt = new DataTransfer();
+      for (let i = 0; i < 32; i++) dt.items.add(new File([blob], "f" + i + ".png", { type: "image/png" }));
+      const input = document.getElementById("fileInput");
+      input.files = dt.files;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await expect(page.locator("#alert-message")).toContainText("最多批量处理 30 张");
+    await page.evaluate(() => document.querySelector("#custom-alert .alert-btn").click());
+    await expect(page.locator("#batchCount")).toContainText("已选 30 张");
+  });
+});
+
+/* ---------- 移动端视口 ---------- */
+test.describe("移动端视口", () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+  test("上传→裁剪→导出全链路", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    const res = await dragCropTopRight(page);
+    expect(res.w).toBeLessThan(200);
+    const dl = page.waitForEvent("download", { timeout: 15000 });
+    await page.evaluate(() => document.getElementById("downloadBtn").click());
+    expect((await dl).suggestedFilename()).toMatch(/\.png$/);
+  });
+
+  test("双屏切换后画布在工作区可见", async ({ page }) => {
+    await freshPage(page);
+    expect(await uploadQuad(page)).toBe(true);
+    await page.evaluate(() => window.goToPage(1));
+    await page.waitForTimeout(1200);
+    const vis = await page.evaluate(() => {
+      const r = document.getElementById("canvas").getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && r.top >= 0 && r.bottom <= window.innerHeight + 1;
+    });
+    expect(vis).toBe(true);
+  });
+});
+
+/* ---------- JS 覆盖率 ---------- */
+test.describe("覆盖率", () => {
+  test("主流程执行覆盖项目 JS 达到基线", async ({ page }) => {
+    await page.coverage.startJSCoverage({ resetOnNavigation: false });
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+    expect(await uploadQuad(page)).toBe(true);
+    await dragCropTopRight(page);
+    await page.evaluate(() => {
+      document.getElementById("toolUndo").click();
+      document.getElementById("widthInput").value = "120";
+      document.getElementById("heightInput").value = "120";
+      document.getElementById("applyResize").click();
+      const on = document.getElementById("wmEnable");
+      on.checked = true; on.dispatchEvent(new Event("change", { bubbles: true }));
+      const t = document.getElementById("wmText");
+      t.value = "CV"; t.dispatchEvent(new Event("input", { bubbles: true }));
+      const b = document.getElementById("adjBrightness");
+      b.value = "1.1"; b.dispatchEvent(new Event("input", { bubbles: true }));
+      document.getElementById("toolId").click();
+      document.getElementById("toolDeco").click();
+    });
+    const dl = page.waitForEvent("download", { timeout: 15000 });
+    await page.evaluate(() => document.getElementById("downloadBtn").click());
+    await dl;
+    const entries = await page.coverage.stopJSCoverage();
+    const origin = new URL(page.url()).origin;
+    const rows = [];
+    const neverCalled = [];
+    let fns = 0, hit = 0;
+    for (const e of entries) {
+      let u;
+      try { u = new URL(e.url); } catch (_) { continue; }
+      if (u.origin !== origin || !u.pathname.endsWith(".js")) continue;
+      let fileFns = 0, fileHit = 0;
+      for (const f of e.functions) {
+        /* 只统计具名函数：顶层脚本体与匿名函数必然/无法判定，排除 */
+        if (!f.functionName) continue;
+        fileFns++;
+        const called = f.ranges && f.ranges[0] && f.ranges[0].count > 0;
+        if (called) fileHit++;
+        else neverCalled.push(u.pathname.split("/").pop() + ":" + f.functionName);
+      }
+      if (!fileFns) continue;
+      fns += fileFns;
+      hit += fileHit;
+      rows.push({ file: u.pathname.split("/").pop(), pct: Math.round((100 * fileHit) / fileFns) });
+    }
+    rows.sort((a, b) => a.pct - b.pct);
+    const overall = fns ? Math.round((100 * hit) / fns) : 0;
+    console.log("[覆盖率] 具名函数调用率 总体 " + overall + "%（" + hit + "/" + fns + "）");
+    for (const r of rows) console.log("[覆盖率]   " + r.file.padEnd(20) + r.pct + "%");
+    if (neverCalled.length) console.log("[覆盖率]   未调用: " + neverCalled.join(", "));
+    expect(rows.length).toBeGreaterThanOrEqual(6);
+    expect(overall).toBeGreaterThanOrEqual(45);
+  });
+});
+
 /* ---------- PWA ---------- */
 test.describe("PWA", () => {
   test("manifest 与 service worker 资源可用", async ({ page }) => {

@@ -3,9 +3,11 @@
   "private": true,
   "description": "PhotoChange — 在线图片工具（纯静态站点）",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "lighthouse": "node scripts/lighthouse-run.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0"
+    "@playwright/test": "^1.49.0",
+    "lighthouse": "^13.5.0"
   }
 }

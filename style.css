@@ -86,7 +86,7 @@ html,body{overflow:hidden;height:100%}
   0%,100%{box-shadow:0 0 8px rgba(85,179,255,.8),0 0 18px rgba(85,179,255,.35)}
   50%{box-shadow:0 0 14px rgba(85,179,255,1),0 0 30px rgba(85,179,255,.6)}
 }
-.subtitle{opacity:.6;font-size:13px;line-height:1;padding-top:1px}
+.subtitle{color:var(--text-faint);font-size:13px;line-height:1;padding-top:1px}
 
 /* ---------------- 布局骨架 ---------------- */
 .app-main{

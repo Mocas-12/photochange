@@ -24,9 +24,21 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-  # 部署门禁：仅在测试通过后上线（Pages 源已切到 GitHub Actions）
+  # Lighthouse 质量门禁：性能数值指标 + 可访问性/最佳实践/SEO 分类
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lighthouse
+
+  # 部署门禁：仅在测试与 Lighthouse 均通过后上线（Pages 源已切到 GitHub Actions）
   deploy:
-    needs: smoke
+    needs: [smoke, lighthouse]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

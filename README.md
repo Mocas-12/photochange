@@ -93,11 +93,15 @@ photochange/
 ├── main.js             # Editing orchestrator: crop / resize / watermark / export flows
 ├── js/
 │   ├── exporters.js    # Pure encoders: BMP / ICO / target-size binary search / on-demand jsPDF
+│   ├── state.js        # Shared mutable editing state (common ground for main/crop/watermark)
+│   ├── crop.js         # Crop & canvas gestures: selection drag / keyboard crop / pinch zoom
+│   ├── watermark.js    # Watermark: text/image × 9-grid/tiled; one paint core for preview & export
 │   ├── session.js      # Session storage: IndexedDB read/write
 │   ├── view-tools.js   # View transforms: zoom / rotate / mirror / ruler + toolbar visibility
 │   ├── alerts.js       # Custom alert overlay: focus management + background inert
 │   └── bootstrap.js    # Visitor-counter fallback + service-worker registration
 ├── fonts/              # Self-hosted Inter variable font (latin subset)
+├── scripts/            # lighthouse-run.mjs: Lighthouse quality gate (threshold assertions)
 ├── page-switch.js      # Home ↔ workbench full-page switching
 ├── info-badge.js       # Status badge: live resolution & size estimates
 ├── pointer-fx.js       # Pointer-following effects (auto-paused on the workbench page)
@@ -128,15 +132,16 @@ python -m http.server 5173
 
 ## 🧪 Tests
 
-Smoke tests run automatically in CI on every push/PR (Playwright + GitHub Actions). To run them locally:
+Smoke tests and a Lighthouse quality gate run automatically in CI on every push/PR (both must pass before deploy). To run them locally:
 
 ```bash
 npm install
 npx playwright install chromium
-npm test
+npm test            # Playwright suite
+npm run lighthouse  # Lighthouse audit (perf numeric metrics + a11y/best-practices/SEO thresholds)
 ```
 
-29 tests cover the crop-coordinate matrix (rotation × mirror), the three resize fit-modes, watermark 9-grid positioning, keyboard cropping, export policy, target-size export, BMP/ICO encoders, render regression (deterministic pixel assertions over a fixed op sequence), first-screen size budgets, undo, ID-photo background replacement & print layout, decoration, tiled watermark, batch mode, session restore (parameters + view transforms), and the dual-screen page switch.
+34 tests cover the crop-coordinate matrix (rotation × mirror), the three resize fit-modes, watermark 9-grid positioning, keyboard cropping, export policy, target-size export, BMP/ICO encoders, render regression (deterministic pixel assertions over a fixed op sequence), first-screen size budgets, a JS function-coverage baseline, a mobile-viewport end-to-end run, undo, ID-photo background replacement & print layout, decoration, tiled watermark, batch mode, session restore (parameters + view transforms), and the dual-screen page switch.
 
 ## 💛 Support the Developer
 
