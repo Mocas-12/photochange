@@ -91,6 +91,7 @@ test.describe("启动", () => {
       metaDesc: !!document.querySelector('meta[name="description"]'),
       exposeGone: !document.querySelector('script[src*="expose"]'),
       hasImage: window.__pcHasImage === true,
+      heroArt: (getComputedStyle(document.querySelector(".hero-title")).backgroundImage || "").includes("data:image/png"),
     }));
     expect(boot.title).toBe("PhotoChange — 免费在线图片工具");
     expect(boot.encoders).toBe(true);
@@ -99,6 +100,7 @@ test.describe("启动", () => {
     expect(boot.metaDesc).toBe(true);
     expect(boot.exposeGone).toBe(true);
     expect(boot.hasImage).toBe(false);
+    expect(boot.heroArt).toBe(true);
   });
 });
 
