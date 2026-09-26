@@ -14,7 +14,7 @@
 
 **[🌐 在线体验（GitHub Pages）](https://mocas-12.github.io/photochange/)**
 
-[English](./README.md) | **简体中文**
+[English](./README.md) | **简体中文** | [日本語](./README.ja-JP.md)
 
 *打开页面 → 下滑进入工作台 → 拖入图片即可编辑导出*
 

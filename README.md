@@ -14,7 +14,7 @@
 
 **[🌐 Live Preview (GitHub Pages)](https://mocas-12.github.io/photochange/)**
 
-**English** | [简体中文](./README.zh-CN.md)
+**English** | [简体中文](./README.zh-CN.md) | [日本語](./README.ja-JP.md)
 
 *Open the page → scroll down to the workbench → drop in an image to edit and export*
 
