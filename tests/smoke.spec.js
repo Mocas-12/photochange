@@ -79,6 +79,24 @@ function classify([r, g, b]) {
   return "other";
 }
 
+/* 等会话快照真正落库（防抖 800ms + toBlob + IndexedDB 写入完成）。
+   CI 慢机上固定 sleep 偶发不够，reload 后 restoreBar 不出现 */
+async function waitSaved(page) {
+  await expect.poll(async () => page.evaluate(() => new Promise((res) => {
+    const rq = indexedDB.open("photochange", 1);
+    rq.onupgradeneeded = () => { rq.result.createObjectStore("session"); };
+    rq.onsuccess = () => {
+      const db = rq.result;
+      try {
+        const get = db.transaction("session", "readonly").objectStore("session").get("last");
+        get.onsuccess = () => res(get.result ? get.result.ts : 0);
+        get.onerror = () => res(0);
+      } catch (_) { res(0); }
+    };
+    rq.onerror = () => res(0);
+  })), { timeout: 8000 }).toBeGreaterThan(0);
+}
+
 /* ---------- 启动自检 ---------- */
 test.describe("启动", () => {
   test("页面加载，关键模块就位", async ({ page }) => {
@@ -465,8 +483,7 @@ test.describe("会话恢复", () => {
     expect(await uploadQuad(page)).toBe(true);
     const cropped = await dragCropTopRight(page);
     expect(cropped.w).toBeLessThan(200);
-    /* 等防抖落库(0.8s) + toBlob */
-    await page.waitForTimeout(1500);
+    await waitSaved(page);
     await page.reload();
     await page.waitForLoadState("domcontentloaded");
     await expect(page.locator("#restoreBar")).toBeVisible();
@@ -615,7 +632,7 @@ test.describe("会话恢复扩展", () => {
       window.rotateImage(90);
       window.toggleFlip("x");
     });
-    await page.waitForTimeout(1500); /* 防抖 0.8s + toBlob */
+    await waitSaved(page);
     await page.reload();
     await page.waitForLoadState("domcontentloaded");
     await expect(page.locator("#restoreBar")).toBeVisible();
