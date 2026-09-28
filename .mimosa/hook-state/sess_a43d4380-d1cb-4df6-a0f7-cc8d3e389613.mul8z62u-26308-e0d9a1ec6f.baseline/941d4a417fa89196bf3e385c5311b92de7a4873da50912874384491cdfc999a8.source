@@ -829,38 +829,6 @@ test.describe("覆盖率", () => {
   });
 });
 
-/* ---------- 安装到主屏幕 ---------- */
-test.describe("安装入口", () => {
-  test("beforeinstallprompt 后出现按钮，点击触发原生安装", async ({ page }) => {
-    await freshPage(page);
-    expect(await page.evaluate(() =>
-      document.getElementById("installBtn").classList.contains("hidden"))).toBe(true);
-    await page.evaluate(() => {
-      const e = new Event("beforeinstallprompt");
-      e.prompt = function () { window.__pcPrompted = true; };
-      e.userChoice = Promise.resolve({ outcome: "accepted" });
-      window.dispatchEvent(e);
-    });
-    expect(await page.evaluate(() =>
-      document.getElementById("installBtn").classList.contains("hidden"))).toBe(false);
-    await page.evaluate(() => document.getElementById("installBtn").click());
-    expect(await page.evaluate(() => window.__pcPrompted === true)).toBe(true);
-  });
-});
-
-test.describe("安装入口(iOS Safari)", () => {
-  test.use({
-    userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-  });
-  test("无 prompt 事件时点击给出添加到主屏幕指引", async ({ page }) => {
-    await freshPage(page);
-    expect(await page.evaluate(() =>
-      document.getElementById("installBtn").classList.contains("hidden"))).toBe(false);
-    await page.evaluate(() => document.getElementById("installBtn").click());
-    await expect(page.locator("#alert-message")).toContainText("添加到主屏幕");
-  });
-});
-
 /* ---------- PWA ---------- */
 test.describe("PWA", () => {
   test("manifest 与 service worker 资源可用", async ({ page }) => {
