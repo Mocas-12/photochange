@@ -50,8 +50,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # 只打包站点运行所需文件：tests/scripts/收款码等仓库资产不进公网
+      - name: Stage site assets
+        run: |
+          mkdir -p _site
+          cp -r index.html style.css main.js info-badge.js page-switch.js pointer-fx.js \
+                js fonts icons vendor logo.svg og-image.png manifest.webmanifest service-worker.js \
+                _site/
+          # 站点引用完整性自检：HTML 里的本地引用必须都存在于 _site
+          node -e '
+            const fs = require("fs");
+            const html = fs.readFileSync("_site/index.html", "utf8");
+            const refs = [...html.matchAll(/(?:src|href)="\.\/([^"?]+)/g)].map((m) => m[1]);
+            const missing = refs.filter((r) => !fs.existsSync("_site/" + r));
+            if (missing.length) { console.error("缺少站点资源: " + missing.join(", ")); process.exit(1); }
+          '
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
