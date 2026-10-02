@@ -1,7 +1,7 @@
 /* 测试专用零依赖静态服务器：no-store 缓存头，避免测试读到旧资源 */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { extname, join, normalize } from "node:path";
+import { extname, join, normalize, sep } from "node:path";
 
 const ROOT = process.cwd();
 const PORT = Number(process.env.TEST_PORT) || 8931;
@@ -20,7 +20,8 @@ createServer(async (req, res) => {
     let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
     if (p.endsWith("/")) p += "index.html";
     const file = normalize(join(ROOT, p));
-    if (!file.startsWith(ROOT)) throw new Error("forbidden");
+    /* 前缀必须带路径分隔符：裸 startsWith(ROOT) 会被同前缀兄弟目录绕过 */
+    if (file !== ROOT && !file.startsWith(ROOT + sep)) throw new Error("forbidden");
     const body = await readFile(file);
     res.writeHead(200, {
       "Content-Type": MIME[extname(file).toLowerCase()] || "application/octet-stream",
