@@ -55,7 +55,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       # 只打包站点运行所需文件：tests/scripts/收款码等仓库资产不进公网
       - name: Stage site assets
         run: |
