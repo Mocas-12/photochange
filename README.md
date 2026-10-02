@@ -99,7 +99,7 @@ photochange/
 │   ├── session.js      # Session storage: IndexedDB read/write
 │   ├── view-tools.js   # View transforms: zoom / rotate / mirror / ruler + toolbar visibility
 │   ├── alerts.js       # Custom alert overlay: focus management + background inert
-│   └── bootstrap.js    # Visitor-counter fallback + service-worker registration
+│   └── bootstrap.js    # Service-worker registration
 ├── fonts/              # Self-hosted Inter variable font (latin subset)
 ├── scripts/            # lighthouse-run.mjs: Lighthouse quality gate (threshold assertions)
 ├── page-switch.js      # Home ↔ workbench full-page switching
@@ -208,7 +208,7 @@ This project runs on a **developer-support model**, stated here explicitly:
 - 🔒 Exports are re-encoded through the canvas, so EXIF metadata (including GPS location) is stripped automatically
 - 🔑 No sign-up or login; editing snapshots and session data stay on this device only
 - 🛡️ A site-wide Content-Security-Policy constrains script origins; jsPDF / heic2any are self-hosted and loaded on demand
-- 📊 Visitor analytics record anonymous counts only, with no personally identifiable information collected
+- 🚫 Zero third-party scripts and zero analytics on the page — requests go only to this site's own domain
 
 ## 📄 License
 

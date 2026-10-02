@@ -6,7 +6,7 @@
 const { test, expect } = require("@playwright/test");
 const fs = require("node:fs");
 
-/* 屏蔽数字字体 / busuanzi 等外链，保证测试封闭、快速、可离线跑 */
+/* 屏蔽数字字体等外链，保证测试封闭、快速、可离线跑 */
 test.beforeEach(async ({ page }) => {
   await page.route(/^https?:\/\/(?!localhost)/, (route) => route.abort());
 });

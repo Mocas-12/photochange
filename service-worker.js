@@ -5,9 +5,9 @@
    预缓存清单在 install 时动态生成：解析 index.html 的本地资源
    （含 ?v= 版本号），并跟进入口 module 的静态 import——
    改版只动 index.html 一处，清单自动换新，无需手工同步。
-   跨域资源（busuanzi）不拦截；自托管字体随 index.html 入清单。
+   页面无第三方脚本；自托管字体随 index.html 入清单。
    ============================================================ */
-const CACHE = "photochange-v7";
+const CACHE = "photochange-v8";
 
 /* 与版本号无关的固定资源（懒加载库也预缓存，保证离线 PDF/HEIC 可用） */
 const STATIC = [

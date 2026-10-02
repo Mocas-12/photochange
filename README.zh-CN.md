@@ -99,7 +99,7 @@ photochange/
 │   ├── session.js      # 会话存储：IndexedDB 读写
 │   ├── view-tools.js   # 视图变换：缩放 / 旋转 / 镜像 / 标尺 + 工具条显隐
 │   ├── alerts.js       # 自定义 alert 弹层：焦点管理 + 背景 inert 圈禁
-│   └── bootstrap.js    # 访问计数兜底 + Service Worker 注册
+│   └── bootstrap.js    # Service Worker 注册
 ├── fonts/              # 自托管 Inter 可变字体（latin 子集）
 ├── scripts/            # lighthouse-run.mjs：Lighthouse 质量门禁（阈值断言）
 ├── page-switch.js      # 首页 ↔ 工作台整页切换
@@ -208,7 +208,7 @@ npm run lighthouse # Lighthouse 审计（性能数值指标 + a11y/最佳实践/
 - 🔒 导出经画布重编码，自动剥离 EXIF（含 GPS 位置）等元数据
 - 🔑 无需注册登录；编辑快照与会话数据仅保存在本设备
 - 🛡️ 全站 Content-Security-Policy 约束脚本来源；jsPDF / heic2any 自托管且按需加载
-- 📊 访客统计只记录匿名计数，不采集个人身份信息
+- 🚫 页面不加载任何第三方脚本、无任何统计埋点——请求只发往本站域名
 
 ## 📄 许可证
 

@@ -458,8 +458,6 @@ input[type=range]{flex:1;height:var(--ctl-h);accent-color:var(--accent);margin:0
 }
 .install-btn:hover{background:rgba(85,179,255,.22);border-color:rgba(147,197,253,.85);color:#fff}
 .install-btn svg{width:13px;height:13px;display:block}
-.hero-meta .busuanzi-container{display:inline-flex;align-items:center;gap:8px}
-.hero-meta #busuanzi_container_site_pv,.hero-meta #busuanzi_container_site_uv{display:inline}
 
 /* 底部下滑提示箭头：透明 + 呼吸浮动（定位在包裹层，入场与 bob 分离互不打架） */
 .scroll-hint-wrap{
