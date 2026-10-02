@@ -71,7 +71,7 @@ jobs:
             const missing = refs.filter((r) => !fs.existsSync("_site/" + r));
             if (missing.length) { console.error("缺少站点资源: " + missing.join(", ")); process.exit(1); }
           '
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - id: deployment
