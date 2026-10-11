@@ -62,12 +62,27 @@
     g.ellipse(W * 0.415, H * 0.3, W * 0.02, H * 0.06, 0.2, 0, Math.PI * 2);
     g.ellipse(W * 0.585, H * 0.3, W * 0.02, H * 0.06, -0.2, 0, Math.PI * 2);
     g.fill();
+    /* 人物接地软阴影，避免"贴纸感" */
+    g.fillStyle = 'rgba(0,0,0,.14)';
+    g.beginPath();
+    g.ellipse(W * 0.5, H * 0.985, W * 0.3, H * 0.03, 0, 0, Math.PI * 2);
+    g.fill();
+    /* 暗角：照片翻拍质感 */
+    vignette(g);
     /* 轻噪点（纯视觉纹理，非加密用途） */
     for (var i = 0; i < 900; i++) {
       g.fillStyle = 'rgba(0,0,0,' + (Math.random() * 0.025) + ')';
       g.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
     }
     return c.toDataURL('image/png');
+  }
+  /* 四周压暗的中心透亮暗角（两个场景共用） */
+  function vignette(g) {
+    var v = g.createRadialGradient(W / 2, H / 2, H * 0.38, W / 2, H / 2, H * 0.78);
+    v.addColorStop(0, 'rgba(0,0,0,0)');
+    v.addColorStop(1, 'rgba(0,0,0,.26)');
+    g.fillStyle = v;
+    g.fillRect(0, 0, W, H);
   }
   function shade(hex, amt) {
     var n = parseInt(hex.slice(1), 16);
@@ -86,6 +101,24 @@
     sky.addColorStop(0.75, '#7fb0d8'); sky.addColorStop(1, '#e8c27a');
     g.fillStyle = sky;
     g.fillRect(0, 0, W, H * 0.72);
+    /* 暮空疏星 */
+    g.fillStyle = 'rgba(255,255,255,.35)';
+    for (var s = 0; s < 26; s++) {
+      g.fillRect(Math.random() * W, Math.random() * H * 0.3, 1.3, 1.3);
+    }
+    /* 落日光柱：自天顶向水面的一束斜光 */
+    var shaft = g.createLinearGradient(W * 0.3, 0, W * 0.75, H * 0.72);
+    shaft.addColorStop(0, 'rgba(255,214,140,0)');
+    shaft.addColorStop(0.55, 'rgba(255,214,140,.07)');
+    shaft.addColorStop(1, 'rgba(255,214,140,0)');
+    g.fillStyle = shaft;
+    g.beginPath();
+    g.moveTo(W * 0.36, 0);
+    g.lineTo(W * 0.56, 0);
+    g.lineTo(W * 0.86, H * 0.72);
+    g.lineTo(W * 0.5, H * 0.72);
+    g.closePath();
+    g.fill();
     /* 落日 */
     var sun = g.createRadialGradient(W * 0.62, H * 0.56, 4, W * 0.62, H * 0.56, H * 0.16);
     sun.addColorStop(0, 'rgba(255,214,140,.95)');
@@ -143,6 +176,8 @@
       g.arc(W * p[0], H * p[1], H * 0.016, Math.PI * 1.15, Math.PI * 1.85);
       g.stroke();
     });
+    /* 暗角：照片翻拍质感 */
+    vignette(g);
     /* 轻噪点（纯视觉纹理，非加密用途） */
     for (var i = 0; i < 900; i++) {
       g.fillStyle = 'rgba(0,0,0,' + (Math.random() * 0.03) + ')';
@@ -205,7 +240,6 @@
     }
   };
   var tabs = card.querySelectorAll('.ba-tab');
-  var chipR = card.querySelector('.ba-chip-r');
   var caption = card.querySelector('.ba-caption');
   tabs.forEach(function (t) {
     t.addEventListener('click', function () {
@@ -218,25 +252,39 @@
       });
       var d = DEMOS[t.getAttribute('data-demo')];
       card.setAttribute('data-demo', t.getAttribute('data-demo'));
-      chipR.textContent = d.chipR;
-      caption.textContent = d.caption;
-      d.paint();
+      /* 淡出 → 重绘 → 淡入：切页签不再硬切 */
+      stage.classList.add('swapping');
+      setTimeout(function () {
+        chipR.textContent = d.chipR;
+        caption.textContent = d.caption;
+        d.paint();
+        stage.classList.remove('swapping');
+      }, 190);
     });
   });
 
 
   /* ---------- 分界线同步 ---------- */
   var interacted = false;
+  var chipL = card.querySelector('.ba-chip-l');
+  var chipR = card.querySelector('.ba-chip-r');
+  var stage = card.querySelector('.ba-stage');
   function apply() {
     var pos = parseFloat(range.value);
     after.style.clipPath = 'inset(0 0 0 ' + pos + '%)';
     divider.style.left = pos + '%';
+    /* 角标随分界线逼近而让位淡出：细节的"活"感 */
+    chipL.style.opacity = pos <= 16 ? String(Math.max(.2, pos / 16)) : '1';
+    chipR.style.opacity = pos >= 84 ? String(Math.max(.2, (100 - pos) / 16)) : '1';
     range.setAttribute('aria-valuetext', '分界线在 ' + Math.round(pos) + '%');
   }
   range.addEventListener('input', function () {
     interacted = true;
     apply();
   });
+  /* 拖拽中的把手反馈 */
+  range.addEventListener('pointerdown', function () { card.classList.add('ba-dragging'); });
+  window.addEventListener('pointerup', function () { card.classList.remove('ba-dragging'); });
   range.addEventListener('focus', function () { card.classList.add('ba-focus'); });
   range.addEventListener('blur', function () { card.classList.remove('ba-focus'); });
 
