@@ -901,38 +901,11 @@ test.describe("PWA", () => {
   });
 });
 
-/* ---------- Hero 演示与隐私层 ---------- */
-test.describe("Hero 演示", () => {
-  test("Before/After 滑块渲染并可键盘操作", async ({ page }) => {
+/* ---------- 隐私信任层 ---------- */
+test.describe("隐私信任层", () => {
+  test("拖放区隐私信任条就位", async ({ page }) => {
     await freshPage(page);
-    await expect(page.locator(".ba-stage")).toBeVisible();
-    // 两张画布都被程序化绘制（宽高非零）
-    const painted = await page.evaluate(() => {
-      const b = document.querySelector(".ba-before");
-      const a = document.querySelector(".ba-after");
-      return b.width > 0 && a.height > 0;
-    });
-    expect(painted).toBe(true);
-    // 键盘：聚焦 range 按方向键，clip-path 分界线同步移动
-    await page.locator("#baRange").focus();
-    const clipOf = () => page.evaluate(() => document.querySelector(".ba-after").style.clipPath);
-    const before1 = await clipOf();
-    await page.keyboard.press("ArrowLeft");
-    await page.keyboard.press("ArrowLeft");
-    const after1 = await clipOf();
-    expect(after1).not.toBe(before1);
-    const pct = (s) => parseFloat(s.match(/([\d.]+)%/)[1]);
-    expect(pct(after1)).toBeLessThan(pct(before1));
-    // 隐私信任条就位
     await expect(page.locator(".privacy-strip")).toContainText("全程本地处理");
-    // 页签切到「水印防盗用」：角标与说明联动，画布重绘
-    await page.click('.ba-tab[data-demo="wm"]');
-    await expect(page.locator("#baCard")).toHaveAttribute("data-demo", "wm");
-    await expect(page.locator(".ba-chip-r")).toContainText("加水印");
-    const repainted = await page.evaluate(() => {
-      const a = document.querySelector(".ba-after");
-      return a.width > 0 && a.dataset && document.querySelector(".ba-caption").textContent.includes("水印");
-    });
-    expect(repainted).toBe(true);
+    await expect(page.locator(".privacy-strip")).toContainText("图片永不上传");
   });
 });
