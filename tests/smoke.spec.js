@@ -898,3 +898,30 @@ test.describe("PWA", () => {
     expect(res.themeColor).toBe(true);
   });
 });
+
+/* ---------- Hero 演示与隐私层 ---------- */
+test.describe("Hero 演示", () => {
+  test("Before/After 滑块渲染并可键盘操作", async ({ page }) => {
+    await freshPage(page);
+    await expect(page.locator(".ba-stage")).toBeVisible();
+    // 两张画布都被程序化绘制（宽高非零）
+    const painted = await page.evaluate(() => {
+      const b = document.querySelector(".ba-before");
+      const a = document.querySelector(".ba-after");
+      return b.width > 0 && a.height > 0;
+    });
+    expect(painted).toBe(true);
+    // 键盘：聚焦 range 按方向键，clip-path 分界线同步移动
+    await page.locator("#baRange").focus();
+    const clipOf = () => page.evaluate(() => document.querySelector(".ba-after").style.clipPath);
+    const before1 = await clipOf();
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
+    const after1 = await clipOf();
+    expect(after1).not.toBe(before1);
+    const pct = (s) => parseFloat(s.match(/([\d.]+)%/)[1]);
+    expect(pct(after1)).toBeLessThan(pct(before1));
+    // 隐私信任条就位
+    await expect(page.locator(".privacy-strip")).toContainText("全程本地处理");
+  });
+});

@@ -17,7 +17,7 @@
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="preload" href="./fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="./logo.svg" />
-    <link rel="stylesheet" href="./style.css?v=11" />
+    <link rel="stylesheet" href="./style.css?v=12" />
   </head>
   <body>
     <canvas id="fx-canvas" aria-hidden="true"></canvas>
@@ -37,6 +37,19 @@
             安装 App
           </button>
         </div>
+        <!-- Before/After 演示：证件照换底色（js/hero-demo.js 程序化绘制，零外链） -->
+        <figure class="ba-card" id="baCard">
+          <div class="ba-stage">
+            <canvas class="ba-img ba-before" aria-hidden="true"></canvas>
+            <canvas class="ba-img ba-after" aria-hidden="true"></canvas>
+            <span class="ba-chip ba-chip-l" aria-hidden="true">原图</span>
+            <span class="ba-chip ba-chip-r" aria-hidden="true">换底色</span>
+            <div class="ba-divider" aria-hidden="true"><span class="ba-grip"></span></div>
+            <input id="baRange" class="ba-range" type="range" min="0" max="100" step="1" value="50"
+              aria-label="对比滑块：左右拖动查看证件照换底色前后效果" />
+          </div>
+          <figcaption class="ba-caption">证件照一键换底色 · 拖动分界线对比</figcaption>
+        </figure>
       </div>
       <div class="scroll-hint-wrap">
         <button class="scroll-hint" aria-label="向下滑动" data-act="goto-app">
@@ -67,6 +80,10 @@
             </div>
             <button id="chooseBtn" class="btn primary">选择图片</button>
           </div>
+        </div>
+        <div class="privacy-strip" aria-label="隐私说明">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span><b>全程本地处理</b> · 图片永不上传 · 关闭页面即清除</span>
         </div>
         <div class="display-main-container">
           <div id="image-tools" class="image-tools-fixed">
@@ -246,6 +263,7 @@
     <script type="module" src="./js/alerts.js?v=10"></script>
     <script type="module" src="./js/view-tools.js?v=10"></script>
     <script type="module" src="./js/hero-art.js?v=10"></script>
+    <script type="module" src="./js/hero-demo.js?v=10"></script>
     <script type="module" src="./js/bootstrap.js?v=11"></script>
     <script type="module" src="./js/install.js?v=10"></script>
     <script type="module" src="./main.js?v=10"></script>
