@@ -923,5 +923,14 @@ test.describe("Hero 演示", () => {
     expect(pct(after1)).toBeLessThan(pct(before1));
     // 隐私信任条就位
     await expect(page.locator(".privacy-strip")).toContainText("全程本地处理");
+    // 页签切到「水印防盗用」：角标与说明联动，画布重绘
+    await page.click('.ba-tab[data-demo="wm"]');
+    await expect(page.locator("#baCard")).toHaveAttribute("data-demo", "wm");
+    await expect(page.locator(".ba-chip-r")).toContainText("加水印");
+    const repainted = await page.evaluate(() => {
+      const a = document.querySelector(".ba-after");
+      return a.width > 0 && a.dataset && document.querySelector(".ba-caption").textContent.includes("水印");
+    });
+    expect(repainted).toBe(true);
   });
 });
