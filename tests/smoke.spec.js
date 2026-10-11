@@ -509,8 +509,10 @@ test.describe("尺寸适配", () => {
       document.getElementById("applyResize").click();
     }, mode);
     const undo = () => page.evaluate(() => document.getElementById("toolUndo").click());
+    /* 采样工作位图而非预览画布：预览按容器缩放（100×400 长图在 720p 视口会被
+       缩到 <200px 高），位图坐标直接读预览会越界读到透明像素 */
     const px = (x, y) => page.evaluate(([x, y]) => {
-      const c = document.getElementById("canvas");
+      const c = window.__pc_lastSrcCanvas;
       const d = c.getContext("2d").getImageData(x, y, 1, 1).data;
       return [d[0], d[1], d[2], d[3]];
     }, [x, y]);
