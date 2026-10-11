@@ -74,7 +74,7 @@
       g.fillStyle = 'rgba(0,0,0,' + (Math.random() * 0.025) + ')';
       g.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
     }
-    return c.toDataURL('image/png');
+    return c.toDataURL('image/jpeg', 0.85);
   }
   /* 四周压暗的中心透亮暗角（两个场景共用） */
   function vignette(g) {
@@ -205,7 +205,7 @@
       }
     }
     g.restore();
-    return c.toDataURL('image/png');
+    return c.toDataURL('image/jpeg', 0.85);
   }
 
   function paint(canvas, url) {
@@ -234,7 +234,7 @@
       caption: '斜向平铺水印 · 防盗用，透明度大小可调',
       paint: function () {
         var src = drawLandscape();
-        paint(before, src.toDataURL('image/png'));
+        paint(before, src.toDataURL('image/jpeg', 0.85));
         paint(after, stampWatermark(src));
       }
     }
