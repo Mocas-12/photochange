@@ -4,7 +4,7 @@
    双指捏合缩放。选区状态在共享 state 上；遮罩绘制由主编排的
    drawScaled 在每次重绘末尾调用 drawSelection 完成。
    ============================================================ */
-import { state } from "./state.js?v=10";
+import { state } from "./state.js?v=a2a0241d";
 
 export function normRect(s) {
   return {

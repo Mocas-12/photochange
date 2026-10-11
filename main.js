@@ -7,12 +7,12 @@
    水印 js/watermark.js，共享可变状态 js/state.js。
    本文件持有绘制枢纽 drawScaled 与各工具的 UI 编排。
    ============================================================ */
-import { bmpBlob, icoBlob, blobUnderKB, flattenForExport, loadJsPdf } from "./js/exporters.js?v=10";
-import { sessionPut, sessionGet, sessionClear } from "./js/session.js?v=10";
-import { showTools } from "./js/view-tools.js?v=10";
-import { state, MAX_SIDE, HISTORY_MAX, HISTORY_BYTES_MAX } from "./js/state.js?v=10";
-import { paintWatermark, wmActive, initWatermark } from "./js/watermark.js?v=10";
-import { drawSelection, initCrop } from "./js/crop.js?v=10";
+import { bmpBlob, icoBlob, blobUnderKB, flattenForExport, loadJsPdf } from "./js/exporters.js?v=73637cf2";
+import { sessionPut, sessionGet, sessionClear } from "./js/session.js?v=0523aecf";
+import { showTools } from "./js/view-tools.js?v=1f0caf24";
+import { state, MAX_SIDE, HISTORY_MAX, HISTORY_BYTES_MAX } from "./js/state.js?v=a2a0241d";
+import { paintWatermark, wmActive, initWatermark } from "./js/watermark.js?v=e9740de3";
+import { drawSelection, initCrop } from "./js/crop.js?v=de69bab3";
 
 (function () {
   "use strict";

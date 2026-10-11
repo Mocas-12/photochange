@@ -4,7 +4,7 @@
    被预览与导出共用，字号按画布短边比例计算保证两端观感一致。
    参数元素本模块自持；wmImage 存共享 state（导出管线要读）。
    ============================================================ */
-import { state } from "./state.js?v=10";
+import { state } from "./state.js?v=a2a0241d";
 
 var wmEnable = document.getElementById("wmEnable");
 var wmText = document.getElementById("wmText");

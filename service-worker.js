@@ -7,7 +7,7 @@
    改版只动 index.html 一处，清单自动换新，无需手工同步。
    页面无第三方脚本；自托管字体随 index.html 入清单。
    ============================================================ */
-const CACHE = "photochange-v8";
+const CACHE = "photochange-16fbdb67";
 
 /* 与版本号无关的固定资源（懒加载库也预缓存，保证离线 PDF/HEIC 可用） */
 const STATIC = [
@@ -26,7 +26,7 @@ const FALLBACK = ["./", "./index.html"].concat(STATIC);
 async function buildShell() {
   try {
     const html = await (await fetch("./index.html", { cache: "reload" })).text();
-    const rel = [...html.matchAll(/(?:src|href)="\.\/([^"?]+(?:\?v=\d+)?)"/g)].map(m => "./" + m[1]);
+    const rel = [...html.matchAll(/(?:src|href)="\.\/([^"?]+(?:\?v=[0-9a-f]+)?)"/g)].map(m => "./" + m[1]);
     const shell = new Set(["./", "./index.html"].concat(rel).concat(STATIC));
     /* 入口 module 的静态 import（exporters/session 等不在 index.html 里），跟进一层 */
     const entry = rel.find(u => /main\.js/.test(u));

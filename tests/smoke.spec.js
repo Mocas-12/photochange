@@ -715,8 +715,8 @@ test.describe("资源预算", () => {
     expect(html).not.toContain("vendor/jspdf");
     expect(html).not.toContain("vendor/heic2any");
     const local = (re) => [...html.matchAll(re)].map((m) => m[1]);
-    const scripts = local(/src="\.\/([^"?]+)(?:\?v=\d+)?"/g).filter((f) => f.endsWith(".js"));
-    const styles = local(/href="\.\/([^"?]+)(?:\?v=\d+)?"/g).filter((f) => f.endsWith(".css"));
+    const scripts = local(/src="\.\/([^"?]+)(?:\?v=[0-9a-f]+)?"/g).filter((f) => f.endsWith(".js"));
+    const styles = local(/href="\.\/([^"?]+)(?:\?v=[0-9a-f]+)?"/g).filter((f) => f.endsWith(".css"));
     const size = (f) => fs.statSync(path.join(root, f)).size;
     expect(scripts.length).toBeGreaterThan(3);
     let total = 0;

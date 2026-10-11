@@ -56,6 +56,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # 资产指纹化：?v= 改写为内容哈希（手写递增的坑：新增引用漏版本号会被 SW 缓存优先永久供应旧文件）
+      - name: Rewrite asset versions from content hash
+        run: node scripts/version.mjs
       # 只打包站点运行所需文件：tests/scripts/收款码等仓库资产不进公网
       - name: Stage site assets
         run: |
