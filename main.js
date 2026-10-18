@@ -32,7 +32,7 @@ import { drawSelection, initCrop } from "./js/crop.js?v=de69bab3";
   var batchPanel = $("batchPanel"), batchList = $("batchList"), batchCount = $("batchCount");
   var batchResize = $("batchResize"), batchClear = $("batchClear");
   var restoreBar = $("restoreBar"), restoreYes = $("restoreYes"), restoreNo = $("restoreNo");
-  var wmType = $("wmType"), wmMode = $("wmMode"), wmImgInput = $("wmImgInput"), wmImgBtn = $("wmImgBtn"), wmScale = $("wmScale");
+  var wmType = $("wmType"), wmMode = $("wmMode"), wmScale = $("wmScale");
   var adjBrightness = $("adjBrightness"), adjContrast = $("adjContrast"), adjSaturate = $("adjSaturate"), adjReset = $("adjReset");
   var stripAspect = $("stripAspect"), cropApply = $("cropApply");
   var widthInput = $("widthInput"), heightInput = $("heightInput");
@@ -110,6 +110,9 @@ import { drawSelection, initCrop } from "./js/crop.js?v=de69bab3";
   /* ---------- 加载图片 ---------- */
   function loadImage(file) {
     if (!file) return;
+    state.batchFiles = [];
+    batchPanel.classList.add("hidden");
+    batchList.innerHTML = "";
     if (isHeic(file)) {
       loadHeicLib()
         .then(function () { return window.heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 }); })
@@ -134,19 +137,18 @@ import { drawSelection, initCrop } from "./js/crop.js?v=de69bab3";
       "https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"];
     return new Promise(function (resolve, reject) {
       var attempt = 0;
-      var s = document.createElement("script");
-      s.onload = function () { resolve(); };
-      s.onerror = function () {
-        attempt += 1;
-        if (attempt < sources.length) {
-          s.src = sources[attempt];
-          document.head.appendChild(s);
-        } else {
-          reject(new Error("HEIC 解码库加载失败，请检查网络后重试"));
-        }
-      };
-      s.src = sources[0];
-      document.head.appendChild(s);
+      function tryNext() {
+        var s = document.createElement("script");
+        s.onload = function () { resolve(); };
+        s.onerror = function () {
+          attempt += 1;
+          if (attempt < sources.length) tryNext();
+          else reject(new Error("HEIC 解码库加载失败，请检查网络后重试"));
+        };
+        s.src = sources[attempt];
+        document.head.appendChild(s);
+      }
+      tryNext();
     });
   }
   function decodeFile(file, nameOverride) {
