@@ -7,7 +7,7 @@
     "lighthouse": "node scripts/lighthouse-run.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.64.1",
     "lighthouse": "^13.5.0"
   }
 }
